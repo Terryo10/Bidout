@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../constants/app_colors.dart';
-import '../../models/projects/project_model.dart';
 import '../../models/services/service_model.dart' as service;
 import '../../repositories/projects_repo/projects_repository.dart';
 import '../../routes/app_router.dart';

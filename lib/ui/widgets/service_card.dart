@@ -78,20 +78,20 @@ class ServiceCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (serviceModel.description != null) ...[
-                      const SizedBox(height: 4),
-                      Expanded(
-                        child: Text(
-                          serviceModel.description!,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                    ...[
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Text(
+                        serviceModel.description,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
+                    ),
+                  ],
                   ],
                 ),
               ),
