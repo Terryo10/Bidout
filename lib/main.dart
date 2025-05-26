@@ -1,7 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'routes/app_router.dart';
+import 'repositories/app_repositories.dart';
+import 'bloc/app_blocs.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final appRouter = AppRouter();
+  const FlutterSecureStorage storage = FlutterSecureStorage();
+
+  // Configure app
+  var appConfig = AppRepositories(
+    storage: storage,
+    appBlocs: AppBlocs(
+      storage: storage,
+      app: MaterialApp.router(
+        routerConfig: appRouter.config(),
+        title: 'BidOut',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+      ),
+    ),
+  );
+
+  runApp(appConfig);
 }
 
 class MyApp extends StatelessWidget {
