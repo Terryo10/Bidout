@@ -7,7 +7,9 @@ import 'package:mime/mime.dart';
 
 import '../../constants/app_urls.dart';
 import '../../models/auth/api_error_model.dart';
+import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart';
+import '../../models/projects/projects_response_model.dart';
 import '../../models/projects/project_request_model.dart' as request;
 import '../../models/services/service_model.dart' as service;
 
@@ -37,18 +39,47 @@ class ProjectProvider {
     };
   }
 
-  Future<List<ProjectModel>> getProjects() async {
+  Future<PaginationModel<ProjectModel>> getProjects({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+    String? status,
+    String? sortBy,
+    String? sortOrder,
+  }) async {
     try {
       final headers = await _getAuthHeaders();
-      final response = await http.get(
-        Uri.parse(AppUrls.projects),
-        headers: headers,
-      );
+      
+      // Build query parameters
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'per_page': perPage.toString(),
+      };
+      
+      if (search != null && search.isNotEmpty) {
+        queryParams['search'] = search;
+      }
+      
+      if (status != null && status.isNotEmpty && status != 'All') {
+        queryParams['status'] = status;
+      }
+      
+      if (sortBy != null && sortBy.isNotEmpty) {
+        queryParams['sort_by'] = sortBy;
+      }
+      
+      if (sortOrder != null && sortOrder.isNotEmpty) {
+        queryParams['sort_order'] = sortOrder;
+      }
+
+      final uri = Uri.parse(AppUrls.projects).replace(queryParameters: queryParams);
+      
+      final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> projectsJson = data['data'] ?? data;
-        return projectsJson.map((json) => ProjectModel.fromJson(json)).toList();
+        final projectsResponse = ProjectsResponseModel.fromJson(data);
+        return projectsResponse.projects;
       } else {
         final error = jsonDecode(response.body);
         throw ApiErrorModel.fromJson(error);
@@ -56,6 +87,29 @@ class ProjectProvider {
     } catch (e) {
       if (e is ApiErrorModel) rethrow;
       throw ApiErrorModel(message: 'Failed to load projects.');
+    }
+  }
+
+  Future<ProjectModel?> getProject(int projectId) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.get(
+        Uri.parse('${AppUrls.projects}/$projectId'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return ProjectModel.fromJson(data['project'] ?? data);
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        final error = jsonDecode(response.body);
+        throw ApiErrorModel.fromJson(error);
+      }
+    } catch (e) {
+      if (e is ApiErrorModel) rethrow;
+      throw ApiErrorModel(message: 'Failed to load project.');
     }
   }
 
@@ -239,7 +293,6 @@ class ProjectProvider {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> servicesJson = data['services'] ?? [];
-        print(servicesJson);
         return servicesJson
             .map((json) => service.ServiceModel.fromJson(json))
             .toList();
@@ -248,7 +301,6 @@ class ProjectProvider {
         throw ApiErrorModel.fromJson(error);
       }
     } catch (e) {
-      print(e.toString());
       if (e is ApiErrorModel) rethrow;
       throw ApiErrorModel(message: 'Failed to load services.');
     }

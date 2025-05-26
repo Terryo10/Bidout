@@ -8,6 +8,8 @@ import '../ui/dashboards/client_dashboard.dart';
 import '../ui/dashboards/contractor_dashboard_page.dart';
 import '../ui/landing/landing_page.dart';
 import '../ui/projects/create_project_page.dart';
+import '../ui/projects/project_listing_page.dart';
+import '../ui/projects/project_view_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -35,9 +37,11 @@ class AppRouter extends _$AppRouter {
           page: ForgotPasswordRoute.page,
           path: '/forgot-password',
         ),
+
+        // Dashboard routes
         AutoRoute(
           page: EnhancedClientDashboardRoute.page,
-          path: '/enhanced-client-dashboard',
+          path: '/client-dashboard',
         ),
         AutoRoute(
           page: ContractorDashboardRoute.page,
@@ -48,6 +52,14 @@ class AppRouter extends _$AppRouter {
         AutoRoute(
           page: CreateProjectRoute.page,
           path: '/create-project',
+        ),
+        AutoRoute(
+          page: ProjectListingRoute.page,
+          path: '/projects',
+        ),
+        AutoRoute(
+          page: ProjectViewRoute.page,
+          path: '/projects/:projectId',
         ),
       ];
 }

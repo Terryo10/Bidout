@@ -56,6 +56,22 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const LoginPage(),
       );
     },
+    ProjectListingRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ProjectListingPage(),
+      );
+    },
+    ProjectViewRoute.name: (routeData) {
+      final args = routeData.argsAs<ProjectViewRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: ProjectViewPage(
+          key: args.key,
+          projectId: args.projectId,
+        ),
+      );
+    },
     RegisterRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -171,6 +187,58 @@ class LoginRoute extends PageRouteInfo<void> {
   static const String name = 'LoginRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ProjectListingPage]
+class ProjectListingRoute extends PageRouteInfo<void> {
+  const ProjectListingRoute({List<PageRouteInfo>? children})
+      : super(
+          ProjectListingRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ProjectListingRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ProjectViewPage]
+class ProjectViewRoute extends PageRouteInfo<ProjectViewRouteArgs> {
+  ProjectViewRoute({
+    Key? key,
+    required int projectId,
+    List<PageRouteInfo>? children,
+  }) : super(
+          ProjectViewRoute.name,
+          args: ProjectViewRouteArgs(
+            key: key,
+            projectId: projectId,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'ProjectViewRoute';
+
+  static const PageInfo<ProjectViewRouteArgs> page =
+      PageInfo<ProjectViewRouteArgs>(name);
+}
+
+class ProjectViewRouteArgs {
+  const ProjectViewRouteArgs({
+    this.key,
+    required this.projectId,
+  });
+
+  final Key? key;
+
+  final int projectId;
+
+  @override
+  String toString() {
+    return 'ProjectViewRouteArgs{key: $key, projectId: $projectId}';
+  }
 }
 
 /// generated route for

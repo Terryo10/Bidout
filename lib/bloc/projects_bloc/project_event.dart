@@ -1,6 +1,5 @@
 part of 'project_bloc.dart';
 
-
 sealed class ProjectEvent extends Equatable {
   const ProjectEvent();
 
@@ -8,7 +7,90 @@ sealed class ProjectEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class ProjectLoadRequested extends ProjectEvent {}
+class ProjectLoadRequested extends ProjectEvent {
+  final int page;
+  final int perPage;
+  final String? search;
+  final String? status;
+  final String? sortBy;
+  final String? sortOrder;
+
+  const ProjectLoadRequested({
+    this.page = 1,
+    this.perPage = 10,
+    this.search,
+    this.status,
+    this.sortBy,
+    this.sortOrder,
+  });
+
+  @override
+  List<Object?> get props => [page, perPage, search, status, sortBy, sortOrder];
+}
+
+class ProjectLoadMoreRequested extends ProjectEvent {
+  final int perPage;
+  final String? search;
+  final String? status;
+  final String? sortBy;
+  final String? sortOrder;
+
+  const ProjectLoadMoreRequested({
+    this.perPage = 10,
+    this.search,
+    this.status,
+    this.sortBy,
+    this.sortOrder,
+  });
+
+  @override
+  List<Object?> get props => [perPage, search, status, sortBy, sortOrder];
+}
+
+class ProjectRefreshRequested extends ProjectEvent {
+  final int perPage;
+  final String? search;
+  final String? status;
+  final String? sortBy;
+  final String? sortOrder;
+
+  const ProjectRefreshRequested({
+    this.perPage = 10,
+    this.search,
+    this.status,
+    this.sortBy,
+    this.sortOrder,
+  });
+
+  @override
+  List<Object?> get props => [perPage, search, status, sortBy, sortOrder];
+}
+
+class ProjectSearchRequested extends ProjectEvent {
+  final String query;
+  final String? status;
+  final String? sortBy;
+  final String? sortOrder;
+
+  const ProjectSearchRequested({
+    required this.query,
+    this.status,
+    this.sortBy,
+    this.sortOrder,
+  });
+
+  @override
+  List<Object?> get props => [query, status, sortBy, sortOrder];
+}
+
+class ProjectSingleLoadRequested extends ProjectEvent {
+  final int projectId;
+
+  const ProjectSingleLoadRequested({required this.projectId});
+
+  @override
+  List<Object> get props => [projectId];
+}
 
 class ProjectCreateRequested extends ProjectEvent {
   final String title;

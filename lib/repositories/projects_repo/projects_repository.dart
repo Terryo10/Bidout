@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart';
 import '../../models/projects/project_request_model.dart' as request;
 import '../../models/services/service_model.dart' as service;
@@ -14,8 +15,26 @@ class ProjectRepository {
     required this.projectProvider,
   });
 
-  Future<List<ProjectModel>> getProjects() async {
-    return await projectProvider.getProjects();
+  Future<PaginationModel<ProjectModel>> getProjects({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+    String? status,
+    String? sortBy,
+    String? sortOrder,
+  }) async {
+    return await projectProvider.getProjects(
+      page: page,
+      perPage: perPage,
+      search: search,
+      status: status,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+    );
+  }
+
+  Future<ProjectModel?> getProject(int projectId) async {
+    return await projectProvider.getProject(projectId);
   }
 
   Future<ProjectModel> createProject(

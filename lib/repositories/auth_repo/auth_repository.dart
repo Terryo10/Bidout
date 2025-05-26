@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../models/auth/auth_response_model.dart';
 import '../../models/auth/register_request_model.dart';
@@ -15,6 +16,7 @@ class AuthRepository {
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';
   static const String isLoggedInKey = 'is_logged_in';
+  static const String tokenExpiryKey = 'token_expiry';
 
   Future<UserModel> register(RegisterRequestModel request) async {
     final response = await authProvider.register(request);
@@ -47,23 +49,51 @@ class AuthRepository {
   }
 
   Future<void> logout() async {
-    await authProvider.logout();
-    await _clearAuthData();
+    try {
+      await authProvider.logout();
+    } catch (e) {
+      // Continue with local logout even if server logout fails
+    } finally {
+      await _clearAuthData();
+    }
   }
 
   Future<UserModel?> getCurrentUser() async {
     try {
       // First try to get from storage
       final userJson = await storage.read(key: userKey);
-      if (userJson != null) {
-        return UserModel.fromJson(
-          Map<String, dynamic>.from(
-              // You'll need to decode this properly based on how it's stored
-              {}),
-        );
+      if (userJson != null && userJson.isNotEmpty) {
+        try {
+          final userData = json.decode(userJson);
+          final user = UserModel.fromJson(userData);
+          
+          // Check if we should refresh user data (optional: refresh every 24 hours)
+          final lastRefresh = await storage.read(key: 'last_user_refresh');
+          final now = DateTime.now().millisecondsSinceEpoch;
+          
+          if (lastRefresh == null || 
+              (now - int.parse(lastRefresh)) > (24 * 60 * 60 * 1000)) {
+            // Try to refresh user data, but don't fail if it doesn't work
+            try {
+              await refreshUser();
+              final refreshedUserJson = await storage.read(key: userKey);
+              if (refreshedUserJson != null) {
+                final refreshedUserData = json.decode(refreshedUserJson);
+                return UserModel.fromJson(refreshedUserData);
+              }
+            } catch (e) {
+              // If refresh fails, return cached user
+            }
+          }
+          
+          return user;
+        } catch (e) {
+          // If parsing fails, clear corrupted data and fetch fresh
+          await _clearUserData();
+        }
       }
 
-      // If not in storage, fetch from API
+      // If not in storage or corrupted, fetch from API
       final user = await authProvider.getCurrentUser();
       await _saveUserData(user);
       return user;
@@ -73,9 +103,36 @@ class AuthRepository {
   }
 
   Future<bool> isLoggedIn() async {
-    final token = await storage.read(key: tokenKey);
-    final isLoggedIn = await storage.read(key: isLoggedInKey);
-    return token != null && isLoggedIn == 'true';
+    try {
+      final token = await storage.read(key: tokenKey);
+      final isLoggedIn = await storage.read(key: isLoggedInKey);
+      
+      if (token == null || isLoggedIn != 'true') {
+        return false;
+      }
+
+      // Check token expiry if we have it stored
+      final expiryString = await storage.read(key: tokenExpiryKey);
+      if (expiryString != null) {
+        final expiry = DateTime.fromMillisecondsSinceEpoch(int.parse(expiryString));
+        if (DateTime.now().isAfter(expiry)) {
+          await _clearAuthData();
+          return false;
+        }
+      }
+
+      // Verify token is still valid by trying to get current user
+      try {
+        final user = await getCurrentUser();
+        return user != null;
+      } catch (e) {
+        // If token is invalid, clear auth data
+        await _clearAuthData();
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<String?> getAuthToken() async {
@@ -85,17 +142,35 @@ class AuthRepository {
   Future<void> _saveAuthData(AuthResponseModel response) async {
     await storage.write(key: tokenKey, value: response.token);
     await storage.write(key: isLoggedInKey, value: 'true');
+    
+    // Set token expiry (assume 24 hours if not provided)
+    final expiry = DateTime.now().add(const Duration(hours: 24));
+    await storage.write(key: tokenExpiryKey, value: expiry.millisecondsSinceEpoch.toString());
+    
     await _saveUserData(response.user);
   }
 
   Future<void> _saveUserData(UserModel user) async {
-    await storage.write(key: userKey, value: user.toJson().toString());
+    try {
+      final userJson = json.encode(user.toJson());
+      await storage.write(key: userKey, value: userJson);
+      await storage.write(key: 'last_user_refresh', value: DateTime.now().millisecondsSinceEpoch.toString());
+    } catch (e) {
+      // Handle encoding errors gracefully
+    }
+  }
+
+  Future<void> _clearUserData() async {
+    await storage.delete(key: userKey);
+    await storage.delete(key: 'last_user_refresh');
   }
 
   Future<void> _clearAuthData() async {
     await storage.delete(key: tokenKey);
     await storage.delete(key: userKey);
     await storage.delete(key: isLoggedInKey);
+    await storage.delete(key: tokenExpiryKey);
+    await storage.delete(key: 'last_user_refresh');
   }
 
   Future<void> refreshUser() async {
@@ -103,7 +178,19 @@ class AuthRepository {
       final user = await authProvider.getCurrentUser();
       await _saveUserData(user);
     } catch (e) {
-      // Handle error if needed
+      // Handle error if needed, but don't throw
     }
+  }
+
+  // Method to check if token needs refresh (optional enhancement)
+  Future<bool> shouldRefreshToken() async {
+    final expiryString = await storage.read(key: tokenExpiryKey);
+    if (expiryString == null) return false;
+    
+    final expiry = DateTime.fromMillisecondsSinceEpoch(int.parse(expiryString));
+    final now = DateTime.now();
+    
+    // Refresh if token expires in less than 1 hour
+    return expiry.difference(now).inHours < 1;
   }
 }

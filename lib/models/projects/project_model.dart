@@ -48,6 +48,23 @@ class ProjectModel {
     this.images = const [],
   });
 
+  bool isInBidPhase() {
+    return status.toLowerCase() == 'open' ||
+        status.toLowerCase() == 'request_for_bids_received';
+  }
+
+  bool isInProgress() {
+    return status.toLowerCase() == 'in_progress';
+  }
+
+  bool isCompleted() {
+    return status.toLowerCase() == 'completed';
+  }
+
+  bool isScheduled() {
+    return status.toLowerCase() == 'scheduled';
+  }
+
   factory ProjectModel.fromJson(Map<String, dynamic> json) {
     return ProjectModel(
       id: json['id'],
@@ -61,8 +78,11 @@ class ProjectModel {
       state: json['state'],
       budget: double.parse(json['budget'].toString()),
       frequency: json['frequency'] ?? 'One-time',
-      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
+      startDate: json['start_date'] != null
+          ? DateTime.parse(json['start_date'])
+          : null,
+      endDate:
+          json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
       keyFactor: json['key_factor'] ?? 'quality',
       status: json['status'] ?? 'request_for_bids_received',
       additionalRequirements: json['additionalRequirements'],
@@ -70,9 +90,13 @@ class ProjectModel {
       contractorId: json['contractor_id'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
-      service: json['service'] != null ? ServiceModel.fromJson(json['service']) : null,
+      service: json['service'] != null
+          ? ServiceModel.fromJson(json['service'])
+          : null,
       images: json['images'] != null
-          ? (json['images'] as List).map((i) => ProjectImageModel.fromJson(i)).toList()
+          ? (json['images'] as List)
+              .map((i) => ProjectImageModel.fromJson(i))
+              .toList()
           : [],
     );
   }

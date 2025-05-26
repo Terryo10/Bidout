@@ -21,6 +21,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
     on<AuthUserRefreshRequested>(_onAuthUserRefreshRequested);
+    on<AuthTokenRefreshRequested>(_onAuthTokenRefreshRequested);
+    
+    // Auto-check authentication on app start
+    add(AuthCheckRequested());
   }
 
   Future<void> _onAuthCheckRequested(
@@ -34,7 +38,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (isLoggedIn) {
         final user = await authRepository.getCurrentUser();
         if (user != null) {
-          emit(AuthAuthenticated(user: user));
+          // Check if token needs refresh
+          final shouldRefresh = await authRepository.shouldRefreshToken();
+          if (shouldRefresh) {
+            try {
+              await authRepository.refreshUser();
+              final refreshedUser = await authRepository.getCurrentUser();
+              if (refreshedUser != null) {
+                emit(AuthAuthenticated(user: refreshedUser));
+              } else {
+                emit(AuthUnauthenticated());
+              }
+            } catch (e) {
+              // If refresh fails, use existing user data
+              emit(AuthAuthenticated(user: user));
+            }
+          } else {
+            emit(AuthAuthenticated(user: user));
+          }
         } else {
           emit(AuthUnauthenticated());
         }
@@ -42,6 +63,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthUnauthenticated());
       }
     } catch (e) {
+      // If any error occurs during auth check, consider user unauthenticated
       emit(AuthUnauthenticated());
     }
   }
@@ -170,5 +192,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Keep current state if refresh fails
       }
     }
+  }
+
+  Future<void> _onAuthTokenRefreshRequested(
+    AuthTokenRefreshRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      final shouldRefresh = await authRepository.shouldRefreshToken();
+      if (shouldRefresh) {
+        await authRepository.refreshUser();
+        final user = await authRepository.getCurrentUser();
+        if (user != null && state is AuthAuthenticated) {
+          emit(AuthAuthenticated(user: user));
+        }
+      }
+    } catch (e) {
+      // If token refresh fails, logout user
+      await authRepository.logout();
+      emit(AuthUnauthenticated());
+    }
+  }
+
+  // Helper method to check if user is authenticated
+  bool get isAuthenticated => state is AuthAuthenticated;
+
+  // Helper method to get current user
+  UserModel? get currentUser {
+    if (state is AuthAuthenticated) {
+      return (state as AuthAuthenticated).user;
+    }
+    return null;
   }
 }

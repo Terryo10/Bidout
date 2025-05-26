@@ -1,9 +1,9 @@
-// lib/ui/dashboards/enhanced_client_dashboard.dart
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
+import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/services/service_model.dart' as service;
 import '../../repositories/projects_repo/projects_repository.dart';
@@ -30,6 +30,7 @@ class _EnhancedClientDashboardPageState
   void initState() {
     super.initState();
     _loadServices();
+    _loadProjects();
   }
 
   Future<void> _loadServices() async {
@@ -45,6 +46,10 @@ class _EnhancedClientDashboardPageState
         _isLoadingServices = false;
       });
     }
+  }
+
+  void _loadProjects() {
+    context.read<ProjectBloc>().add(const ProjectLoadRequested(perPage: 3));
   }
 
   @override
@@ -105,6 +110,10 @@ class _EnhancedClientDashboardPageState
                 user: state.user,
                 services: _services,
                 isLoadingServices: _isLoadingServices,
+                onRefresh: () {
+                  _loadServices();
+                  _loadProjects();
+                },
               );
             }
             return const Center(child: CircularProgressIndicator());
@@ -119,18 +128,20 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
   final dynamic user;
   final List<service.ServiceModel> services;
   final bool isLoadingServices;
+  final VoidCallback onRefresh;
 
   const _EnhancedClientDashboardContent({
     required this.user,
     required this.services,
     required this.isLoadingServices,
+    required this.onRefresh,
   });
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        // TODO: Implement refresh functionality
+        onRefresh();
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -200,7 +211,7 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navigate to all services
+                    context.router.push(CreateProjectRoute());
                   },
                   child: const Text('View All'),
                 ),
@@ -248,7 +259,6 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
                       child: ServiceCard(
                         serviceModel: service,
                         onTap: () {
-                          // Navigate to create project with this service pre-selected
                           context.router.push(CreateProjectRoute(
                               preSelectedServiceId: service.id));
                         },
@@ -291,7 +301,7 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
                   subtitle: 'View all projects',
                   color: AppColors.secondary,
                   onTap: () {
-                    // TODO: Navigate to projects
+                    context.router.push(const ProjectListingRoute());
                   },
                 ),
                 ActionCard(
@@ -330,7 +340,7 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navigate to all projects
+                    context.router.push(const ProjectListingRoute());
                   },
                   child: const Text('View All'),
                 ),
@@ -338,9 +348,26 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Recent Projects List
-            // TODO: Replace with actual projects data
-            _buildRecentProjectsSection(),
+            // Recent Projects List - Using BlocBuilder for paginated data
+            BlocBuilder<ProjectBloc, ProjectState>(
+              builder: (context, state) {
+                if (state is ProjectLoading) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (state is ProjectLoaded) {
+                  final recentProjects = state.projects.data.take(3).toList();
+                  return _buildRecentProjectsSection(context, recentProjects, state.projects);
+                }
+
+                return _buildRecentProjectsSection(context, [], null);
+              },
+            ),
 
             const SizedBox(height: 24),
 
@@ -354,48 +381,13 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    'Active Projects',
-                    '3',
-                    Icons.work_outline,
-                    AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    'Total Bids',
-                    '24',
-                    Icons.assignment_turned_in,
-                    AppColors.warning,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    'Completed',
-                    '8',
-                    Icons.check_circle_outline,
-                    AppColors.success,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    'Total Spent',
-                    '\$12,450',
-                    Icons.monetization_on,
-                    AppColors.info,
-                  ),
-                ),
-              ],
+            BlocBuilder<ProjectBloc, ProjectState>(
+              builder: (context, state) {
+                if (state is ProjectLoaded) {
+                  return _buildStatisticsSection(state.projects.data, state.projects);
+                }
+                return _buildStatisticsSection([], null);
+              },
             ),
             const SizedBox(height: 40),
           ],
@@ -404,36 +396,8 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentProjectsSection() {
-    // Mock data - replace with actual projects
-    final recentProjects = [
-      {
-        'title': 'Kitchen Renovation',
-        'service': 'Home Improvement',
-        'budget': 15000,
-        'status': 'In Progress',
-        'bidsCount': 5,
-        'image': null,
-      },
-      {
-        'title': 'Logo Design',
-        'service': 'Graphic Design',
-        'budget': 500,
-        'status': 'Open for Bids',
-        'bidsCount': 12,
-        'image': null,
-      },
-      {
-        'title': 'Website Development',
-        'service': 'Web Development',
-        'budget': 3000,
-        'status': 'Completed',
-        'bidsCount': 8,
-        'image': null,
-      },
-    ];
-
-    if (recentProjects.isEmpty) {
+  Widget _buildRecentProjectsSection(BuildContext context, List projects, dynamic paginationData) {
+    if (projects.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -469,7 +433,7 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                // context.router.push(const CreateProjectRoute());
+                context.router.push(CreateProjectRoute());
               },
               icon: const Icon(Icons.add),
               label: const Text('Create Project'),
@@ -484,22 +448,81 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
     }
 
     return Column(
-      children: recentProjects.map((project) {
+      children: projects.map((project) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: ProjectPreviewCard(
-            title: project['title'] as String,
-            service: project['service'] as String,
-            budget: project['budget'] as int,
-            status: project['status'] as String,
-            bidsCount: project['bidsCount'] as int,
-            imageUrl: project['image'] as String?,
+            title: project.title,
+            service: project.service?.name ?? 'Unknown Service',
+            budget: project.budget.toInt(),
+            status: _getDisplayStatus(project.status),
+            bidsCount: project.bids?.length ?? 0,
+            imageUrl: project.images.isNotEmpty ? 
+                'http://127.0.0.1:8000/storage/${project.images.first.path}' : null,
             onTap: () {
-              // TODO: Navigate to project details
+              context.router.push(ProjectViewRoute(projectId: project.id));
             },
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildStatisticsSection(List projects, dynamic paginationData) {
+    final activeProjects = projects.where((p) => 
+        p.status == 'project_in_progress' || 
+        p.status == 'project_being_scheduled').length;
+    final completedProjects = projects.where((p) => 
+        p.status == 'project_completed').length;
+    final totalBudget = projects.fold<double>(0, (sum, p) => sum + p.budget);
+    final totalProjects = paginationData?.total ?? projects.length;
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Active Projects',
+                activeProjects.toString(),
+                Icons.work_outline,
+                AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildStatCard(
+                'Total Projects',
+                totalProjects.toString(),
+                Icons.assignment_turned_in,
+                AppColors.warning,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Completed',
+                completedProjects.toString(),
+                Icons.check_circle_outline,
+                AppColors.success,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildStatCard(
+                'Total Budget',
+                '\$${totalBudget.toStringAsFixed(0)}',
+                Icons.monetization_on,
+                AppColors.info,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -558,5 +581,24 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getDisplayStatus(String status) {
+    switch (status) {
+      case 'request_for_bids_received':
+        return 'Open for Bids';
+      case 'sourcing_of_vendors':
+        return 'Sourcing Vendors';
+      case 'bids_ready_for_approval':
+        return 'Reviewing Bids';
+      case 'project_being_scheduled':
+        return 'Scheduling';
+      case 'project_in_progress':
+        return 'In Progress';
+      case 'project_completed':
+        return 'Completed';
+      default:
+        return status;
+    }
   }
 }

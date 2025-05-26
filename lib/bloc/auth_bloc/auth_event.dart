@@ -79,3 +79,16 @@ class AuthResetPasswordRequested extends AuthEvent {
 }
 
 class AuthUserRefreshRequested extends AuthEvent {}
+
+class AuthTokenRefreshRequested extends AuthEvent {}
+
+class AuthSessionExpired extends AuthEvent {}
+
+class AuthNetworkError extends AuthEvent {
+  final String message;
+
+  const AuthNetworkError({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
