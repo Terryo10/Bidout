@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthAuthenticated) {
             // Navigate based on user type
             if (state.user.isClient) {
-              context.router.replace(const ClientDashboardRoute());
+              context.router.replace(const EnhancedClientDashboardRoute());
             } else if (state.user.isContractor) {
               context.router.replace(const ContractorDashboardRoute());
             }

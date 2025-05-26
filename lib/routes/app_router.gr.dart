@@ -15,16 +15,27 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
-    ClientDashboardRoute.name: (routeData) {
-      return AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const ClientDashboardPage(),
-      );
-    },
     ContractorDashboardRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const ContractorDashboardPage(),
+      );
+    },
+    CreateProjectRoute.name: (routeData) {
+      final args = routeData.argsAs<CreateProjectRouteArgs>(
+          orElse: () => const CreateProjectRouteArgs());
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: CreateProjectPage(
+          key: args.key,
+          preSelectedServiceId: args.preSelectedServiceId,
+        ),
+      );
+    },
+    EnhancedClientDashboardRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const EnhancedClientDashboardPage(),
       );
     },
     ForgotPasswordRoute.name: (routeData) {
@@ -55,20 +66,6 @@ abstract class _$AppRouter extends RootStackRouter {
 }
 
 /// generated route for
-/// [ClientDashboardPage]
-class ClientDashboardRoute extends PageRouteInfo<void> {
-  const ClientDashboardRoute({List<PageRouteInfo>? children})
-      : super(
-          ClientDashboardRoute.name,
-          initialChildren: children,
-        );
-
-  static const String name = 'ClientDashboardRoute';
-
-  static const PageInfo<void> page = PageInfo<void>(name);
-}
-
-/// generated route for
 /// [ContractorDashboardPage]
 class ContractorDashboardRoute extends PageRouteInfo<void> {
   const ContractorDashboardRoute({List<PageRouteInfo>? children})
@@ -78,6 +75,58 @@ class ContractorDashboardRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'ContractorDashboardRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [CreateProjectPage]
+class CreateProjectRoute extends PageRouteInfo<CreateProjectRouteArgs> {
+  CreateProjectRoute({
+    Key? key,
+    int? preSelectedServiceId,
+    List<PageRouteInfo>? children,
+  }) : super(
+          CreateProjectRoute.name,
+          args: CreateProjectRouteArgs(
+            key: key,
+            preSelectedServiceId: preSelectedServiceId,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'CreateProjectRoute';
+
+  static const PageInfo<CreateProjectRouteArgs> page =
+      PageInfo<CreateProjectRouteArgs>(name);
+}
+
+class CreateProjectRouteArgs {
+  const CreateProjectRouteArgs({
+    this.key,
+    this.preSelectedServiceId,
+  });
+
+  final Key? key;
+
+  final int? preSelectedServiceId;
+
+  @override
+  String toString() {
+    return 'CreateProjectRouteArgs{key: $key, preSelectedServiceId: $preSelectedServiceId}';
+  }
+}
+
+/// generated route for
+/// [EnhancedClientDashboardPage]
+class EnhancedClientDashboardRoute extends PageRouteInfo<void> {
+  const EnhancedClientDashboardRoute({List<PageRouteInfo>? children})
+      : super(
+          EnhancedClientDashboardRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'EnhancedClientDashboardRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

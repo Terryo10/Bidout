@@ -30,7 +30,7 @@ class _LandingPageState extends State<LandingPage> {
         if (state is AuthAuthenticated) {
           // Navigate to appropriate dashboard based on user type
           if (state.user.isClient) {
-            context.router.replace(const ClientDashboardRoute());
+            context.router.replace(const EnhancedClientDashboardRoute());
           } else if (state.user.isContractor) {
             context.router.replace(const ContractorDashboardRoute());
           }
