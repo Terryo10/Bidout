@@ -110,15 +110,6 @@ class _EnhancedClientDashboardPageState
             return const Center(child: CircularProgressIndicator());
           },
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            context.router.push(CreateProjectRoute());
-          },
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.white,
-          icon: const Icon(Icons.add),
-          label: const Text('New Project'),
-        ),
       ),
     );
   }
@@ -406,6 +397,7 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 40),
           ],
         ),
       ),

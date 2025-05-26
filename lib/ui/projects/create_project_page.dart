@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -644,50 +645,40 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   ),
                 const SizedBox(height: 32),
 
-                // Action Buttons
+                // Draft Switch
                 Row(
                   children: [
-                    Expanded(
-                      child: BlocBuilder<ProjectBloc, ProjectState>(
-                        builder: (context, state) {
-                          return ElevatedButton(
-                            onPressed: state is ProjectLoading
-                                ? null
-                                : () => _handleSubmit(isDraft: true),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.grey400,
-                              foregroundColor: AppColors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: state is ProjectLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation(
-                                          AppColors.white),
-                                    ),
-                                  )
-                                : const Text('Save as Draft'),
-                          );
-                        },
+                    const Text(
+                      'Save as Draft',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 2,
-                      child: BlocBuilder<ProjectBloc, ProjectState>(
-                        builder: (context, state) {
-                          return LoadingButton(
-                            onPressed: () => _handleSubmit(isDraft: false),
-                            isLoading: state is ProjectLoading,
-                            text: 'Create Project',
-                          );
-                        },
-                      ),
+                    const SizedBox(width: 12),
+                    CupertinoSwitch(
+                      value: _isDrafted,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _isDrafted = value;
+                        });
+                      },
+                      activeColor: AppColors.primary,
                     ),
                   ],
+                ),
+                const SizedBox(height: 16),
+
+                // Action Buttons
+                BlocBuilder<ProjectBloc, ProjectState>(
+                  builder: (context, state) {
+                    return LoadingButton(
+                      onPressed: () => _handleSubmit(isDraft: _isDrafted),
+                      isLoading: state is ProjectLoading,
+                      text: 'Create Project',
+                    );
+                  },
                 ),
                 const SizedBox(height: 32),
               ],

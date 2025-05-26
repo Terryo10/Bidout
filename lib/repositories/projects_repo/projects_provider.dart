@@ -79,7 +79,7 @@ class ProjectProvider {
         'start_date': request.startDate.toIso8601String().split('T')[0],
         'end_date': request.endDate.toIso8601String().split('T')[0],
         'service_id': request.serviceId.toString(),
-        'is_drafted': request.isDrafted.toString(),
+        'is_drafted': request.isDrafted ? '1' : '0',
       });
 
       // Add optional fields
@@ -154,7 +154,7 @@ class ProjectProvider {
         'start_date': request.startDate.toIso8601String().split('T')[0],
         'end_date': request.endDate.toIso8601String().split('T')[0],
         'service_id': request.serviceId.toString(),
-        'is_drafted': request.isDrafted.toString(),
+        'is_drafted': request.isDrafted ? '1' : '0',
         '_method': 'PUT', // Laravel method spoofing
       });
 
