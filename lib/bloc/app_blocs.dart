@@ -1,6 +1,11 @@
+// lib/bloc/app_blocs.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../repositories/auth_repo/auth_provider.dart';
+import '../repositories/auth_repo/auth_repository.dart';
+import 'auth_bloc/auth_bloc.dart';
 
 class AppBlocs extends StatelessWidget {
   final Widget app;
@@ -16,11 +21,15 @@ class AppBlocs extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // Add your BlocProviders here
-        // Example:
-        // BlocProvider(
-        //   create: (context) => AuthBloc(storage: storage),
-        // ),
+        BlocProvider(
+          create: (context) => AuthBloc(
+            authRepository: AuthRepository(
+              storage: storage,
+              authProvider: AuthProvider(storage: storage),
+            ),
+          ),
+        ),
+        // Add other BLoCs here as needed
       ],
       child: app,
     );
