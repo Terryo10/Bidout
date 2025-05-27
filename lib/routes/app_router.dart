@@ -68,5 +68,14 @@ class AppRouter extends _$AppRouter {
           page: NotificationsRoute.page,
           path: '/notifications',
         ),
+
+          AutoRoute(
+          page: ContractorDirectoryRoute.page,
+          path: '/contractors',
+        ),
+        AutoRoute(
+          page: ContractorProfileRoute.page,
+          path: '/contractors/:contractorId',
+        ),
       ];
 }

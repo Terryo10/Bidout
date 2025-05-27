@@ -26,4 +26,8 @@ class AppUrls {
   static const String subscription = '$baseUrl/api/billing/subscription';
   static const String paymentMethods = '$baseUrl/api/billing/payment-methods';
   static const String invoices = '$baseUrl/api/billing/invoices';
+
+  static String contractorProfile(int contractorId) => '$contractors/$contractorId';
+  static String contractorPortfolio(int contractorId) => '$contractors/$contractorId/portfolio';
+  static String contractorReviews(int contractorId) => '$contractors/$contractorId/reviews';
 }

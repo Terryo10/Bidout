@@ -1,17 +1,19 @@
+// lib/ui/dashboards/client_dashboard.dart (Updated with contractor directory integration)
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/projects_bloc/project_bloc.dart';
-import '../../bloc/notifications_bloc/notifications_bloc.dart';
 import '../../constants/app_colors.dart';
+import '../../models/contractor/contractor_model.dart';
 import '../../models/services/service_model.dart' as service;
 import '../../repositories/projects_repo/projects_repository.dart';
 import '../../routes/app_router.dart';
 import '../widgets/action_card.dart';
 import '../widgets/project_preview_card.dart';
 import '../widgets/service_card.dart';
+import '../widgets/contractor_card.dart';
 
 @RoutePage()
 class EnhancedClientDashboardPage extends StatefulWidget {
@@ -25,13 +27,16 @@ class EnhancedClientDashboardPage extends StatefulWidget {
 class _EnhancedClientDashboardPageState
     extends State<EnhancedClientDashboardPage> {
   List<service.ServiceModel> _services = [];
+  List<ContractorModel> _featuredContractors = [];
   bool _isLoadingServices = true;
+  bool _isLoadingContractors = true;
 
   @override
   void initState() {
     super.initState();
     _loadServices();
     _loadProjects();
+    _loadFeaturedContractors();
   }
 
   Future<void> _loadServices() async {
@@ -45,6 +50,21 @@ class _EnhancedClientDashboardPageState
     } catch (e) {
       setState(() {
         _isLoadingServices = false;
+      });
+    }
+  }
+
+  Future<void> _loadFeaturedContractors() async {
+    try {
+      final contractorRepository = context.read<ContractorRepository>();
+      final contractors = await contractorRepository.getFeaturedContractors();
+      setState(() {
+        _featuredContractors = contractors.take(4).toList(); // Limit to 4 for dashboard
+        _isLoadingContractors = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingContractors = false;
       });
     }
   }
@@ -67,49 +87,10 @@ class _EnhancedClientDashboardPageState
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
           actions: [
-            BlocBuilder<NotificationsBloc, NotificationsState>(
-              builder: (context, state) {
-                int unreadCount = 0;
-                if (state is NotificationsLoaded) {
-                  unreadCount = state.notifications
-                      .where((notification) => !notification.isRead)
-                      .length;
-                }
-                return Stack(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications),
-                      onPressed: () {
-                        context.router.push(const NotificationsRoute());
-                      },
-                    ),
-                    if (unreadCount > 0)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: AppColors.error,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            unreadCount.toString(),
-                            style: const TextStyle(
-                              color: AppColors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                // TODO: Navigate to notifications
               },
             ),
             PopupMenuButton<String>(
@@ -149,10 +130,13 @@ class _EnhancedClientDashboardPageState
               return _EnhancedClientDashboardContent(
                 user: state.user,
                 services: _services,
+                featuredContractors: _featuredContractors,
                 isLoadingServices: _isLoadingServices,
+                isLoadingContractors: _isLoadingContractors,
                 onRefresh: () {
                   _loadServices();
                   _loadProjects();
+                  _loadFeaturedContractors();
                 },
               );
             }
@@ -167,13 +151,17 @@ class _EnhancedClientDashboardPageState
 class _EnhancedClientDashboardContent extends StatelessWidget {
   final dynamic user;
   final List<service.ServiceModel> services;
+  final List<ContractorModel> featuredContractors;
   final bool isLoadingServices;
+  final bool isLoadingContractors;
   final VoidCallback onRefresh;
 
   const _EnhancedClientDashboardContent({
     required this.user,
     required this.services,
+    required this.featuredContractors,
     required this.isLoadingServices,
+    required this.isLoadingContractors,
     required this.onRefresh,
   });
 
@@ -234,6 +222,63 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 24),
+
+            // Quick Actions
+            const Text(
+              'Quick Actions',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              children: [
+                ActionCard(
+                  icon: Icons.add_circle_outline,
+                  title: 'Post Project',
+                  subtitle: 'Create a new project',
+                  color: AppColors.primary,
+                  onTap: () {
+                    context.router.push(CreateProjectRoute());
+                  },
+                ),
+                ActionCard(
+                  icon: Icons.folder_open,
+                  title: 'My Projects',
+                  subtitle: 'View all projects',
+                  color: AppColors.secondary,
+                  onTap: () {
+                    context.router.push(const ProjectListingRoute());
+                  },
+                ),
+                ActionCard(
+                  icon: Icons.people,
+                  title: 'Find Contractors',
+                  subtitle: 'Browse contractors',
+                  color: AppColors.warning,
+                  onTap: () {
+                    context.router.push(const ContractorDirectoryRoute());
+                  },
+                ),
+                ActionCard(
+                  icon: Icons.payment,
+                  title: 'Billing',
+                  subtitle: 'Manage subscription',
+                  color: AppColors.info,
+                  onTap: () {
+                    // TODO: Navigate to billing
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 24),
 
@@ -309,61 +354,80 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
               ),
             const SizedBox(height: 24),
 
-            // Quick Actions
-            const Text(
-              'Quick Actions',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
+            // Featured Contractors Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ActionCard(
-                  icon: Icons.add_circle_outline,
-                  title: 'Post Project',
-                  subtitle: 'Create a new project',
-                  color: AppColors.primary,
-                  onTap: () {
-                    context.router.push(CreateProjectRoute());
-                  },
+                const Text(
+                  'Featured Contractors',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-                ActionCard(
-                  icon: Icons.folder_open,
-                  title: 'My Projects',
-                  subtitle: 'View all projects',
-                  color: AppColors.secondary,
-                  onTap: () {
-                    context.router.push(const ProjectListingRoute());
+                TextButton(
+                  onPressed: () {
+                    context.router.push(const ContractorDirectoryRoute());
                   },
-                ),
-                ActionCard(
-                  icon: Icons.people,
-                  title: 'Find Contractors',
-                  subtitle: 'Browse contractors',
-                  color: AppColors.warning,
-                  onTap: () {
-                    // TODO: Navigate to contractors
-                  },
-                ),
-                ActionCard(
-                  icon: Icons.payment,
-                  title: 'Billing',
-                  subtitle: 'Manage subscription',
-                  color: AppColors.info,
-                  onTap: () {
-                    // TODO: Navigate to billing
-                  },
+                  child: const Text('View All'),
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+
+            // Featured Contractors List
+            if (isLoadingContractors)
+              const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (featuredContractors.isEmpty)
+              Container(
+                height: 200,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 48,
+                        color: AppColors.textSecondary,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'No featured contractors available',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: featuredContractors.map((contractor) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: ContractorCard(
+                      contractor: contractor,
+                      onTap: () {
+                        context.router.push(
+                          ContractorProfileRoute(contractorId: contractor.id),
+                        );
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
             const SizedBox(height: 24),
 
             // Recent Projects Section
