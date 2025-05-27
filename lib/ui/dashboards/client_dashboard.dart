@@ -347,8 +347,6 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Recent Projects List - Using BlocBuilder for paginated data
             BlocBuilder<ProjectBloc, ProjectState>(
               builder: (context, state) {
                 if (state is ProjectLoading) {
@@ -358,14 +356,20 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
                       child: CircularProgressIndicator(),
                     ),
                   );
-                }
-
-                if (state is ProjectLoaded) {
+                } else if (state is ProjectLoaded) {
                   final recentProjects = state.projects.data.take(3).toList();
-                  return _buildRecentProjectsSection(context, recentProjects, state.projects);
+                  return _buildRecentProjectsSection(
+                    context,
+                    recentProjects,
+                    state.projects,
+                  );
+                } else {
+                  return _buildRecentProjectsSection(
+                    context,
+                    [],
+                    null,
+                  );
                 }
-
-                return _buildRecentProjectsSection(context, [], null);
               },
             ),
 
@@ -384,7 +388,8 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
             BlocBuilder<ProjectBloc, ProjectState>(
               builder: (context, state) {
                 if (state is ProjectLoaded) {
-                  return _buildStatisticsSection(state.projects.data, state.projects);
+                  return _buildStatisticsSection(
+                      state.projects.data, state.projects);
                 }
                 return _buildStatisticsSection([], null);
               },
@@ -396,7 +401,8 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentProjectsSection(BuildContext context, List projects, dynamic paginationData) {
+  Widget _buildRecentProjectsSection(
+      BuildContext context, List projects, dynamic paginationData) {
     if (projects.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -456,9 +462,10 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
             service: project.service?.name ?? 'Unknown Service',
             budget: project.budget.toInt(),
             status: _getDisplayStatus(project.status),
-            bidsCount: project.bids?.length ?? 0,
-            imageUrl: project.images.isNotEmpty ? 
-                'http://127.0.0.1:8000/storage/${project.images.first.path}' : null,
+            bidsCount: 0,
+            imageUrl: project.images.isNotEmpty
+                ? 'http://127.0.0.1:8000/storage/${project.images.first.path}'
+                : null,
             onTap: () {
               context.router.push(ProjectViewRoute(projectId: project.id));
             },
@@ -469,11 +476,13 @@ class _EnhancedClientDashboardContent extends StatelessWidget {
   }
 
   Widget _buildStatisticsSection(List projects, dynamic paginationData) {
-    final activeProjects = projects.where((p) => 
-        p.status == 'project_in_progress' || 
-        p.status == 'project_being_scheduled').length;
-    final completedProjects = projects.where((p) => 
-        p.status == 'project_completed').length;
+    final activeProjects = projects
+        .where((p) =>
+            p.status == 'project_in_progress' ||
+            p.status == 'project_being_scheduled')
+        .length;
+    final completedProjects =
+        projects.where((p) => p.status == 'project_completed').length;
     final totalBudget = projects.fold<double>(0, (sum, p) => sum + p.budget);
     final totalProjects = paginationData?.total ?? projects.length;
 

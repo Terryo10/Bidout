@@ -313,14 +313,6 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
           ],
         ),
       ),
-      floatingActionButton: project.isInBidPhase()
-          ? FloatingActionButton.extended(
-              onPressed: () => _submitBid(project),
-              icon: const Icon(Icons.assignment_turned_in),
-              label: const Text('Submit Bid'),
-              backgroundColor: AppColors.secondary,
-            )
-          : null,
     );
   }
 

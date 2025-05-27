@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_urls.dart';
 import '../../models/projects/project_model.dart';
 
 class ProjectImageGallery extends StatelessWidget {
@@ -28,7 +28,8 @@ class ProjectImageGallery extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               image: DecorationImage(
-                image: NetworkImage(images[index].path),
+                image: NetworkImage(
+                    '${AppUrls.projectImageUrl}${images[index].path}'),
                 fit: BoxFit.cover,
               ),
             ),
