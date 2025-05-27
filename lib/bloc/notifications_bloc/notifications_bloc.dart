@@ -2,58 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../models/notification.dart';
 
-// Events
-abstract class NotificationsEvent extends Equatable {
-  const NotificationsEvent();
+part 'notifications_event.dart';
+part 'notifications_state.dart';
 
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadNotifications extends NotificationsEvent {}
-
-class MarkNotificationAsRead extends NotificationsEvent {
-  final String notificationId;
-
-  const MarkNotificationAsRead(this.notificationId);
-
-  @override
-  List<Object?> get props => [notificationId];
-}
-
-class MarkAllNotificationsAsRead extends NotificationsEvent {}
-
-// States
-abstract class NotificationsState extends Equatable {
-  const NotificationsState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class NotificationsInitial extends NotificationsState {}
-
-class NotificationsLoading extends NotificationsState {}
-
-class NotificationsLoaded extends NotificationsState {
-  final List<Notification> notifications;
-
-  const NotificationsLoaded(this.notifications);
-
-  @override
-  List<Object?> get props => [notifications];
-}
-
-class NotificationsError extends NotificationsState {
-  final String message;
-
-  const NotificationsError(this.message);
-
-  @override
-  List<Object?> get props => [message];
-}
-
-// Bloc
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   NotificationsBloc() : super(NotificationsInitial()) {
     on<LoadNotifications>(_onLoadNotifications);
