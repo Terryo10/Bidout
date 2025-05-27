@@ -3,8 +3,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../constants/app_colors.dart';
 import '../../../models/contractor/contractor_model.dart';
 import '../../../models/contractor/portfolio_item_model.dart';
+import '../../widgets/contractor_review_card.dart';
+import '../../widgets/portfolio_item_card.dart';
 
 
 @RoutePage()

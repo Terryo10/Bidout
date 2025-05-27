@@ -8,6 +8,7 @@ import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../models/services/service_model.dart' as service;
+import '../../repositories/contractor_repo/contractor_provider.dart';
 import '../../repositories/projects_repo/projects_repository.dart';
 import '../../routes/app_router.dart';
 import '../widgets/action_card.dart';

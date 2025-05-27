@@ -1,6 +1,7 @@
 // lib/ui/widgets/contractor_card.dart
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../models/contractor/contractor_model.dart';
 
 class ContractorCard extends StatelessWidget {
   final ContractorModel contractor;
@@ -53,7 +54,7 @@ class ContractorCard extends StatelessWidget {
                           : null,
                     ),
                     child: contractor.avatar == null
-                        ? Icon(
+                        ? const Icon(
                             Icons.person,
                             color: AppColors.primary,
                             size: 30,
@@ -94,7 +95,7 @@ class ContractorCard extends StatelessWidget {
                                     color: AppColors.warning.withOpacity(0.3),
                                   ),
                                 ),
-                                child: Row(
+                                child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
@@ -102,7 +103,7 @@ class ContractorCard extends StatelessWidget {
                                       color: AppColors.warning,
                                       size: 12,
                                     ),
-                                    const SizedBox(width: 2),
+                                    SizedBox(width: 2),
                                     Text(
                                       'PRO',
                                       style: TextStyle(
@@ -210,7 +211,7 @@ class ContractorCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.work_outline,
                             size: 14,
                             color: AppColors.textSecondary,
@@ -228,7 +229,7 @@ class ContractorCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.monetization_on_outlined,
                             size: 14,
                             color: AppColors.success,
@@ -255,7 +256,7 @@ class ContractorCard extends StatelessWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.location_on_outlined,
                               size: 14,
                               color: AppColors.textSecondary,
