@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/projects_bloc/project_bloc.dart';
+import '../../bloc/notifications_bloc/notifications_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/services/service_model.dart' as service;
 import '../../repositories/projects_repo/projects_repository.dart';
@@ -66,10 +67,49 @@ class _EnhancedClientDashboardPageState
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () {
-                // TODO: Navigate to notifications
+            BlocBuilder<NotificationsBloc, NotificationsState>(
+              builder: (context, state) {
+                int unreadCount = 0;
+                if (state is NotificationsLoaded) {
+                  unreadCount = state.notifications
+                      .where((notification) => !notification.isRead)
+                      .length;
+                }
+                return Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications),
+                      onPressed: () {
+                        context.router.push(const NotificationsRoute());
+                      },
+                    ),
+                    if (unreadCount > 0)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.error,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            unreadCount.toString(),
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
               },
             ),
             PopupMenuButton<String>(

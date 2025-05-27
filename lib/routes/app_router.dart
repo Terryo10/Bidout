@@ -10,6 +10,7 @@ import '../ui/landing/landing_page.dart';
 import '../ui/projects/create_project_page.dart';
 import '../ui/projects/project_listing_page.dart';
 import '../ui/projects/project_view_page.dart';
+import '../ui/notifications/notifications_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -60,6 +61,12 @@ class AppRouter extends _$AppRouter {
         AutoRoute(
           page: ProjectViewRoute.page,
           path: '/projects/:projectId',
+        ),
+
+        // Notifications route
+        AutoRoute(
+          page: NotificationsRoute.page,
+          path: '/notifications',
         ),
       ];
 }

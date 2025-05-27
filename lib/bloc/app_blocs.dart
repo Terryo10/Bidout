@@ -9,6 +9,7 @@ import '../repositories/auth_repo/auth_repository.dart';
 import '../repositories/projects_repo/projects_provider.dart';
 import 'auth_bloc/auth_bloc.dart';
 import 'projects_bloc/project_bloc.dart';
+import 'notifications_bloc/notifications_bloc.dart';
 
 class AppBlocs extends StatelessWidget {
   final Widget app;
@@ -39,6 +40,9 @@ class AppBlocs extends StatelessWidget {
               projectProvider: ProjectProvider(storage: storage),
             ),
           ),
+        ),
+        BlocProvider(
+          create: (context) => NotificationsBloc(),
         ),
         // Add other BLoCs here as needed
       ],
