@@ -100,14 +100,10 @@ class ContractorProvider {
           return PaginationModel<ContractorModel>.fromJson(
             contractorsData,
             (json) {
-              if (json is! Map<String, dynamic>) {
-                throw ApiErrorModel(message: 'Invalid contractor data format');
-              }
               return ContractorModel.fromJson(json);
             },
           );
         } catch (e) {
-          print('Error parsing response: ${response.body}');
           if (e is ApiErrorModel) rethrow;
           throw ApiErrorModel(message: 'Failed to parse response: $e');
         }

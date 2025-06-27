@@ -1,5 +1,3 @@
-// lib/ui/widgets/project_card.dart
-import 'package:bidout/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import '../../constants/app_theme_extension.dart';
 import '../../models/projects/project_model.dart';

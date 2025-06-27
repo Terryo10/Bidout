@@ -92,13 +92,12 @@ class ContractorServicesSection extends StatelessWidget {
                         Icons.work,
                       ),
                       const SizedBox(width: 16),
-                      if (service.hourlyRate != null)
-                        _buildServiceDetail(
-                          context,
-                          'Rate',
-                          '\$${service.hourlyRate!.toStringAsFixed(2)}/hr',
-                          Icons.monetization_on,
-                        ),
+                      _buildServiceDetail(
+                        context,
+                        'Rate',
+                        '\$${service.hourlyRate.toStringAsFixed(2)}/hr',
+                        Icons.monetization_on,
+                      ),
                     ],
                   ),
                   if (service.specializationNotes != null) ...[

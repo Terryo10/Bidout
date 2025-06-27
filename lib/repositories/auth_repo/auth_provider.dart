@@ -19,7 +19,7 @@ class AuthProvider {
     return await storage.read(key: 'auth_token');
   }
 
-  Map<String, String> _getHeaders({bool includeAuth = false}) {
+  Map<String, String> _getHeaders() {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',

@@ -113,19 +113,6 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
     _loadContractors();
   }
 
-  String? _mapSortToField(String sort) {
-    switch (sort) {
-      case 'Rating':
-        return 'rating';
-      case 'Name':
-        return 'name';
-      case 'Experience':
-        return 'years_experience';
-      default:
-        return 'rating';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

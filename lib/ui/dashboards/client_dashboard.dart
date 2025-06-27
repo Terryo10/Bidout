@@ -182,7 +182,7 @@ class _DashboardContent extends StatelessWidget {
                 _QuickActionCard(
                   icon: Icons.subscriptions_outlined,
                   title: 'My Subscriptions',
-                  color: context.colors.tertiary ?? context.colors.primary,
+                  color: context.colors.tertiary,
                   onTap: () {
                     // TODO: Implement navigation to subscriptions
                     context.router.push(const NotificationsRoute());
