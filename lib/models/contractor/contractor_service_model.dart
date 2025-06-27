@@ -1,6 +1,5 @@
-
 // lib/models/contractor/contractor_service_model.dart
-import '../projects/project_model.dart';
+import '../../models/service_model.dart';
 
 class ContractorServiceModel {
   final int id;
@@ -61,5 +60,3 @@ class ContractorServiceModel {
     };
   }
 }
-
-

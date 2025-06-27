@@ -6,6 +6,7 @@ import '../bloc/app_blocs.dart';
 import 'auth_repo/auth_provider.dart';
 import 'auth_repo/auth_repository.dart';
 import 'contractor_repo/contractor_provider.dart';
+import 'contractor_repo/contractor_repo.dart';
 import 'projects_repo/projects_provider.dart';
 import 'projects_repo/projects_repository.dart';
 
@@ -31,14 +32,14 @@ class AppRepositories extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => ProjectRepository(
-          storage: storage,
+            storage: storage,
             projectProvider: ProjectProvider(storage: storage),
           ),
         ),
-            RepositoryProvider(
+        RepositoryProvider(
           create: (context) => ContractorRepository(
             storage: storage,
-            contractorsProvider: ContractorsProvider(storage: storage),
+            contractorProvider: ContractorProvider(storage: storage),
           ),
         ),
         // Add other repositories here as needed

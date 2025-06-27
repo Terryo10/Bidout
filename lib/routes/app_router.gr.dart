@@ -21,6 +21,22 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const ContractorDashboardPage(),
       );
     },
+    ContractorDirectoryRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ContractorDirectoryPage(),
+      );
+    },
+    ContractorProfileRoute.name: (routeData) {
+      final args = routeData.argsAs<ContractorProfileRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: ContractorProfilePage(
+          key: args.key,
+          contractorId: args.contractorId,
+        ),
+      );
+    },
     CreateProjectRoute.name: (routeData) {
       final args = routeData.argsAs<CreateProjectRouteArgs>(
           orElse: () => const CreateProjectRouteArgs());
@@ -36,6 +52,12 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const EnhancedClientDashboardPage(),
+      );
+    },
+    FindContractorsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const FindContractorsPage(),
       );
     },
     ForgotPasswordRoute.name: (routeData) {
@@ -102,6 +124,58 @@ class ContractorDashboardRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [ContractorDirectoryPage]
+class ContractorDirectoryRoute extends PageRouteInfo<void> {
+  const ContractorDirectoryRoute({List<PageRouteInfo>? children})
+      : super(
+          ContractorDirectoryRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ContractorDirectoryRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ContractorProfilePage]
+class ContractorProfileRoute extends PageRouteInfo<ContractorProfileRouteArgs> {
+  ContractorProfileRoute({
+    Key? key,
+    required int contractorId,
+    List<PageRouteInfo>? children,
+  }) : super(
+          ContractorProfileRoute.name,
+          args: ContractorProfileRouteArgs(
+            key: key,
+            contractorId: contractorId,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'ContractorProfileRoute';
+
+  static const PageInfo<ContractorProfileRouteArgs> page =
+      PageInfo<ContractorProfileRouteArgs>(name);
+}
+
+class ContractorProfileRouteArgs {
+  const ContractorProfileRouteArgs({
+    this.key,
+    required this.contractorId,
+  });
+
+  final Key? key;
+
+  final int contractorId;
+
+  @override
+  String toString() {
+    return 'ContractorProfileRouteArgs{key: $key, contractorId: $contractorId}';
+  }
+}
+
+/// generated route for
 /// [CreateProjectPage]
 class CreateProjectRoute extends PageRouteInfo<CreateProjectRouteArgs> {
   CreateProjectRoute({
@@ -149,6 +223,20 @@ class EnhancedClientDashboardRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'EnhancedClientDashboardRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [FindContractorsPage]
+class FindContractorsRoute extends PageRouteInfo<void> {
+  const FindContractorsRoute({List<PageRouteInfo>? children})
+      : super(
+          FindContractorsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'FindContractorsRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

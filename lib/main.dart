@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 import 'bloc/app_blocs.dart';
 import 'constants/app_colors.dart';
 import 'repositories/app_repositories.dart';
@@ -13,7 +12,7 @@ void main() async {
 
   // Configure secure storage options
   FlutterSecureStorage storage = const FlutterSecureStorage(
-    aOptions:  AndroidOptions(
+    aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
     ),
     iOptions: IOSOptions(

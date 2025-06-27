@@ -282,7 +282,7 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                   // Location Information
                   if (project.street != null ||
                       project.city != null ||
-                      project.state != null ||
+                      project.provinceId != null ||
                       project.zipCode != null)
                     Column(
                       children: [
@@ -458,7 +458,8 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
 
     if (project.street != null) locationParts.add(project.street!);
     if (project.city != null) locationParts.add(project.city!);
-    if (project.state != null) locationParts.add(project.state!);
+    if (project.provinceId != null)
+      locationParts.add(project.provinceId!.toString());
     if (project.zipCode != null) locationParts.add(project.zipCode!);
 
     final locationString = locationParts.join(', ');

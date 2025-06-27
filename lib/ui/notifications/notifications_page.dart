@@ -198,7 +198,7 @@ class _NotificationCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _formatTimestamp(notification.timestamp),
+                          _formatTimestamp(notification.createdAt),
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textTertiary,

@@ -1,16 +1,19 @@
-// lib/repositories/contractors_repo/contractors_provider.dart
+// lib/repositories/contractor_repo/contractor_provider.dart
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../../constants/app_urls.dart';
 import '../../models/auth/api_error_model.dart';
-import '../../models/contractors/contractor_model.dart';
+import '../../models/contractor/contractor_model.dart';
+import '../../models/contractor/portfolio_model.dart';
+import '../../models/contractor/contractor_review_model.dart';
+import '../../models/pagination/pagination_model.dart';
 
-class ContractorsProvider {
+class ContractorProvider {
   final FlutterSecureStorage storage;
 
-  ContractorsProvider({required this.storage});
+  ContractorProvider({required this.storage});
 
   Future<String?> _getToken() async {
     return await storage.read(key: 'auth_token');
@@ -25,62 +28,59 @@ class ContractorsProvider {
     };
   }
 
-  Future<List<ContractorModel>> getContractors({
+  Future<PaginationModel<ContractorModel>> getContractors({
+    int page = 1,
+    int perPage = 10,
     String? search,
-    String? service,
+    List<String>? services,
     double? minRating,
-    String? sortBy,
-    String? sortOrder,
-    bool? featured,
     String? location,
-    bool? availableForHire,
+    bool? isFeatured,
+    bool? hasSubscription,
   }) async {
     try {
       final headers = await _getAuthHeaders();
-      
+
       // Build query parameters
-      final queryParams = <String, String>{};
-      
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'per_page': perPage.toString(),
+      };
+
       if (search != null && search.isNotEmpty) {
         queryParams['search'] = search;
       }
-      
-      if (service != null && service.isNotEmpty) {
-        queryParams['service'] = service;
+
+      if (services != null && services.isNotEmpty) {
+        queryParams['services'] = services.join(',');
       }
-      
+
       if (minRating != null) {
         queryParams['min_rating'] = minRating.toString();
       }
-      
-      if (sortBy != null && sortBy.isNotEmpty) {
-        queryParams['sort_by'] = sortBy;
-        queryParams['sort_order'] = sortOrder ?? 'desc';
-      }
-      
-      if (featured != null && featured) {
-        queryParams['featured'] = 'true';
-      }
-      
+
       if (location != null && location.isNotEmpty) {
         queryParams['location'] = location;
       }
-      
-      if (availableForHire != null && availableForHire) {
-        queryParams['available'] = 'true';
+
+      if (isFeatured != null) {
+        queryParams['is_featured'] = isFeatured.toString();
       }
 
-      final uri = Uri.parse(AppUrls.contractors).replace(queryParameters: queryParams);
-      
+      if (hasSubscription != null) {
+        queryParams['has_subscription'] = hasSubscription.toString();
+      }
+
+      final uri =
+          Uri.parse(AppUrls.contractors).replace(queryParameters: queryParams);
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> contractorsJson = data['contractors'] ?? data['data'] ?? [];
-        
-        return contractorsJson
-            .map((json) => ContractorModel.fromJson(json))
-            .toList();
+        return PaginationModel<ContractorModel>.fromJson(
+          data,
+          (json) => ContractorModel.fromJson(json),
+        );
       } else {
         final error = jsonDecode(response.body);
         throw ApiErrorModel.fromJson(error);
@@ -114,21 +114,28 @@ class ContractorsProvider {
     }
   }
 
-  Future<List<PortfolioItemModel>> getContractorPortfolio(int contractorId) async {
+  Future<PaginationModel<PortfolioModel>> getContractorPortfolio(
+    int contractorId, {
+    int page = 1,
+    int perPage = 10,
+  }) async {
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
-        Uri.parse('${AppUrls.contractors}/$contractorId/portfolio'),
+        Uri.parse('${AppUrls.contractors}/$contractorId/portfolio')
+            .replace(queryParameters: {
+          'page': page.toString(),
+          'per_page': perPage.toString(),
+        }),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> portfolioJson = data['portfolio'] ?? data['data'] ?? [];
-        
-        return portfolioJson
-            .map((json) => PortfolioItemModel.fromJson(json))
-            .toList();
+        return PaginationModel<PortfolioModel>.fromJson(
+          data,
+          (json) => PortfolioModel.fromJson(json),
+        );
       } else {
         final error = jsonDecode(response.body);
         throw ApiErrorModel.fromJson(error);
@@ -139,7 +146,146 @@ class ContractorsProvider {
     }
   }
 
-  Future<List<ContractorReviewModel>> getContractorReviews(int contractorId) async {
+  Future<PaginationModel<PortfolioModel>> getMyPortfolio({
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.get(
+        Uri.parse('${AppUrls.contractors}/me/portfolio')
+            .replace(queryParameters: {
+          'page': page.toString(),
+          'per_page': perPage.toString(),
+        }),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return PaginationModel<PortfolioModel>.fromJson(
+          data,
+          (json) => PortfolioModel.fromJson(json),
+        );
+      } else {
+        final error = jsonDecode(response.body);
+        throw ApiErrorModel.fromJson(error);
+      }
+    } catch (e) {
+      if (e is ApiErrorModel) rethrow;
+      throw ApiErrorModel(message: 'Failed to load your portfolio: $e');
+    }
+  }
+
+  Future<PortfolioModel> createPortfolio({
+    required String title,
+    required String description,
+    String? projectType,
+    DateTime? completionDate,
+    double? projectValue,
+    String? clientName,
+    String? clientTestimonial,
+    List<String>? tags,
+    bool isFeatured = false,
+    List<String> imagePaths = const [],
+  }) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.post(
+        Uri.parse('${AppUrls.contractors}/me/portfolio'),
+        headers: headers,
+        body: jsonEncode({
+          'title': title,
+          'description': description,
+          'project_type': projectType,
+          'completion_date': completionDate?.toIso8601String(),
+          'project_value': projectValue,
+          'client_name': clientName,
+          'client_testimonial': clientTestimonial,
+          'tags': tags,
+          'is_featured': isFeatured,
+          'image_paths': imagePaths,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return PortfolioModel.fromJson(data['portfolio'] ?? data);
+      } else {
+        final error = jsonDecode(response.body);
+        throw ApiErrorModel.fromJson(error);
+      }
+    } catch (e) {
+      if (e is ApiErrorModel) rethrow;
+      throw ApiErrorModel(message: 'Failed to create portfolio item: $e');
+    }
+  }
+
+  Future<PortfolioModel> updatePortfolio(
+    int portfolioId, {
+    required String title,
+    required String description,
+    String? projectType,
+    DateTime? completionDate,
+    double? projectValue,
+    String? clientName,
+    String? clientTestimonial,
+    List<String>? tags,
+    bool isFeatured = false,
+    List<String> imagePaths = const [],
+  }) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.put(
+        Uri.parse('${AppUrls.contractors}/me/portfolio/$portfolioId'),
+        headers: headers,
+        body: jsonEncode({
+          'title': title,
+          'description': description,
+          'project_type': projectType,
+          'completion_date': completionDate?.toIso8601String(),
+          'project_value': projectValue,
+          'client_name': clientName,
+          'client_testimonial': clientTestimonial,
+          'tags': tags,
+          'is_featured': isFeatured,
+          'image_paths': imagePaths,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return PortfolioModel.fromJson(data['portfolio'] ?? data);
+      } else {
+        final error = jsonDecode(response.body);
+        throw ApiErrorModel.fromJson(error);
+      }
+    } catch (e) {
+      if (e is ApiErrorModel) rethrow;
+      throw ApiErrorModel(message: 'Failed to update portfolio item: $e');
+    }
+  }
+
+  Future<void> deletePortfolio(int portfolioId) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.delete(
+        Uri.parse('${AppUrls.contractors}/me/portfolio/$portfolioId'),
+        headers: headers,
+      );
+
+      if (response.statusCode != 204) {
+        final error = jsonDecode(response.body);
+        throw ApiErrorModel.fromJson(error);
+      }
+    } catch (e) {
+      if (e is ApiErrorModel) rethrow;
+      throw ApiErrorModel(message: 'Failed to delete portfolio item: $e');
+    }
+  }
+
+  Future<List<ContractorReviewModel>> getContractorReviews(
+      int contractorId) async {
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
@@ -150,7 +296,7 @@ class ContractorsProvider {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> reviewsJson = data['reviews'] ?? data['data'] ?? [];
-        
+
         return reviewsJson
             .map((json) => ContractorReviewModel.fromJson(json))
             .toList();
@@ -162,71 +308,5 @@ class ContractorsProvider {
       if (e is ApiErrorModel) rethrow;
       throw ApiErrorModel(message: 'Failed to load contractor reviews: $e');
     }
-  }
-
-  Future<List<ContractorModel>> getFeaturedContractors() async {
-    return getContractors(featured: true, sortBy: 'rating', sortOrder: 'desc');
-  }
-
-  Future<List<ContractorModel>> searchContractors(String query) async {
-    return getContractors(search: query);
-  }
-}
-
-// lib/repositories/contractors_repo/contractors_repository.dart
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import '../../models/contractors/contractor_model.dart';
-import 'contractors_provider.dart';
-
-class ContractorRepository {
-  final FlutterSecureStorage storage;
-  final ContractorsProvider contractorsProvider;
-
-  ContractorRepository({
-    required this.storage,
-    required this.contractorsProvider,
-  });
-
-  Future<List<ContractorModel>> getContractors({
-    String? search,
-    String? service,
-    double? minRating,
-    String? sortBy,
-    String? sortOrder,
-    bool? featured,
-    String? location,
-    bool? availableForHire,
-  }) async {
-    return await contractorsProvider.getContractors(
-      search: search,
-      service: service,
-      minRating: minRating,
-      sortBy: sortBy,
-      sortOrder: sortOrder,
-      featured: featured,
-      location: location,
-      availableForHire: availableForHire,
-    );
-  }
-
-  Future<ContractorModel?> getContractor(int contractorId) async {
-    return await contractorsProvider.getContractor(contractorId);
-  }
-
-  Future<List<PortfolioItemModel>> getContractorPortfolio(int contractorId) async {
-    return await contractorsProvider.getContractorPortfolio(contractorId);
-  }
-
-  Future<List<ContractorReviewModel>> getContractorReviews(int contractorId) async {
-    return await contractorsProvider.getContractorReviews(contractorId);
-  }
-
-  Future<List<ContractorModel>> getFeaturedContractors() async {
-    return await contractorsProvider.getFeaturedContractors();
-  }
-
-  Future<List<ContractorModel>> searchContractors(String query) async {
-    return await contractorsProvider.searchContractors(query);
   }
 }

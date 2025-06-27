@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart';
 import '../../models/projects/project_request_model.dart' as request;
-import '../../models/services/service_model.dart' as service;
+import '../../models/service_model.dart' as service;
 import 'projects_provider.dart';
 
 class ProjectRepository {

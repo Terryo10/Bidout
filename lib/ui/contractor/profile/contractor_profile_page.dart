@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../models/contractor/contractor_model.dart';
-import '../../../models/contractor/portfolio_item_model.dart';
+import '../../../models/contractor/portfolio_model.dart';
+import '../../../models/contractor/contractor_review_model.dart';
+import '../../../models/pagination/pagination_model.dart';
+import '../../../repositories/contractor_repo/contractor_repo.dart';
 import '../../widgets/contractor_review_card.dart';
 import '../../widgets/portfolio_item_card.dart';
-
 
 @RoutePage()
 class ContractorProfilePage extends StatefulWidget {
@@ -26,14 +28,33 @@ class ContractorProfilePage extends StatefulWidget {
 class _ContractorProfilePageState extends State<ContractorProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   ContractorModel? _contractor;
-  List<PortfolioItemModel> _portfolio = [];
+  PaginationModel<PortfolioModel>? _portfolio;
   List<ContractorReviewModel> _reviews = [];
-  
+
   bool _isLoading = false;
   bool _hasError = false;
   String _errorMessage = '';
+
+  String get _experienceText {
+    if (_contractor == null) return 'N/A';
+    final years = _contractor!.yearsExperience;
+    if (years == null) return 'Not specified';
+    return '$years years';
+  }
+
+  String get _rateText {
+    if (_contractor == null) return 'N/A';
+    final rate = _contractor!.hourlyRate;
+    if (rate == null) return 'Rate not specified';
+    return '\$${rate.toStringAsFixed(2)}/hr';
+  }
+
+  String get _formattedRating {
+    if (_contractor == null) return 'N/A';
+    return _contractor!.ratingDisplay;
+  }
 
   @override
   void initState() {
@@ -56,23 +77,26 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
 
     try {
       final contractorRepository = context.read<ContractorRepository>();
-      
+
       // Load contractor details
-      final contractor = await contractorRepository.getContractor(widget.contractorId);
-      
+      final contractor =
+          await contractorRepository.getContractor(widget.contractorId);
+
       if (contractor == null) {
         throw Exception('Contractor not found');
       }
 
       // Load portfolio and reviews in parallel
-      final portfolioFuture = contractorRepository.getContractorPortfolio(widget.contractorId);
-      final reviewsFuture = contractorRepository.getContractorReviews(widget.contractorId);
-      
+      final portfolioFuture =
+          contractorRepository.getContractorPortfolio(widget.contractorId);
+      final reviewsFuture =
+          contractorRepository.getContractorReviews(widget.contractorId);
+
       final results = await Future.wait([portfolioFuture, reviewsFuture]);
-      
+
       setState(() {
         _contractor = contractor;
-        _portfolio = results[0] as List<PortfolioItemModel>;
+        _portfolio = results[0] as PaginationModel<PortfolioModel>;
         _reviews = results[1] as List<ContractorReviewModel>;
         _isLoading = false;
       });
@@ -238,7 +262,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60), // Space for app bar
-              
+
               // Avatar and Basic Info
               Row(
                 children: [
@@ -264,7 +288,6 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                         : null,
                   ),
                   const SizedBox(width: 16),
-                  
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,8 +336,8 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                               ),
                           ],
                         ),
-                        
-                        if (_contractor!.businessName != null && 
+
+                        if (_contractor!.businessName != null &&
                             _contractor!.businessName != _contractor!.name)
                           Text(
                             _contractor!.businessName!,
@@ -323,9 +346,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                               color: AppColors.white.withOpacity(0.9),
                             ),
                           ),
-                        
+
                         const SizedBox(height: 8),
-                        
+
                         // Rating
                         Row(
                           children: [
@@ -340,7 +363,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                             }),
                             const SizedBox(width: 8),
                             Text(
-                              _contractor!.formattedRating,
+                              _formattedRating,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: AppColors.white.withOpacity(0.9),
@@ -353,16 +376,16 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Quick Stats
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem('Experience', _contractor!.experienceText),
-                  _buildStatItem('Rate', _contractor!.rateText),
-                  _buildStatItem('Projects', '${_portfolio.length}'),
+                  _buildStatItem('Experience', _experienceText),
+                  _buildStatItem('Rate', _rateText),
+                  _buildStatItem('Projects', '${_portfolio?.data.length ?? 0}'),
                 ],
               ),
             ],
@@ -406,126 +429,68 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
               'About',
               _contractor!.bio!,
             ),
-          
+
           // Services Section
-          if (_contractor!.services.isNotEmpty)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
-                const Text(
-                  'Services Offered',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+          if (_contractor != null && _contractor!.services.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: AppColors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Services',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                ..._contractor!.services.map((service) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.borderLight),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.build,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                service.serviceName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              Text(
-                                '${service.experienceYears} years experience',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (service.hourlyRate != null)
-                          Text(
-                            '\$${service.hourlyRate!.toStringAsFixed(0)}/hr',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.success,
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ],
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _buildServiceChips(),
+                  ),
+                ],
+              ),
             ),
-          
+          ],
+
+          // Certifications Section
+          if (_contractor?.certifications?.isNotEmpty ?? false) ...[
+            const Text(
+              'Certifications',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _buildCertificationChips(),
+            ),
+            const SizedBox(height: 24),
+          ],
+
           // Skills Section
-          if (_contractor!.skills.isNotEmpty)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
-                const Text(
-                  'Skills',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _contractor!.skills.map((skill) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        skill,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+          if (_contractor?.skills?.isNotEmpty ?? false) ...[
+            const Text(
+              'Skills',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _buildSkillChips(),
+            ),
+          ],
+
           // Contact Information
           const SizedBox(height: 24),
           _buildContactSection(),
@@ -535,7 +500,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
   }
 
   Widget _buildPortfolioTab() {
-    if (_portfolio.isEmpty) {
+    if (_portfolio == null || _portfolio!.data.isEmpty) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -574,9 +539,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
         mainAxisSpacing: 16,
         childAspectRatio: 0.8,
       ),
-      itemCount: _portfolio.length,
+      itemCount: _portfolio!.data.length,
       itemBuilder: (context, index) {
-        final portfolioItem = _portfolio[index];
+        final portfolioItem = _portfolio!.data[index];
         return PortfolioItemCard(
           portfolioItem: portfolioItem,
           onTap: () {
@@ -712,7 +677,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Action Buttons
         Row(
           children: [
@@ -842,11 +807,57 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     );
   }
 
-  void _showPortfolioDetails(PortfolioItemModel portfolioItem) {
+  void _showPortfolioDetails(PortfolioModel portfolioItem) {
     showDialog(
       context: context,
-      builder: (context) => PortfolioDetailsDialog(portfolioItem: portfolioItem),
+      builder: (context) =>
+          PortfolioDetailsDialog(portfolioItem: portfolioItem),
     );
+  }
+
+  List<Widget> _buildServiceChips() {
+    if (_contractor == null || _contractor!.services.isEmpty) {
+      return [];
+    }
+    return _contractor!.services.map((service) {
+      return Chip(
+        label: Text(service.service?.name ?? 'Unknown Service'),
+        backgroundColor: AppColors.primary.withOpacity(0.1),
+        labelStyle: const TextStyle(
+          color: AppColors.primary,
+        ),
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildCertificationChips() {
+    if (_contractor?.certifications?.isEmpty ?? true) {
+      return [];
+    }
+    return _contractor!.certifications!.map((cert) {
+      return Chip(
+        label: Text(cert),
+        backgroundColor: AppColors.success.withOpacity(0.1),
+        labelStyle: const TextStyle(
+          color: AppColors.success,
+        ),
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildSkillChips() {
+    if (_contractor?.skills?.isEmpty ?? true) {
+      return [];
+    }
+    return _contractor!.skills!.map((skill) {
+      return Chip(
+        label: Text(skill),
+        backgroundColor: AppColors.info.withOpacity(0.1),
+        labelStyle: const TextStyle(
+          color: AppColors.info,
+        ),
+      );
+    }).toList();
   }
 }
 
@@ -880,7 +891,7 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class PortfolioDetailsDialog extends StatelessWidget {
-  final PortfolioItemModel portfolioItem;
+  final PortfolioModel portfolioItem;
 
   const PortfolioDetailsDialog({
     super.key,
@@ -908,7 +919,7 @@ class PortfolioDetailsDialog extends StatelessWidget {
                 icon: const Icon(Icons.close),
               ),
             ),
-            
+
             // Portfolio details
             Padding(
               padding: const EdgeInsets.all(16),

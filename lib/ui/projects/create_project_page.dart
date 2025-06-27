@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_colors.dart';
-import '../../models/services/service_model.dart' as service;
+import '../../models/service_model.dart' as service;
 import '../../repositories/projects_repo/projects_repository.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_button.dart';

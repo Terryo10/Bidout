@@ -1,7 +1,7 @@
-
 // lib/ui/widgets/contractor_review_card.dart
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../models/contractor/contractor_review_model.dart';
 
 class ContractorReviewCard extends StatelessWidget {
   final ContractorReviewModel review;
@@ -46,7 +46,7 @@ class ContractorReviewCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // Client Info
               Expanded(
                 child: Column(
@@ -62,14 +62,14 @@ class ContractorReviewCard extends StatelessWidget {
                             color: AppColors.textPrimary,
                           ),
                         ),
-                        if (review.isVerified)
+                        if (review.isVerified) ...[
                           const SizedBox(width: 4),
-                        if (review.isVerified)
-                          Icon(
+                          const Icon(
                             Icons.verified,
                             size: 16,
                             color: AppColors.info,
                           ),
+                        ],
                       ],
                     ),
                     if (review.projectTitle != null)
@@ -83,7 +83,7 @@ class ContractorReviewCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Date
               Text(
                 review.formattedDate,
@@ -95,7 +95,7 @@ class ContractorReviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          
+
           // Rating Stars
           Row(
             children: [
@@ -116,6 +116,16 @@ class ContractorReviewCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+
+          // Review Text
+          Text(
+            review.reviewText,
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),

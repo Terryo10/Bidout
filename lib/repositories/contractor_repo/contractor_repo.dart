@@ -1,9 +1,9 @@
-
-// lib/repositories/contractor_repo/contractor_repository.dart
+// lib/repositories/contractor_repo/contractor_repo.dart
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../models/contractor/contractor_model.dart';
 import '../../models/contractor/portfolio_model.dart';
+import '../../models/contractor/contractor_review_model.dart';
 import '../../models/pagination/pagination_model.dart';
 import 'contractor_provider.dart';
 
@@ -120,5 +120,10 @@ class ContractorRepository {
 
   Future<void> deletePortfolio(int portfolioId) async {
     return await contractorProvider.deletePortfolio(portfolioId);
+  }
+
+  Future<List<ContractorReviewModel>> getContractorReviews(
+      int contractorId) async {
+    return await contractorProvider.getContractorReviews(contractorId);
   }
 }

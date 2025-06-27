@@ -1,4 +1,3 @@
-
 // lib/ui/contractor/
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/contractor_bloc/contractor_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/contractor/contractor_model.dart';
+import '../widgets/contractor_info_section.dart';
+import '../widgets/contractor_portfolio_preview.dart';
+import '../widgets/contractor_services_section.dart';
+import '../widgets/contractor_stats_section.dart';
 
 class ContractorDetailPage extends StatefulWidget {
   final int contractorId;
@@ -24,8 +27,8 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
   void initState() {
     super.initState();
     context.read<ContractorBloc>().add(
-      ContractorSingleLoadRequested(contractorId: widget.contractorId),
-    );
+          ContractorSingleLoadRequested(contractorId: widget.contractorId),
+        );
   }
 
   @override

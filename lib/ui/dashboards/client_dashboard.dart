@@ -7,8 +7,9 @@ import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/contractor/contractor_model.dart';
-import '../../models/services/service_model.dart' as service;
+import '../../models/service_model.dart' as service;
 import '../../repositories/contractor_repo/contractor_provider.dart';
+import '../../repositories/contractor_repo/contractor_repo.dart';
 import '../../repositories/projects_repo/projects_repository.dart';
 import '../../routes/app_router.dart';
 import '../widgets/action_card.dart';
@@ -58,9 +59,11 @@ class _EnhancedClientDashboardPageState
   Future<void> _loadFeaturedContractors() async {
     try {
       final contractorRepository = context.read<ContractorRepository>();
-      final contractors = await contractorRepository.getFeaturedContractors();
+      final contractors =
+          await contractorRepository.getContractors(isFeatured: true);
       setState(() {
-        _featuredContractors = contractors.take(4).toList(); // Limit to 4 for dashboard
+        _featuredContractors =
+            contractors.data.take(4).toList(); // Limit to 4 for dashboard
         _isLoadingContractors = false;
       });
     } catch (e) {

@@ -1,15 +1,18 @@
-// lib/ui/contractor/find_contractors_page.dart
+// lib/ui/find_contractors/find_contractors.dart
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/contractor_bloc/contractor_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/contractor/contractor_model.dart';
-import '../../models/services/service_model.dart';
+import '../../models/service_model.dart';
+import '../../models/pagination/pagination_model.dart';
 import '../../repositories/projects_repo/projects_repository.dart';
+import '../../routes/app_router.dart';
 import '../widgets/contractor_card.dart';
-import '../widgets/contractor_filter_widget.dart';
 
+@RoutePage()
 class FindContractorsPage extends StatefulWidget {
   const FindContractorsPage({super.key});
 
@@ -20,16 +23,17 @@ class FindContractorsPage extends StatefulWidget {
 class _FindContractorsPageState extends State<FindContractorsPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
   List<ServiceModel> _services = [];
   bool _isLoadingServices = true;
-  
+  String? _selectedService;
+
   @override
   void initState() {
     super.initState();
     _loadServices();
     _scrollController.addListener(_onScroll);
-    
+
     // Load initial contractors
     context.read<ContractorBloc>().add(const ContractorLoadRequested());
   }
@@ -72,34 +76,21 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
     return currentScroll >= (maxScroll * 0.9);
   }
 
-  void _onSearchChanged(String query) {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted && _searchController.text == query) {
-        final currentState = context.read<ContractorBloc>().state;
-        ContractorFilters filters = const ContractorFilters();
-        
-        if (currentState is ContractorLoaded) {
-          filters = currentState.currentFilters;
-        }
-        
-        context.read<ContractorBloc>().add(ContractorSearchRequested(
-          query: query,
-          services: filters.services,
-          minRating: filters.minRating,
-          location: filters.location,
-          isFeatured: filters.isFeatured,
-          hasSubscription: filters.hasSubscription,
-        ));
+  void _onServiceSelected(ServiceModel service, bool selected) {
+    setState(() {
+      if (selected) {
+        _selectedService = service.name;
+      } else {
+        _selectedService = null;
       }
     });
-  }
 
-  void _onFilterChanged(ContractorFilters filters) {
-    context.read<ContractorBloc>().add(ContractorFilterChanged(filters: filters));
-  }
-
-  void _onRefresh() {
-    context.read<ContractorBloc>().add(const ContractorRefreshRequested());
+    context.read<ContractorBloc>().add(
+          ContractorSearchRequested(
+            query: _searchController.text,
+            services: _selectedService != null ? [_selectedService!] : null,
+          ),
+        );
   }
 
   @override
@@ -109,144 +100,136 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
         title: const Text('Find Contractors'),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,
-        elevation: 0,
       ),
       body: Column(
         children: [
-          // Search and Filter Section
-          Container(
-            color: AppColors.white,
+          // Search Bar
+          Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Search Bar
-                TextField(
-                  controller: _searchController,
-                  onChanged: _onSearchChanged,
-                  decoration: InputDecoration(
-                    hintText: 'Search contractors...',
-                    prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, color: AppColors.textSecondary),
-                            onPressed: () {
-                              _searchController.clear();
-                              _onSearchChanged('');
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.borderLight),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: AppColors.grey50,
-                  ),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search contractors...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 16),
-                
-                // Filter Widget
-                if (!_isLoadingServices)
-                  BlocBuilder<ContractorBloc, ContractorState>(
-                    builder: (context, state) {
-                      ContractorFilters currentFilters = const ContractorFilters();
-                      if (state is ContractorLoaded) {
-                        currentFilters = state.currentFilters;
-                      }
-                      
-                      return ContractorFilterWidget(
-                        services: _services,
-                        currentFilters: currentFilters,
-                        onFilterChanged: _onFilterChanged, selectedFilter: '',
-                      );
-                    },
-                  ),
-              ],
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+              ),
+              onChanged: (value) {
+                context.read<ContractorBloc>().add(
+                      ContractorSearchRequested(
+                        query: value,
+                        services: _selectedService != null
+                            ? [_selectedService!]
+                            : null,
+                      ),
+                    );
+              },
             ),
           ),
-          
-          const Divider(height: 1, color: AppColors.borderLight),
-          
-          // Contractors List
-          Expanded(
-            child: BlocConsumer<ContractorBloc, ContractorState>(
-              listener: (context, state) {
-                if (state is ContractorError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: AppColors.error,
+
+          // Services Filter
+          if (!_isLoadingServices && _services.isNotEmpty)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: _services.map((service) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: FilterChip(
+                      label: Text(service.name),
+                      selected: service.name == _selectedService,
+                      onSelected: (selected) =>
+                          _onServiceSelected(service, selected),
                     ),
                   );
-                }
-              },
+                }).toList(),
+              ),
+            ),
+
+          // Contractors List
+          Expanded(
+            child: BlocBuilder<ContractorBloc, ContractorState>(
               builder: (context, state) {
-                if (state is ContractorLoading) {
+                if (state is ContractorInitial) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
                 }
-                
-                if (state is ContractorLoaded) {
-                  final contractors = state.contractors.data;
-                  
-                  if (contractors.isEmpty) {
-                    return _buildEmptyState(state.currentFilters);
-                  }
-                  
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      _onRefresh();
-                    },
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: contractors.length + (state.hasReachedMax ? 0 : 1),
-                      itemBuilder: (context, index) {
-                        if (index >= contractors.length) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-                        
-                        final contractor = contractors[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: ContractorCard(
-                            contractor: contractor,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ContractorDetailPage(
-                                    contractorId: contractor.id,
-                                  ),
-                                ),
-                              );
-                            },
-                            onContact: () => _contactContractor(contractor),
-                            onViewPortfolio: contractor.featuredPortfolios.isNotEmpty
-                                ? () => _viewContractorPortfolio(contractor)
-                                : null,
+
+                if (state is ContractorError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: AppColors.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          state.message,
+                          style: const TextStyle(
+                            color: AppColors.error,
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<ContractorBloc>().add(
+                                  const ContractorLoadRequested(),
+                                );
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
                     ),
                   );
                 }
-                
-                if (state is ContractorError) {
-                  return _buildErrorState(state.message);
+
+                if (state is ContractorLoaded) {
+                  if (state.contractors.data.isEmpty) {
+                    return const Center(
+                      child: Text('No contractors found'),
+                    );
+                  }
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.contractors.data.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.contractors.data.length) {
+                        return state.hasReachedMax
+                            ? const SizedBox()
+                            : const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                      }
+
+                      final contractor = state.contractors.data[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: ContractorCard(
+                          contractor: contractor,
+                          onTap: () => _navigateToContractorDetails(contractor),
+                        ),
+                      );
+                    },
+                  );
                 }
-                
+
                 return const Center(
-                  child: Text('No contractors available'),
+                  child: CircularProgressIndicator(),
                 );
               },
             ),
@@ -256,176 +239,7 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
     );
   }
 
-  Widget _buildEmptyState(ContractorFilters filters) {
-    if (filters.hasActiveFilters) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.search_off,
-              size: 64,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'No contractors found',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Try adjusting your search or filters',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                _searchController.clear();
-                context.read<ContractorBloc>().add(
-                  const ContractorFilterChanged(filters: ContractorFilters()),
-                );
-              },
-              child: const Text('Clear Filters'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.people_outline,
-              size: 64,
-              color: AppColors.textSecondary,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'No contractors available',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Check back later for new contractors',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: AppColors.error,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Error loading contractors',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _onRefresh,
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _contactContractor(ContractorModel contractor) {
-    // Show contact options
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Contact ${contractor.displayName}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 24),
-            if (contractor.email.isNotEmpty)
-              ListTile(
-                leading: const Icon(Icons.email, color: AppColors.primary),
-                title: const Text('Send Email'),
-                subtitle: Text(contractor.email),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Open email app
-                },
-              ),
-            if (contractor.phone != null)
-              ListTile(
-                leading: const Icon(Icons.phone, color: AppColors.success),
-                title: const Text('Call'),
-                subtitle: Text(contractor.phone!),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Open phone app
-                },
-              ),
-            if (contractor.website != null)
-              ListTile(
-                leading: const Icon(Icons.web, color: AppColors.info),
-                title: const Text('Visit Website'),
-                subtitle: Text(contractor.website!),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Open web browser
-                },
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _viewContractorPortfolio(ContractorModel contractor) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ContractorPortfolioPage(
-          contractorId: contractor.id,
-          contractorName: contractor.displayName,
-        ),
-      ),
-    );
+  void _navigateToContractorDetails(ContractorModel contractor) {
+    context.pushRoute(ContractorProfileRoute(contractorId: contractor.id));
   }
 }

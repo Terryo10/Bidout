@@ -1,5 +1,4 @@
 // lib/models/contractor/contractor_model.dart
-import '../services/service_model.dart';
 import 'contractor_service_model.dart';
 import 'portfolio_model.dart';
 

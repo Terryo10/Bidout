@@ -1,4 +1,6 @@
 // lib/models/project_model.dart
+import '../service_model.dart';
+
 class ProjectModel {
   final int id;
   final int? serviceId;
@@ -8,7 +10,9 @@ class ProjectModel {
   final String? street;
   final String? city;
   final String? zipCode;
-  final String? state;
+  final int? provinceId;
+  final double? lat;
+  final double? lng;
   final double budget;
   final String frequency;
   final DateTime? startDate;
@@ -18,6 +22,7 @@ class ProjectModel {
   final String? additionalRequirements;
   final bool isDrafted;
   final int? contractorId;
+  final String? color;
   final DateTime createdAt;
   final DateTime updatedAt;
   final ServiceModel? service;
@@ -32,7 +37,9 @@ class ProjectModel {
     this.street,
     this.city,
     this.zipCode,
-    this.state,
+    this.provinceId,
+    this.lat,
+    this.lng,
     required this.budget,
     required this.frequency,
     this.startDate,
@@ -42,6 +49,7 @@ class ProjectModel {
     this.additionalRequirements,
     required this.isDrafted,
     this.contractorId,
+    this.color,
     required this.createdAt,
     required this.updatedAt,
     this.service,
@@ -49,20 +57,23 @@ class ProjectModel {
   });
 
   bool isInBidPhase() {
-    return status.toLowerCase() == 'open' ||
-        status.toLowerCase() == 'request_for_bids_received';
+    return [
+      'request_for_bids_received',
+      'sourcing_of_vendors',
+      'bids_ready_for_approval'
+    ].contains(status.toLowerCase());
   }
 
   bool isInProgress() {
-    return status.toLowerCase() == 'in_progress';
+    return status.toLowerCase() == 'project_in_progress';
   }
 
   bool isCompleted() {
-    return status.toLowerCase() == 'completed';
+    return status.toLowerCase() == 'project_completed';
   }
 
   bool isScheduled() {
-    return status.toLowerCase() == 'scheduled';
+    return status.toLowerCase() == 'project_being_scheduled';
   }
 
   factory ProjectModel.fromJson(Map<String, dynamic> json) {
@@ -75,7 +86,9 @@ class ProjectModel {
       street: json['street'],
       city: json['city'],
       zipCode: json['zip_code'],
-      state: json['state'],
+      provinceId: json['province_id'],
+      lat: json['lat'] != null ? double.parse(json['lat'].toString()) : null,
+      lng: json['lng'] != null ? double.parse(json['lng'].toString()) : null,
       budget: double.parse(json['budget'].toString()),
       frequency: json['frequency'] ?? 'One-time',
       startDate: json['start_date'] != null
@@ -88,6 +101,7 @@ class ProjectModel {
       additionalRequirements: json['additionalRequirements'],
       isDrafted: json['is_drafted'] ?? false,
       contractorId: json['contractor_id'],
+      color: json['color'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
       service: json['service'] != null
@@ -111,7 +125,9 @@ class ProjectModel {
       'street': street,
       'city': city,
       'zip_code': zipCode,
-      'state': state,
+      'province_id': provinceId,
+      'lat': lat,
+      'lng': lng,
       'budget': budget,
       'frequency': frequency,
       'start_date': startDate?.toIso8601String(),
@@ -121,6 +137,7 @@ class ProjectModel {
       'additionalRequirements': additionalRequirements,
       'is_drafted': isDrafted,
       'contractor_id': contractorId,
+      'color': color,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'service': service?.toJson(),

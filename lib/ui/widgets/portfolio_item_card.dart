@@ -1,12 +1,10 @@
-
 // lib/ui/widgets/portfolio_item_card.dart
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../../models/contractor/portfolio_item_model.dart' show PortfolioItemModel;
-
+import '../../models/contractor/portfolio_model.dart';
 
 class PortfolioItemCard extends StatelessWidget {
-  final PortfolioItemModel portfolioItem;
+  final PortfolioModel portfolioItem;
   final VoidCallback onTap;
 
   const PortfolioItemCard({
@@ -45,7 +43,7 @@ class PortfolioItemCard extends StatelessWidget {
                 aspectRatio: 16 / 9,
                 child: portfolioItem.primaryImage != null
                     ? Image.network(
-                        portfolioItem.primaryImage!.fullImageUrl,
+                        portfolioItem.primaryImage!.imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return _buildPlaceholderImage();
@@ -54,7 +52,7 @@ class PortfolioItemCard extends StatelessWidget {
                     : _buildPlaceholderImage(),
               ),
             ),
-            
+
             // Content Section
             Padding(
               padding: const EdgeInsets.all(12),
@@ -95,7 +93,7 @@ class PortfolioItemCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Project Type
                   if (portfolioItem.projectType != null)
                     Container(
@@ -117,7 +115,7 @@ class PortfolioItemCard extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(height: 8),
-                  
+
                   // Description
                   if (portfolioItem.description != null)
                     Text(
@@ -131,7 +129,7 @@ class PortfolioItemCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   const SizedBox(height: 8),
-                  
+
                   // Footer Info
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,7 +144,7 @@ class PortfolioItemCard extends StatelessWidget {
                             color: AppColors.success,
                           ),
                         ),
-                      
+
                       // Completion Date
                       Text(
                         portfolioItem.formattedDate,

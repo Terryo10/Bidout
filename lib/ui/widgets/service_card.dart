@@ -1,10 +1,10 @@
 // lib/ui/widgets/service_card.dart
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../../models/services/service_model.dart' as service;
+import '../../models/service_model.dart';
 
 class ServiceCard extends StatelessWidget {
-  final service.ServiceModel serviceModel;
+  final ServiceModel serviceModel;
   final VoidCallback onTap;
 
   const ServiceCard({
@@ -78,20 +78,20 @@ class ServiceCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    ...[
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: Text(
-                        serviceModel.description,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
+                    if (serviceModel.description != null) ...[
+                      const SizedBox(height: 4),
+                      Expanded(
+                        child: Text(
+                          serviceModel.description!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
                   ],
                 ),
               ),

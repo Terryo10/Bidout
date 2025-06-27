@@ -1,11 +1,13 @@
 // lib/ui/contractors/contractor_directory_page.dart
 import 'package:auto_route/auto_route.dart';
+import 'package:bidout/ui/widgets/contractor_filter_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../constants/app_colors.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../repositories/contractor_repo/contractor_repo.dart';
+import '../widgets/contractor_card.dart';
 
 @RoutePage()
 class ContractorDirectoryPage extends StatefulWidget {

@@ -8,10 +8,10 @@ import 'package:mime/mime.dart';
 import '../../constants/app_urls.dart';
 import '../../models/auth/api_error_model.dart';
 import '../../models/pagination/pagination_model.dart';
-import '../../models/projects/project_model.dart';
+import '../../models/projects/project_model.dart' as project;
 import '../../models/projects/projects_response_model.dart';
 import '../../models/projects/project_request_model.dart' as request;
-import '../../models/services/service_model.dart' as service;
+import '../../models/service_model.dart';
 
 class ProjectProvider {
   final FlutterSecureStorage storage;
@@ -39,7 +39,7 @@ class ProjectProvider {
     };
   }
 
-  Future<PaginationModel<ProjectModel>> getProjects({
+  Future<PaginationModel<project.ProjectModel>> getProjects({
     int page = 1,
     int perPage = 10,
     String? search,
@@ -49,31 +49,32 @@ class ProjectProvider {
   }) async {
     try {
       final headers = await _getAuthHeaders();
-      
+
       // Build query parameters
       final queryParams = <String, String>{
         'page': page.toString(),
         'per_page': perPage.toString(),
       };
-      
+
       if (search != null && search.isNotEmpty) {
         queryParams['search'] = search;
       }
-      
+
       if (status != null && status.isNotEmpty && status != 'All') {
         queryParams['status'] = status;
       }
-      
+
       if (sortBy != null && sortBy.isNotEmpty) {
         queryParams['sort_by'] = sortBy;
       }
-      
+
       if (sortOrder != null && sortOrder.isNotEmpty) {
         queryParams['sort_order'] = sortOrder;
       }
 
-      final uri = Uri.parse(AppUrls.projects).replace(queryParameters: queryParams);
-      
+      final uri =
+          Uri.parse(AppUrls.projects).replace(queryParameters: queryParams);
+
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
@@ -90,7 +91,7 @@ class ProjectProvider {
     }
   }
 
-  Future<ProjectModel?> getProject(int projectId) async {
+  Future<project.ProjectModel?> getProject(int projectId) async {
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
@@ -100,7 +101,7 @@ class ProjectProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return ProjectModel.fromJson(data['project'] ?? data);
+        return project.ProjectModel.fromJson(data['project'] ?? data);
       } else if (response.statusCode == 404) {
         return null;
       } else {
@@ -113,7 +114,7 @@ class ProjectProvider {
     }
   }
 
-  Future<ProjectModel> createProject(
+  Future<project.ProjectModel> createProject(
       request.ProjectRequestModel request) async {
     try {
       final headers = await _getMultipartHeaders();
@@ -177,7 +178,7 @@ class ProjectProvider {
 
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        return ProjectModel.fromJson(data['project'] ?? data);
+        return project.ProjectModel.fromJson(data['project'] ?? data);
       } else {
         final error = jsonDecode(response.body);
         throw ApiErrorModel.fromJson(error);
@@ -188,7 +189,7 @@ class ProjectProvider {
     }
   }
 
-  Future<ProjectModel> updateProject(
+  Future<project.ProjectModel> updateProject(
       int projectId, request.ProjectRequestModel request) async {
     try {
       final headers = await _getMultipartHeaders();
@@ -253,7 +254,7 @@ class ProjectProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return ProjectModel.fromJson(data['project'] ?? data);
+        return project.ProjectModel.fromJson(data['project'] ?? data);
       } else {
         final error = jsonDecode(response.body);
         throw ApiErrorModel.fromJson(error);
@@ -282,7 +283,7 @@ class ProjectProvider {
     }
   }
 
-  Future<List<service.ServiceModel>> getServices() async {
+  Future<List<ServiceModel>> getServices() async {
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
@@ -293,9 +294,7 @@ class ProjectProvider {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> servicesJson = data['services'] ?? [];
-        return servicesJson
-            .map((json) => service.ServiceModel.fromJson(json))
-            .toList();
+        return servicesJson.map((json) => ServiceModel.fromJson(json)).toList();
       } else {
         final error = jsonDecode(response.body);
         throw ApiErrorModel.fromJson(error);
