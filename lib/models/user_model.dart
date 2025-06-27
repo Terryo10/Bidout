@@ -10,7 +10,7 @@ class UserModel {
   final List<String>? skills;
   final String? businessName;
   final String? licenseNumber;
-  final int? experience;
+  final String? experience;
   final List<String>? serviceAreas;
   final double? hourlyRate;
   final String? companyName;
@@ -99,7 +99,7 @@ class UserModel {
       skills: json['skills'] != null ? List<String>.from(json['skills']) : null,
       businessName: json['business_name'],
       licenseNumber: json['license_number'],
-      experience: json['experience'],
+      experience: json['experience']?.toString(),
       serviceAreas: json['service_areas'] != null
           ? List<String>.from(json['service_areas'])
           : null,

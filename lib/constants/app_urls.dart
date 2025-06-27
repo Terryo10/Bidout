@@ -4,14 +4,14 @@ class AppUrls {
   static const String apiUrl = '$baseUrl/api';
 
   // Auth endpoints
-  static const String login = '$apiUrl/auth/login';
-  static const String register = '$apiUrl/auth/register';
-  static const String forgotPassword = '$apiUrl/auth/forgot-password';
-  static const String resetPassword = '$apiUrl/auth/reset-password';
-  static const String verifyEmail = '$apiUrl/auth/verify-email';
-  static const String resendVerification = '$apiUrl/auth/resend-verification';
-  static const String logout = '$apiUrl/auth/logout';
-  static const String me = '$apiUrl/auth/me';
+  static const String login = '$apiUrl/login';
+  static const String register = '$apiUrl/register';
+  static const String forgotPassword = '$apiUrl/forgot-password';
+  static const String resetPassword = '$apiUrl/reset-password';
+  static const String verifyEmail = '$apiUrl/verify-email';
+  static const String resendVerification = '$apiUrl/resend-verification';
+  static const String logout = '$apiUrl/logout';
+  static const String me = '$apiUrl/me';
 
   // User endpoints
   static const String profile = '$apiUrl/user/profile';
