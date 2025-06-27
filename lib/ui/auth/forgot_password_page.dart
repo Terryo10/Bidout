@@ -8,7 +8,6 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_theme_extension.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_button.dart';
-import '../../routes/app_router.dart';
 
 @RoutePage()
 class ForgotPasswordPage extends StatefulWidget {
