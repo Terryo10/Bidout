@@ -30,15 +30,15 @@ class ContractorCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          decoration: contractor.isFeatured
-              ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: context.warning,
-                    width: 2,
-                  ),
-                )
-              : null,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: contractor.hasGoldenBadge
+                  ? context.warning
+                  : context.colors.primary.withOpacity(0.5),
+              width: contractor.hasGoldenBadge ? 2 : 1,
+            ),
+          ),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +81,7 @@ class ContractorCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (contractor.isFeatured)
+                            if (contractor.hasGoldenBadge)
                               Padding(
                                 padding: const EdgeInsets.only(left: 8),
                                 child: Icon(

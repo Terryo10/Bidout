@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/contractor_bloc/contractor_bloc.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_theme_extension.dart';
 import '../../constants/app_urls.dart';
 import '../../models/contractor/contractor_model.dart';
@@ -12,6 +11,7 @@ import '../widgets/contractor_info_section.dart';
 import '../widgets/contractor_portfolio_preview.dart';
 import '../widgets/contractor_services_section.dart';
 import '../widgets/contractor_stats_section.dart';
+import '../widgets/theme_toggle.dart';
 
 @RoutePage()
 class ContractorDetailPage extends StatefulWidget {
@@ -43,7 +43,7 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: AppColors.error,
+              backgroundColor: context.error,
             ),
           );
         }
@@ -60,7 +60,10 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
         if (state is ContractorError) {
           return Scaffold(
             body: Center(
-              child: Text(state.message),
+              child: Text(
+                state.message,
+                style: TextStyle(color: context.error),
+              ),
             ),
           );
         }
@@ -70,9 +73,12 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
           return _buildContractorDetails(contractor);
         }
 
-        return const Scaffold(
+        return Scaffold(
           body: Center(
-            child: Text('Something went wrong'),
+            child: Text(
+              'Something went wrong',
+              style: TextStyle(color: context.error),
+            ),
           ),
         );
       },
@@ -88,12 +94,57 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
             pinned: true,
             backgroundColor: context.colors.primary,
             foregroundColor: context.colors.onPrimary,
+            actions: [
+              const ThemeToggle(),
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: () => _shareContractor(contractor),
+              ),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  switch (value) {
+                    case 'contact':
+                      _contactContractor(contractor);
+                      break;
+                    case 'report':
+                      _reportContractor(contractor);
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'contact',
+                    child: Row(
+                      children: [
+                        Icon(Icons.contact_mail,
+                            size: 20, color: context.textPrimary),
+                        const SizedBox(width: 8),
+                        Text('Contact',
+                            style: TextStyle(color: context.textPrimary)),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'report',
+                    child: Row(
+                      children: [
+                        Icon(Icons.report, size: 20, color: context.error),
+                        const SizedBox(width: 8),
+                        Text('Report',
+                            style: TextStyle(color: context.textPrimary)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 contractor.displayName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: context.colors.onPrimary,
                 ),
               ),
               background: Container(
@@ -147,46 +198,6 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
                 ),
               ),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () => _shareContractor(contractor),
-              ),
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  switch (value) {
-                    case 'contact':
-                      _contactContractor(contractor);
-                      break;
-                    case 'report':
-                      _reportContractor(contractor);
-                      break;
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'contact',
-                    child: Row(
-                      children: [
-                        Icon(Icons.contact_mail, size: 20),
-                        SizedBox(width: 8),
-                        Text('Contact'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'report',
-                    child: Row(
-                      children: [
-                        Icon(Icons.report, size: 20),
-                        SizedBox(width: 8),
-                        Text('Report'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
@@ -218,8 +229,8 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
                     icon: const Icon(Icons.contact_mail),
                     label: const Text('Contact Contractor'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white,
+                      backgroundColor: context.colors.primary,
+                      foregroundColor: context.colors.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                   ),
@@ -237,7 +248,13 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
   void _shareContractor(ContractorModel contractor) {
     // TODO: Implement share functionality
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Share functionality not implemented yet')),
+      SnackBar(
+        content: Text(
+          'Share functionality not implemented yet',
+          style: TextStyle(color: context.colors.onPrimary),
+        ),
+        backgroundColor: context.colors.primary,
+      ),
     );
   }
 
@@ -247,22 +264,29 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
       context: context,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Contact ${contractor.displayName}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 24),
             if (contractor.email.isNotEmpty)
               ListTile(
-                leading: const Icon(Icons.email, color: AppColors.primary),
-                title: const Text('Send Email'),
-                subtitle: Text(contractor.email),
+                leading: Icon(Icons.email, color: context.colors.primary),
+                title: Text('Send Email',
+                    style: TextStyle(color: context.textPrimary)),
+                subtitle: Text(contractor.email,
+                    style: TextStyle(color: context.textSecondary)),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Open email app
@@ -270,9 +294,11 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
               ),
             if (contractor.phone != null)
               ListTile(
-                leading: const Icon(Icons.phone, color: AppColors.success),
-                title: const Text('Call'),
-                subtitle: Text(contractor.phone!),
+                leading: Icon(Icons.phone, color: context.success),
+                title:
+                    Text('Call', style: TextStyle(color: context.textPrimary)),
+                subtitle: Text(contractor.phone!,
+                    style: TextStyle(color: context.textSecondary)),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Open phone app
@@ -280,9 +306,11 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
               ),
             if (contractor.website != null)
               ListTile(
-                leading: const Icon(Icons.web, color: AppColors.info),
-                title: const Text('Visit Website'),
-                subtitle: Text(contractor.website!),
+                leading: Icon(Icons.web, color: context.info),
+                title: Text('Visit Website',
+                    style: TextStyle(color: context.textPrimary)),
+                subtitle: Text(contractor.website!,
+                    style: TextStyle(color: context.textSecondary)),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Open web browser
@@ -297,7 +325,13 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
   void _reportContractor(ContractorModel contractor) {
     // TODO: Implement report functionality
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Report functionality not implemented yet')),
+      SnackBar(
+        content: Text(
+          'Report functionality not implemented yet',
+          style: TextStyle(color: context.colors.onPrimary),
+        ),
+        backgroundColor: context.colors.primary,
+      ),
     );
   }
 }

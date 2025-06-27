@@ -898,15 +898,25 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(
-      color: context.colors.surface,
-      child: tabBar,
+    return Material(
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border(
+            bottom: BorderSide(
+              color: context.borderLight,
+              width: 1,
+            ),
+          ),
+        ),
+        child: tabBar,
+      ),
     );
   }
 
   @override
   bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
-    return false;
+    return true;
   }
 }
 

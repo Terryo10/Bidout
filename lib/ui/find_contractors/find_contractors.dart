@@ -333,7 +333,7 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
   }
 
   void _navigateToContractorDetails(ContractorModel contractor) {
-    context.pushRoute(ContractorPreviewRoute(contractorId: contractor.id));
+    context.pushRoute(ContractorProfileRoute(contractorId: contractor.id));
   }
 
   void _showFilterDialog() {

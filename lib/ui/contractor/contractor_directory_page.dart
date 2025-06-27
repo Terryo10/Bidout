@@ -4,7 +4,7 @@ import 'package:bidout/ui/widgets/contractor_filter_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../repositories/contractor_repo/contractor_repo.dart';
 import '../../routes/app_router.dart';
@@ -131,8 +131,8 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Contractors'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.onPrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -146,7 +146,7 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
         children: [
           // Search and Filter Section
           Container(
-            color: AppColors.white,
+            color: context.colors.surface,
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
@@ -156,12 +156,12 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
                     hintText: 'Search contractors...',
-                    prefixIcon: const Icon(Icons.search,
-                        color: AppColors.textSecondary),
+                    prefixIcon:
+                        Icon(Icons.search, color: context.textSecondary),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear,
-                                color: AppColors.textSecondary),
+                            icon:
+                                Icon(Icons.clear, color: context.textSecondary),
                             onPressed: () {
                               _searchController.clear();
                               _onSearchChanged('');
@@ -170,16 +170,19 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide:
-                          const BorderSide(color: AppColors.borderLight),
+                      borderSide: BorderSide(color: context.borderLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide:
-                          const BorderSide(color: AppColors.primary, width: 2),
+                          BorderSide(color: context.colors.primary, width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: context.borderLight),
                     ),
                     filled: true,
-                    fillColor: AppColors.grey50,
+                    fillColor: context.colors.surfaceContainer,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -203,7 +206,7 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
             ),
           ),
 
-          const Divider(height: 1, color: AppColors.borderLight),
+          Divider(height: 1, color: context.borderLight),
 
           // Contractors List
           Expanded(
@@ -225,12 +228,21 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
       value: _selectedSort,
       decoration: InputDecoration(
         labelText: 'Sort by',
+        labelStyle: TextStyle(color: context.textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.borderLight),
+          borderSide: BorderSide(color: context.borderLight),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: context.borderLight),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: context.colors.primary),
         ),
         filled: true,
-        fillColor: AppColors.grey50,
+        fillColor: context.colors.surfaceContainer,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: sortOptions.map((sort) {
@@ -238,7 +250,10 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
           value: sort,
           child: Text(
             sort,
-            style: const TextStyle(fontSize: 14),
+            style: TextStyle(
+              fontSize: 14,
+              color: context.textPrimary,
+            ),
           ),
         );
       }).toList(),
@@ -296,25 +311,25 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.search_off,
               size: 64,
-              color: AppColors.textSecondary,
+              color: context.textSecondary,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'No contractors found',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Try adjusting your search or filters',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -329,6 +344,10 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
                 });
                 _loadContractors();
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.onPrimary,
+              ),
               child: const Text('Clear Filters'),
             ),
           ],
@@ -336,29 +355,29 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
       );
     } else {
       // No contractors at all
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.people_outline,
               size: 64,
-              color: AppColors.textSecondary,
+              color: context.textSecondary,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'No contractors available',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.textPrimary,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Check back later for available contractors',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
               ),
             ),
           ],
@@ -372,31 +391,35 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline,
             size: 64,
-            color: AppColors.error,
+            color: context.error,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Error loading contractors',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: context.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadContractors,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.colors.primary,
+              foregroundColor: context.colors.onPrimary,
+            ),
             child: const Text('Retry'),
           ),
         ],
@@ -441,7 +464,7 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
   }
 
   void _navigateToContractorProfile(ContractorModel contractor) {
-    context.pushRoute(ContractorPreviewRoute(contractorId: contractor.id));
+    context.pushRoute(ContractorProfileRoute(contractorId: contractor.id));
   }
 }
 
