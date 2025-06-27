@@ -4,51 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../routes/app_router.dart';
 
 @RoutePage()
-class LandingPage extends StatefulWidget {
+class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
-}
-
-class _LandingPageState extends State<LandingPage> {
-  @override
-  void initState() {
-    super.initState();
-    // Check authentication status when landing page loads
-    context.read<AuthBloc>().add(AuthCheckRequested());
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          // Navigate to appropriate dashboard based on user type
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthLoading) {
+          return const _LoadingView();
+        } else if (state is AuthUnauthenticated) {
+          return const _WelcomeView();
+        } else if (state is AuthAuthenticated) {
           if (state.user.isClient) {
             context.router.replace(const EnhancedClientDashboardRoute());
           } else if (state.user.isContractor) {
             context.router.replace(const ContractorDashboardRoute());
           }
-        } else if (state is AuthUnauthenticated) {
-          // Stay on landing page to show auth options
+          return const _LoadingView();
+        } else {
+          return const _LoadingView();
         }
       },
-      child: Scaffold(
-        body: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthLoading || state is AuthInitial) {
-              return const _LoadingView();
-            }
-            
-            return const _WelcomeView();
-          },
-        ),
-      ),
     );
   }
 }
@@ -59,37 +40,37 @@ class _LoadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.primary,
-            AppColors.primaryDark,
+            context.colors.primary,
+            context.colors.primary.withOpacity(0.8),
           ],
         ),
       ),
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.construction,
               size: 80,
-              color: AppColors.white,
+              color: context.colors.onPrimary,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               'BidOut',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: AppColors.white,
+                color: context.colors.onPrimary,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(AppColors.white),
+              valueColor: AlwaysStoppedAnimation(context.colors.onPrimary),
             ),
           ],
         ),
@@ -103,93 +84,81 @@ class _WelcomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primaryDark,
-          ],
+    return Material(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              context.colors.primary,
+              context.colors.primary.withOpacity(0.8),
+            ],
+          ),
         ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.construction,
-                      size: 100,
-                      color: AppColors.white,
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'BidOut',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.white,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.construction,
+                        size: 100,
+                        color: context.colors.onPrimary,
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Connect with the right contractors\nfor your projects',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: AppColors.white,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    _FeaturesList(),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _ActionButton(
-                      text: 'Sign In',
-                      onPressed: () {
-                        context.router.push(const LoginRoute());
-                      },
-                      isPrimary: true,
-                    ),
-                    const SizedBox(height: 16),
-                    _ActionButton(
-                      text: 'Create Account',
-                      onPressed: () {
-                        context.router.push(const RegisterRoute());
-                      },
-                      isPrimary: false,
-                    ),
-                    const SizedBox(height: 24),
-                    TextButton(
-                      onPressed: () {
-                        // Show app info or terms
-                      },
-                      child: const Text(
-                        'Learn More',
+                      const SizedBox(height: 24),
+                      Text(
+                        'BidOut',
                         style: TextStyle(
-                          color: AppColors.white,
-                          fontSize: 16,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: context.colors.onPrimary,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Text(
+                        'Connect with the right contractors\nfor your projects',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: context.colors.onPrimary,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      const _FeaturesList(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _ActionButton(
+                        text: 'Get Started',
+                        onPressed: () {
+                          context.router.push(const RegisterRoute());
+                        },
+                        isPrimary: true,
+                      ),
+                      const SizedBox(height: 16),
+                      _ActionButton(
+                        text: 'Sign In',
+                        onPressed: () {
+                          context.router.push(const LoginRoute());
+                        },
+                        isPrimary: false,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -198,33 +167,35 @@ class _WelcomeView extends StatelessWidget {
 }
 
 class _FeaturesList extends StatelessWidget {
+  const _FeaturesList();
+
   @override
   Widget build(BuildContext context) {
     final features = [
       'Post projects and receive competitive bids',
-      'Browse qualified contractors',
-      'Secure project management',
-      'Built-in communication tools',
+      'Find qualified contractors in your area',
+      'Secure payment and project management',
+      'Real-time updates and communication',
     ];
 
     return Column(
       children: features.map((feature) {
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.check_circle,
-                color: AppColors.secondary,
-                size: 20,
+                color: context.colors.onPrimary,
+                size: 24,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   feature,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 14,
+                  style: TextStyle(
+                    color: context.colors.onPrimary,
+                    fontSize: 16,
                   ),
                 ),
               ),
@@ -255,9 +226,13 @@ class _ActionButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isPrimary ? AppColors.white : Colors.transparent,
-          foregroundColor: isPrimary ? AppColors.primary : AppColors.white,
-          side: isPrimary ? null : const BorderSide(color: AppColors.white, width: 2),
+          backgroundColor:
+              isPrimary ? context.colors.onPrimary : Colors.transparent,
+          foregroundColor:
+              isPrimary ? context.colors.primary : context.colors.onPrimary,
+          side: isPrimary
+              ? null
+              : BorderSide(color: context.colors.onPrimary, width: 2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

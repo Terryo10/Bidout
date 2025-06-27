@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/projects/project_model.dart';
 import '../../routes/app_router.dart';
 import '../widgets/project_image_gallery.dart';
@@ -320,32 +321,32 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Project Details'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.onPrimary,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 64,
-              color: AppColors.error,
+              color: context.error,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Project not found',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'The requested project could not be loaded',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -366,12 +367,12 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.shadow.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -397,9 +398,9 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
               const SizedBox(width: 12),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -408,10 +409,10 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
+import '../../constants/app_urls.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../models/contractor/portfolio_model.dart';
 
@@ -23,19 +24,20 @@ class ContractorPortfolioPreview extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Portfolio',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+              style: context.textTheme.titleLarge?.copyWith(
+                color: context.textPrimary,
               ),
             ),
             TextButton(
               onPressed: () {
                 // TODO: Navigate to full portfolio
               },
-              child: const Text('View All'),
+              child: Text(
+                'View All',
+                style: TextStyle(color: context.colors.primary),
+              ),
             ),
           ],
         ),
@@ -72,12 +74,12 @@ class _PortfolioCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.surface.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -94,17 +96,17 @@ class _PortfolioCard extends StatelessWidget {
                 topRight: Radius.circular(12),
               ),
               child: Image.network(
-                portfolio.primaryImage!.imageUrl,
+                AppUrls.getStorageUrl(portfolio.primaryImage!.imageUrl),
                 height: 140,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     height: 140,
-                    color: AppColors.grey100,
-                    child: const Icon(
+                    color: context.colors.surfaceContainer,
+                    child: Icon(
                       Icons.image_not_supported,
-                      color: AppColors.textSecondary,
+                      color: context.textSecondary,
                     ),
                   );
                 },
@@ -113,16 +115,14 @@ class _PortfolioCard extends StatelessWidget {
 
           // Content
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   portfolio.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                  style: context.textTheme.titleMedium?.copyWith(
+                    color: context.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -135,25 +135,25 @@ class _PortfolioCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: context.colors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       portfolio.projectType!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.primary,
+                        color: context.colors.primary,
                       ),
                     ),
                   ),
                 ],
                 if (portfolio.description != null) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     portfolio.description!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: context.textSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

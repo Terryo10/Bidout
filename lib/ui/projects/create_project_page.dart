@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../bloc/services_bloc/services_bloc.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/services/service_model.dart' as service;
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_button.dart';
@@ -119,9 +119,9 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
     if (_formKey.currentState!.validate()) {
       if (_selectedService == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a service'),
-            backgroundColor: AppColors.error,
+          SnackBar(
+            content: const Text('Please select a service'),
+            backgroundColor: context.error,
           ),
         );
         return;
@@ -129,9 +129,9 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
 
       if (_startDate == null || _endDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select start and end dates'),
-            backgroundColor: AppColors.error,
+          SnackBar(
+            content: const Text('Please select start and end dates'),
+            backgroundColor: context.error,
           ),
         );
         return;
@@ -175,8 +175,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Project'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.onPrimary,
       ),
       body: BlocListener<ProjectBloc, ProjectState>(
         listener: (context, state) {
@@ -188,7 +188,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       ? 'Project saved as draft successfully'
                       : 'Project created successfully',
                 ),
-                backgroundColor: AppColors.success,
+                backgroundColor: context.success,
               ),
             );
             context.router.pop();
@@ -196,7 +196,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.error,
+                backgroundColor: context.error,
               ),
             );
           }
@@ -229,12 +229,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Service Category',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                        color: context.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -251,7 +251,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                             children: [
                               Text(
                                 state.message,
-                                style: const TextStyle(color: AppColors.error),
+                                style: TextStyle(color: context.error),
                               ),
                               const SizedBox(height: 8),
                               TextButton.icon(
@@ -260,8 +260,13 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                       .read<ServicesBloc>()
                                       .add(ServicesLoadRequested());
                                 },
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Retry'),
+                                icon: Icon(Icons.refresh,
+                                    color: context.colors.primary),
+                                label: Text(
+                                  'Retry',
+                                  style:
+                                      TextStyle(color: context.colors.primary),
+                                ),
                               ),
                             ],
                           );
@@ -287,11 +292,22 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                   hintText: 'Select a service',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: AppColors.borderLight),
+                                    borderSide:
+                                        BorderSide(color: context.borderLight),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide:
+                                        BorderSide(color: context.borderLight),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                        color: context.colors.primary),
                                   ),
                                   suffixIcon: IconButton(
-                                    icon: const Icon(Icons.refresh),
+                                    icon: Icon(Icons.refresh,
+                                        color: context.textSecondary),
                                     onPressed: () {
                                       context
                                           .read<ServicesBloc>()
@@ -302,7 +318,11 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                 items: state.services.map((serviceItem) {
                                   return DropdownMenuItem<service.ServiceModel>(
                                     value: serviceItem,
-                                    child: Text(serviceItem.name),
+                                    child: Text(
+                                      serviceItem.name,
+                                      style:
+                                          TextStyle(color: context.textPrimary),
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (service.ServiceModel? value) {
@@ -326,8 +346,13 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                           .read<ServicesBloc>()
                                           .add(ServicesLoadRequested());
                                     },
-                                    icon: const Icon(Icons.refresh),
-                                    label: const Text('Refresh Services'),
+                                    icon: Icon(Icons.refresh,
+                                        color: context.colors.primary),
+                                    label: Text(
+                                      'Refresh Services',
+                                      style: TextStyle(
+                                          color: context.colors.primary),
+                                    ),
                                   ),
                                 ),
                             ],
@@ -388,12 +413,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Frequency',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                        color: context.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -402,14 +427,24 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              const BorderSide(color: AppColors.borderLight),
+                          borderSide: BorderSide(color: context.borderLight),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: context.borderLight),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: context.colors.primary),
                         ),
                       ),
                       items: _frequencies.map((frequency) {
                         return DropdownMenuItem<String>(
                           value: frequency,
-                          child: Text(frequency),
+                          child: Text(
+                            frequency,
+                            style: TextStyle(color: context.textPrimary),
+                          ),
                         );
                       }).toList(),
                       onChanged: (String? value) {
@@ -426,12 +461,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Most Important Factor',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                        color: context.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -440,14 +475,24 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              const BorderSide(color: AppColors.borderLight),
+                          borderSide: BorderSide(color: context.borderLight),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: context.borderLight),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: context.colors.primary),
                         ),
                       ),
                       items: _keyFactors.map((factor) {
                         return DropdownMenuItem<String>(
                           value: factor,
-                          child: Text(factor.capitalize()),
+                          child: Text(
+                            factor.capitalize(),
+                            style: TextStyle(color: context.textPrimary),
+                          ),
                         );
                       }).toList(),
                       onChanged: (String? value) {
@@ -467,12 +512,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Start Date',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textPrimary,
+                              color: context.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -484,15 +529,14 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: AppColors.borderLight),
+                                border: Border.all(color: context.borderLight),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.calendar_today,
-                                    color: AppColors.textSecondary,
+                                    color: context.textSecondary,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 12),
@@ -502,8 +546,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                         : 'Select date',
                                     style: TextStyle(
                                       color: _startDate != null
-                                          ? AppColors.textPrimary
-                                          : AppColors.textTertiary,
+                                          ? context.textPrimary
+                                          : context.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -518,12 +562,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'End Date',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textPrimary,
+                              color: context.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -535,15 +579,14 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: AppColors.borderLight),
+                                border: Border.all(color: context.borderLight),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.calendar_today,
-                                    color: AppColors.textSecondary,
+                                    color: context.textSecondary,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 12),
@@ -553,8 +596,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                         : 'Select date',
                                     style: TextStyle(
                                       color: _endDate != null
-                                          ? AppColors.textPrimary
-                                          : AppColors.textTertiary,
+                                          ? context.textPrimary
+                                          : context.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -619,8 +662,8 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                   icon: const Icon(Icons.add_photo_alternate),
                   label: const Text('Add Images'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.grey100,
-                    foregroundColor: AppColors.textPrimary,
+                    backgroundColor: context.colors.surfaceContainer,
+                    foregroundColor: context.textPrimary,
                     elevation: 0,
                   ),
                 ),
@@ -654,13 +697,13 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                                   onTap: () => _removeImage(index),
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.error,
+                                    decoration: BoxDecoration(
+                                      color: context.error,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.close,
-                                      color: AppColors.white,
+                                      color: context.colors.onPrimary,
                                       size: 16,
                                     ),
                                   ),
@@ -677,12 +720,12 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 // Draft Switch
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       'Save as Draft',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                        color: context.textPrimary,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -693,7 +736,7 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                           _isDrafted = value;
                         });
                       },
-                      activeColor: AppColors.primary,
+                      activeColor: context.colors.primary,
                     ),
                   ],
                 ),
@@ -721,10 +764,10 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: AppColors.textPrimary,
+        color: context.textPrimary,
       ),
     );
   }

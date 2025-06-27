@@ -1,6 +1,6 @@
 // lib/ui/widgets/contractor_review_card.dart
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/contractor_review_model.dart';
 
 class ContractorReviewCard extends StatelessWidget {
@@ -16,12 +16,12 @@ class ContractorReviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.surface.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -30,66 +30,38 @@ class ContractorReviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // Reviewer Info
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Client Avatar
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                child: Text(
-                  review.clientName[0].toUpperCase(),
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-
-              // Client Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          review.clientName,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        if (review.isVerified) ...[
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.verified,
-                            size: 16,
-                            color: AppColors.info,
-                          ),
-                        ],
-                      ],
+              // Name and Project
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    review.clientName,
+                    style: context.textTheme.titleMedium?.copyWith(
+                      color: context.textPrimary,
                     ),
-                    if (review.projectTitle != null)
-                      Text(
-                        'Project: ${review.projectTitle}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
+                  ),
+                  if (review.projectTitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      review.projectTitle!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.textSecondary,
                       ),
+                    ),
                   ],
-                ),
+                ],
               ),
-
               // Date
               Text(
                 review.formattedDate,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                 ),
               ),
             ],
@@ -101,18 +73,18 @@ class ContractorReviewCard extends StatelessWidget {
             children: [
               Text(
                 review.starsDisplay,
-                style: const TextStyle(
-                  color: AppColors.warning,
+                style: TextStyle(
+                  color: context.warning,
                   fontSize: 16,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 '${review.rating}/5',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: context.textPrimary,
                 ),
               ),
             ],
@@ -122,9 +94,9 @@ class ContractorReviewCard extends StatelessWidget {
           // Review Text
           Text(
             review.reviewText,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
         ],

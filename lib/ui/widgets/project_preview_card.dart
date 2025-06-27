@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 
 class ProjectPreviewCard extends StatelessWidget {
   final String title;
@@ -15,8 +15,8 @@ class ProjectPreviewCard extends StatelessWidget {
     required this.title,
     required this.service,
     required this.budget,
-    required this.status,
     required this.bidsCount,
+    required this.status,
     this.imageUrl,
     required this.onTap,
   });
@@ -28,16 +28,9 @@ class ProjectPreviewCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borderLight),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(color: context.borderLight),
         ),
         child: Row(
           children: [
@@ -46,7 +39,7 @@ class ProjectPreviewCard extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: context.colors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: imageUrl != null
@@ -56,11 +49,11 @@ class ProjectPreviewCard extends StatelessWidget {
                         imageUrl!,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return _buildDefaultIcon();
+                          return _buildDefaultIcon(context);
                         },
                       ),
                     )
-                  : _buildDefaultIcon(),
+                  : _buildDefaultIcon(context),
             ),
             const SizedBox(width: 16),
             // Project Details
@@ -70,10 +63,8 @@ class ProjectPreviewCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                    style: context.textTheme.titleMedium?.copyWith(
+                      color: context.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -81,9 +72,8 @@ class ProjectPreviewCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     service,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: context.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -95,14 +85,14 @@ class ProjectPreviewCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(status).withOpacity(0.1),
+                          color:
+                              _getStatusColor(context, status).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           status,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: _getStatusColor(status),
+                          style: context.textTheme.labelSmall?.copyWith(
+                            color: _getStatusColor(context, status),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -110,10 +100,8 @@ class ProjectPreviewCard extends StatelessWidget {
                       const Spacer(),
                       Text(
                         '\$${budget.toString()}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          color: context.textPrimary,
                         ),
                       ),
                     ],
@@ -128,34 +116,32 @@ class ProjectPreviewCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.1),
+                    color: context.warning.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
                     children: [
                       Text(
                         bidsCount.toString(),
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          color: context.warning,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.warning,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'bids',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppColors.warning,
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: context.warning,
                         ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Icon(
+                Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                 ),
               ],
             ),
@@ -165,33 +151,33 @@ class ProjectPreviewCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDefaultIcon() {
-    return const Center(
+  Widget _buildDefaultIcon(BuildContext context) {
+    return Center(
       child: Icon(
         Icons.work_outline,
         size: 24,
-        color: AppColors.primary,
+        color: context.colors.primary,
       ),
     );
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(BuildContext context, String status) {
     switch (status.toLowerCase()) {
       case 'open for bids':
       case 'request_for_bids_received':
       case 'sourcing_of_vendors':
-        return AppColors.info;
+        return context.info;
       case 'in progress':
       case 'project_in_progress':
       case 'project_being_scheduled':
-        return AppColors.warning;
+        return context.warning;
       case 'completed':
       case 'project_completed':
-        return AppColors.success;
+        return context.success;
       case 'bids_ready_for_approval':
-        return AppColors.primary;
+        return context.colors.primary;
       default:
-        return AppColors.textSecondary;
+        return context.textSecondary;
     }
   }
 }

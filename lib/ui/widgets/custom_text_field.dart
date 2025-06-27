@@ -1,6 +1,6 @@
 // lib/ui/widgets/custom_text_field.dart
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -37,10 +37,10 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.textPrimary,
+            color: context.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -52,57 +52,57 @@ class CustomTextField extends StatelessWidget {
           onChanged: onChanged,
           maxLines: maxLines,
           enabled: enabled,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
-            color: AppColors.textPrimary,
+            color: context.textPrimary,
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(
-              color: AppColors.textTertiary,
+            hintStyle: TextStyle(
+              color: context.textSecondary,
             ),
             prefixIcon: prefixIcon != null
                 ? Icon(
                     prefixIcon,
-                    color: AppColors.textSecondary,
+                    color: context.textSecondary,
                     size: 20,
                   )
                 : null,
             suffixIcon: suffixIcon,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.borderLight,
+              borderSide: BorderSide(
+                color: context.borderLight,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.borderLight,
+              borderSide: BorderSide(
+                color: context.borderLight,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.primary,
+              borderSide: BorderSide(
+                color: context.colors.primary,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.error,
+              borderSide: BorderSide(
+                color: context.error,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.error,
+              borderSide: BorderSide(
+                color: context.error,
                 width: 2,
               ),
             ),
             filled: true,
-            fillColor: AppColors.white,
+            fillColor: context.colors.surface,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 12,

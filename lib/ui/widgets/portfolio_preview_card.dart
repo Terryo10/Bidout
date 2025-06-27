@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
+import '../../constants/app_urls.dart';
 import '../../models/contractor/portfolio_model.dart';
 
 class PortfolioPreviewCard extends StatelessWidget {
@@ -21,10 +22,10 @@ class PortfolioPreviewCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.textSecondary.withOpacity(0.2),
+            color: context.textSecondary.withOpacity(0.2),
             width: 1,
           ),
-          color: Colors.white,
+          color: context.colors.surface,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,17 +36,17 @@ class PortfolioPreviewCard extends StatelessWidget {
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
-                  portfolio.primaryImageUrl ?? '',
+                  AppUrls.getStorageUrl(portfolio.primaryImage?.imageUrl),
                   height: 120,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     height: 120,
                     width: double.infinity,
-                    color: AppColors.textSecondary.withOpacity(0.1),
-                    child: const Icon(
+                    color: context.textSecondary.withOpacity(0.1),
+                    child: Icon(
                       Icons.image_not_supported,
-                      color: AppColors.textSecondary,
+                      color: context.textSecondary,
                     ),
                   ),
                 ),
@@ -55,13 +56,13 @@ class PortfolioPreviewCard extends StatelessWidget {
                 height: 120,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.textSecondary.withOpacity(0.1),
+                  color: context.textSecondary.withOpacity(0.1),
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(12)),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.image,
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                 ),
               ),
 
@@ -73,36 +74,25 @@ class PortfolioPreviewCard extends StatelessWidget {
                 children: [
                   Text(
                     portfolio.title,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      color: context.textPrimary,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (portfolio.projectType != null) ...[
-                    const SizedBox(height: 4),
+                  const SizedBox(height: 4),
+                  if (portfolio.description != null)
                     Text(
-                      portfolio.projectType!,
+                      portfolio.description!,
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary.withOpacity(0.8),
+                        color: context.textSecondary,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ],
-                  if (portfolio.projectValue != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$${portfolio.projectValue!.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.success,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 
 class LoadingButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -21,27 +21,28 @@ class LoadingButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.white,
+          backgroundColor: context.colors.primary,
+          foregroundColor: context.colors.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: 4,
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  color: AppColors.white,
+                  color: context.colors.onPrimary,
                   strokeWidth: 2,
                 ),
               )
             : Text(
                 text,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
+                  color: context.colors.onPrimary,
                 ),
               ),
       ),

@@ -1,21 +1,25 @@
 // lib/ui/contractor/
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/contractor_bloc/contractor_bloc.dart';
 import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
+import '../../constants/app_urls.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../widgets/contractor_info_section.dart';
 import '../widgets/contractor_portfolio_preview.dart';
 import '../widgets/contractor_services_section.dart';
 import '../widgets/contractor_stats_section.dart';
 
+@RoutePage()
 class ContractorDetailPage extends StatefulWidget {
   final int contractorId;
 
   const ContractorDetailPage({
     super.key,
-    required this.contractorId,
+    @PathParam('id') required this.contractorId,
   });
 
   @override
@@ -33,52 +37,45 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<ContractorBloc, ContractorState>(
-        listener: (context, state) {
-          if (state is ContractorError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is ContractorSingleLoading) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Contractor Details'),
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
-              ),
-              body: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-
-          if (state is ContractorSingleLoaded) {
-            return _buildContractorDetails(state.contractor);
-          }
-
-          if (state is ContractorError) {
-            return _buildErrorView();
-          }
-
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Contractor Details'),
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.white,
+    return BlocConsumer<ContractorBloc, ContractorState>(
+      listener: (context, state) {
+        if (state is ContractorError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.error,
             ),
-            body: const Center(
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state is ContractorLoading) {
+          return const Scaffold(
+            body: Center(
               child: CircularProgressIndicator(),
             ),
           );
-        },
-      ),
+        }
+
+        if (state is ContractorError) {
+          return Scaffold(
+            body: Center(
+              child: Text(state.message),
+            ),
+          );
+        }
+
+        if (state is ContractorSingleLoaded) {
+          final contractor = state.contractor;
+          return _buildContractorDetails(contractor);
+        }
+
+        return const Scaffold(
+          body: Center(
+            child: Text('Something went wrong'),
+          ),
+        );
+      },
     );
   }
 
@@ -89,8 +86,8 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.white,
+            backgroundColor: context.colors.primary,
+            foregroundColor: context.colors.onPrimary,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 contractor.displayName,
@@ -105,8 +102,8 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppColors.primary,
-                      AppColors.primaryDark,
+                      context.colors.primary,
+                      context.colors.primary.withOpacity(0.8),
                     ],
                   ),
                 ),
@@ -118,17 +115,19 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
                       CircleAvatar(
                         radius: 40,
                         backgroundImage: contractor.avatar != null
-                            ? NetworkImage(contractor.avatar!)
+                            ? NetworkImage(
+                                AppUrls.getStorageUrl(contractor.avatar))
                             : null,
-                        backgroundColor: AppColors.white.withOpacity(0.2),
+                        backgroundColor:
+                            context.colors.onPrimary.withOpacity(0.2),
                         child: contractor.avatar == null
                             ? Text(
                                 contractor.name.isNotEmpty
                                     ? contractor.name[0].toUpperCase()
                                     : 'C',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 32,
-                                  color: AppColors.white,
+                                  color: context.colors.onPrimary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               )
@@ -138,8 +137,8 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
                       if (contractor.businessName != null)
                         Text(
                           contractor.businessName!,
-                          style: const TextStyle(
-                            color: AppColors.white,
+                          style: TextStyle(
+                            color: context.colors.onPrimary,
                             fontSize: 16,
                           ),
                         ),
@@ -231,44 +230,6 @@ class _ContractorDetailPageState extends State<ContractorDetailPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildErrorView() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Contractor Details'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Contractor not found',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'The requested contractor could not be loaded',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart';
 import '../../routes/app_router.dart';
@@ -22,11 +23,11 @@ class ProjectListingPage extends StatefulWidget {
 class _ProjectListingPageState extends State<ProjectListingPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
   String _selectedFilter = 'All';
   String _selectedSort = 'Newest';
   String? _currentSearchQuery;
-  
+
   @override
   void initState() {
     super.initState();
@@ -43,11 +44,13 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
 
   void _loadProjects() {
     context.read<ProjectBloc>().add(ProjectLoadRequested(
-      search: _currentSearchQuery,
-      status: _selectedFilter != 'All' ? _mapFilterToStatus(_selectedFilter) : null,
-      sortBy: _mapSortToField(_selectedSort),
-      sortOrder: _mapSortToOrder(_selectedSort),
-    ));
+          search: _currentSearchQuery,
+          status: _selectedFilter != 'All'
+              ? _mapFilterToStatus(_selectedFilter)
+              : null,
+          sortBy: _mapSortToField(_selectedSort),
+          sortOrder: _mapSortToOrder(_selectedSort),
+        ));
   }
 
   void _onScroll() {
@@ -55,11 +58,13 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
       final currentState = context.read<ProjectBloc>().state;
       if (currentState is ProjectLoaded && !currentState.hasReachedMax) {
         context.read<ProjectBloc>().add(ProjectLoadMoreRequested(
-          search: _currentSearchQuery,
-          status: _selectedFilter != 'All' ? _mapFilterToStatus(_selectedFilter) : null,
-          sortBy: _mapSortToField(_selectedSort),
-          sortOrder: _mapSortToOrder(_selectedSort),
-        ));
+              search: _currentSearchQuery,
+              status: _selectedFilter != 'All'
+                  ? _mapFilterToStatus(_selectedFilter)
+                  : null,
+              sortBy: _mapSortToField(_selectedSort),
+              sortOrder: _mapSortToOrder(_selectedSort),
+            ));
       }
     }
   }
@@ -83,11 +88,13 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
         context.read<ProjectBloc>().add(ProjectSearchRequested(
-          query: _currentSearchQuery ?? '',
-          status: _selectedFilter != 'All' ? _mapFilterToStatus(_selectedFilter) : null,
-          sortBy: _mapSortToField(_selectedSort),
-          sortOrder: _mapSortToOrder(_selectedSort),
-        ));
+              query: _currentSearchQuery ?? '',
+              status: _selectedFilter != 'All'
+                  ? _mapFilterToStatus(_selectedFilter)
+                  : null,
+              sortBy: _mapSortToField(_selectedSort),
+              sortOrder: _mapSortToOrder(_selectedSort),
+            ));
       }
     });
   }
@@ -108,11 +115,13 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
 
   void _onRefresh() {
     context.read<ProjectBloc>().add(ProjectRefreshRequested(
-      search: _currentSearchQuery,
-      status: _selectedFilter != 'All' ? _mapFilterToStatus(_selectedFilter) : null,
-      sortBy: _mapSortToField(_selectedSort),
-      sortOrder: _mapSortToOrder(_selectedSort),
-    ));
+          search: _currentSearchQuery,
+          status: _selectedFilter != 'All'
+              ? _mapFilterToStatus(_selectedFilter)
+              : null,
+          sortBy: _mapSortToField(_selectedSort),
+          sortOrder: _mapSortToOrder(_selectedSort),
+        ));
   }
 
   String? _mapFilterToStatus(String filter) {
@@ -164,8 +173,8 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Projects'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.onPrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -179,7 +188,7 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
         children: [
           // Search and Filter Section
           Container(
-            color: AppColors.white,
+            color: context.colors.surface,
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
@@ -189,10 +198,12 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
                     hintText: 'Search projects...',
-                    prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+                    prefixIcon:
+                        Icon(Icons.search, color: context.textSecondary),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, color: AppColors.textSecondary),
+                            icon:
+                                Icon(Icons.clear, color: context.textSecondary),
                             onPressed: () {
                               _searchController.clear();
                               _onSearchChanged('');
@@ -201,18 +212,19 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.borderLight),
+                      borderSide: BorderSide(color: context.borderLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                      borderSide:
+                          BorderSide(color: context.colors.primary, width: 2),
                     ),
                     filled: true,
-                    fillColor: AppColors.grey50,
+                    fillColor: context.colors.surfaceContainer,
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Filter and Sort Row
                 Row(
                   children: [
@@ -231,9 +243,9 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
               ],
             ),
           ),
-          
+
           const Divider(height: 1, color: AppColors.borderLight),
-          
+
           // Projects List
           Expanded(
             child: BlocConsumer<ProjectBloc, ProjectState>(
@@ -253,14 +265,14 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                     child: CircularProgressIndicator(),
                   );
                 }
-                
+
                 if (state is ProjectLoaded) {
                   final projects = state.projects.data;
-                  
+
                   if (projects.isEmpty) {
                     return _buildEmptyState();
                   }
-                  
+
                   return RefreshIndicator(
                     onRefresh: () async {
                       _onRefresh();
@@ -268,7 +280,8 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                     child: ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.all(16),
-                      itemCount: projects.length + (state.hasReachedMax ? 0 : 1),
+                      itemCount:
+                          projects.length + (state.hasReachedMax ? 0 : 1),
                       itemBuilder: (context, index) {
                         if (index >= projects.length) {
                           // Loading indicator for pagination
@@ -279,14 +292,15 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                             ),
                           );
                         }
-                        
+
                         final project = projects[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: ProjectCard(
                             project: project,
                             onTap: () {
-                              context.router.push(ProjectViewRoute(projectId: project.id));
+                              context.router.push(
+                                  ProjectViewRoute(projectId: project.id));
                             },
                           ),
                         );
@@ -294,11 +308,11 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                     ),
                   );
                 }
-                
+
                 if (state is ProjectError) {
                   return _buildErrorState(state.message);
                 }
-                
+
                 return const Center(
                   child: Text('No projects available'),
                 );

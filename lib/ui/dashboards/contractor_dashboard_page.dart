@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../routes/app_router.dart';
 import '../widgets/action_card.dart';
+import '../widgets/theme_toggle.dart';
 
 @RoutePage()
 class ContractorDashboardPage extends StatelessWidget {
@@ -17,15 +18,20 @@ class ContractorDashboardPage extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
-          context.router.replace(const LandingRoute());
+          context.router.replace(LandingRoute());
         }
       },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Contractor Dashboard'),
-          backgroundColor: AppColors.secondary,
-          foregroundColor: AppColors.white,
           actions: [
+            const ThemeToggle(),
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                context.router.push(NotificationsRoute());
+              },
+            ),
             PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'logout') {
@@ -33,23 +39,23 @@ class ContractorDashboardPage extends StatelessWidget {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'profile',
                   child: Row(
                     children: [
-                      Icon(Icons.person, color: AppColors.textSecondary),
-                      SizedBox(width: 8),
-                      Text('Profile'),
+                      Icon(Icons.person, color: context.textSecondary),
+                      const SizedBox(width: 8),
+                      const Text('Profile'),
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'logout',
                   child: Row(
                     children: [
-                      Icon(Icons.logout, color: AppColors.error),
-                      SizedBox(width: 8),
-                      Text('Logout'),
+                      Icon(Icons.logout, color: context.error),
+                      const SizedBox(width: 8),
+                      const Text('Logout'),
                     ],
                   ),
                 ),
@@ -87,8 +93,11 @@ class _ContractorDashboardContent extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.secondary, AppColors.secondaryLight],
+              gradient: LinearGradient(
+                colors: [
+                  context.colors.secondary,
+                  context.colors.secondary.withOpacity(0.7),
+                ],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -97,18 +106,15 @@ class _ContractorDashboardContent extends StatelessWidget {
               children: [
                 Text(
                   'Welcome back, ${user.name}!',
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                  style: context.textTheme.headlineMedium?.copyWith(
+                    color: context.colors.onSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Ready to find your next project?',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    color: context.colors.onSecondary,
                   ),
                 ),
               ],
@@ -122,18 +128,18 @@ class _ContractorDashboardContent extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.warning.withOpacity(0.1),
+                color: context.warning.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.warning),
+                border: Border.all(color: context.warning),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.hourglass_empty, color: AppColors.warning),
-                  SizedBox(width: 12),
+                  Icon(Icons.hourglass_empty, color: context.warning),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Your contractor profile is pending approval. You\'ll be notified once it\'s approved.',
-                      style: TextStyle(color: AppColors.warning),
+                      style: TextStyle(color: context.warning),
                     ),
                   ),
                 ],
@@ -142,13 +148,9 @@ class _ContractorDashboardContent extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Quick Actions
-          const Text(
+          Text(
             'Quick Actions',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
+            style: context.textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
           GridView.count(
@@ -162,7 +164,7 @@ class _ContractorDashboardContent extends StatelessWidget {
                 icon: Icons.search,
                 title: 'Browse Projects',
                 subtitle: 'Find new opportunities',
-                color: AppColors.secondary,
+                color: context.colors.secondary,
                 onTap: () {
                   // TODO: Navigate to browse projects
                 },
@@ -171,7 +173,7 @@ class _ContractorDashboardContent extends StatelessWidget {
                 icon: Icons.assignment,
                 title: 'My Bids',
                 subtitle: 'View submitted bids',
-                color: AppColors.primary,
+                color: context.colors.primary,
                 onTap: () {
                   // TODO: Navigate to my bids
                 },
@@ -180,7 +182,7 @@ class _ContractorDashboardContent extends StatelessWidget {
                 icon: Icons.account_circle,
                 title: 'Profile',
                 subtitle: 'Update your profile',
-                color: AppColors.info,
+                color: context.info,
                 onTap: () {
                   // TODO: Navigate to profile
                 },
@@ -189,7 +191,7 @@ class _ContractorDashboardContent extends StatelessWidget {
                 icon: Icons.payment,
                 title: 'Billing',
                 subtitle: 'Manage subscription',
-                color: AppColors.warning,
+                color: context.warning,
                 onTap: () {
                   // TODO: Navigate to billing
                 },
@@ -199,27 +201,23 @@ class _ContractorDashboardContent extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Recent Activity
-          const Text(
+          Text(
             'Recent Activity',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
+            style: context.textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: context.borderLight),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'No recent activity. Start bidding on projects!',
                 style: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                   fontSize: 16,
                 ),
               ),

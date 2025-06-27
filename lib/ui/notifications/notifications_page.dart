@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../bloc/notifications_bloc/notifications_bloc.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/notification.dart' as models;
 
 @RoutePage()
@@ -15,13 +15,13 @@ class NotificationsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.primary,
-              AppColors.primaryDark,
+              context.colors.primary,
+              context.colors.primary.withOpacity(0.8),
             ],
           ),
         ),
@@ -35,17 +35,17 @@ class NotificationsPage extends StatelessWidget {
                   children: [
                     IconButton(
                       onPressed: () => context.router.pop(),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back,
-                        color: AppColors.white,
+                        color: context.colors.onPrimary,
                       ),
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Notifications',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppColors.white,
+                          color: context.colors.onPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
@@ -63,10 +63,10 @@ class NotificationsPage extends StatelessWidget {
                                     .read<NotificationsBloc>()
                                     .add(MarkAllNotificationsAsRead());
                               },
-                              child: const Text(
+                              child: Text(
                                 'Mark all read',
                                 style: TextStyle(
-                                  color: AppColors.white,
+                                  color: context.colors.onPrimary,
                                   fontSize: 14,
                                 ),
                               ),
@@ -83,9 +83,9 @@ class NotificationsPage extends StatelessWidget {
               // Content
               Expanded(
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
@@ -111,18 +111,18 @@ class NotificationsPage extends StatelessWidget {
                         return Center(
                           child: Text(
                             state.message,
-                            style: const TextStyle(color: AppColors.error),
+                            style: TextStyle(color: context.error),
                           ),
                         );
                       }
 
                       if (state is NotificationsLoaded) {
                         if (state.notifications.isEmpty) {
-                          return const Center(
+                          return Center(
                             child: Text(
                               'No notifications yet',
                               style: TextStyle(
-                                color: AppColors.textSecondary,
+                                color: context.textSecondary,
                                 fontSize: 16,
                               ),
                             ),
@@ -192,16 +192,16 @@ class _NotificationCard extends StatelessWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: notification.isRead
-                                  ? AppColors.textSecondary
-                                  : AppColors.textPrimary,
+                                  ? context.textSecondary
+                                  : context.textPrimary,
                             ),
                           ),
                         ),
                         Text(
                           _formatTimestamp(notification.createdAt),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textTertiary,
+                            color: context.textTertiary,
                           ),
                         ),
                       ],
@@ -212,8 +212,8 @@ class _NotificationCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         color: notification.isRead
-                            ? AppColors.textSecondary
-                            : AppColors.textPrimary,
+                            ? context.textSecondary
+                            : context.textPrimary,
                       ),
                     ),
                   ],
@@ -257,19 +257,19 @@ class _NotificationIcon extends StatelessWidget {
     switch (type) {
       case 'success':
         icon = Icons.check_circle;
-        color = AppColors.success;
+        color = context.success;
         break;
       case 'warning':
         icon = Icons.warning;
-        color = AppColors.warning;
+        color = context.warning;
         break;
       case 'error':
         icon = Icons.error;
-        color = AppColors.error;
+        color = context.error;
         break;
       default:
         icon = Icons.info;
-        color = AppColors.info;
+        color = context.info;
     }
 
     return Container(

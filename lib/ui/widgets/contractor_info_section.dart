@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/contractor_model.dart';
 
 class ContractorInfoSection extends StatelessWidget {
@@ -15,12 +15,12 @@ class ContractorInfoSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.surface.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -29,53 +29,49 @@ class ContractorInfoSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'About',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 16),
           if (contractor.bio != null) ...[
             Text(
+              'About',
+              style: context.textTheme.titleLarge?.copyWith(
+                color: context.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
               contractor.bio!,
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                fontSize: 14,
+                color: context.textSecondary,
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 16),
           ],
           if (contractor.workPhilosophy != null) ...[
-            const Text(
+            Text(
               'Work Philosophy',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               contractor.workPhilosophy!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 16),
           ],
           if (contractor.skills?.isNotEmpty ?? false) ...[
-            const Text(
+            Text(
               'Skills',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+              style: context.textTheme.titleLarge?.copyWith(
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -89,14 +85,14 @@ class ContractorInfoSection extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.info.withOpacity(0.1),
+                    color: context.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     skill,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.info,
+                      color: context.info,
                     ),
                   ),
                 );
@@ -105,12 +101,10 @@ class ContractorInfoSection extends StatelessWidget {
             const SizedBox(height: 16),
           ],
           if (contractor.certifications?.isNotEmpty ?? false) ...[
-            const Text(
+            Text(
               'Certifications',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+              style: context.textTheme.titleLarge?.copyWith(
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -124,14 +118,14 @@ class ContractorInfoSection extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: context.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     cert,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.success,
+                      color: context.success,
                     ),
                   ),
                 );
@@ -140,12 +134,10 @@ class ContractorInfoSection extends StatelessWidget {
             const SizedBox(height: 16),
           ],
           if (contractor.serviceAreas?.isNotEmpty ?? false) ...[
-            const Text(
+            Text(
               'Service Areas',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+              style: context.textTheme.titleLarge?.copyWith(
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -159,14 +151,14 @@ class ContractorInfoSection extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: context.colors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     area,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.primary,
+                      color: context.colors.primary,
                     ),
                   ),
                 );

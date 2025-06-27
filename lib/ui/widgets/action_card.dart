@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 
 class ActionCard extends StatelessWidget {
   final IconData icon;
@@ -24,16 +24,9 @@ class ActionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borderLight),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(color: context.borderLight),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -53,19 +46,16 @@ class ActionCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+              style: context.textTheme.titleMedium?.copyWith(
+                color: context.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: context.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),

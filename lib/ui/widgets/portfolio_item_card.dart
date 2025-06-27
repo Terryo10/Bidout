@@ -1,6 +1,6 @@
 // lib/ui/widgets/portfolio_item_card.dart
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/portfolio_model.dart';
 
 class PortfolioItemCard extends StatelessWidget {
@@ -19,12 +19,12 @@ class PortfolioItemCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: context.borderLight),
           boxShadow: [
             BoxShadow(
-              color: AppColors.black.withOpacity(0.05),
+              color: context.colors.surface.withOpacity(0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -46,10 +46,10 @@ class PortfolioItemCard extends StatelessWidget {
                         portfolioItem.primaryImage!.imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return _buildPlaceholderImage();
+                          return _buildPlaceholderImage(context);
                         },
                       )
-                    : _buildPlaceholderImage(),
+                    : _buildPlaceholderImage(context),
               ),
             ),
 
@@ -65,10 +65,8 @@ class PortfolioItemCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           portfolioItem.title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                          style: context.textTheme.titleMedium?.copyWith(
+                            color: context.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -81,12 +79,12 @@ class PortfolioItemCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.warning.withOpacity(0.1),
+                            color: context.warning.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.star,
-                            color: AppColors.warning,
+                            color: context.warning,
                             size: 14,
                           ),
                         ),
@@ -102,14 +100,14 @@ class PortfolioItemCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: context.colors.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         portfolioItem.projectType!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.primary,
+                          color: context.colors.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -120,9 +118,9 @@ class PortfolioItemCard extends StatelessWidget {
                   if (portfolioItem.description != null)
                     Text(
                       portfolioItem.description!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.textSecondary,
                         height: 1.4,
                       ),
                       maxLines: 2,
@@ -138,19 +136,19 @@ class PortfolioItemCard extends StatelessWidget {
                       if (portfolioItem.projectValue != null)
                         Text(
                           portfolioItem.formattedValue,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.success,
+                            color: context.success,
                           ),
                         ),
 
                       // Completion Date
                       Text(
                         portfolioItem.formattedDate,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.textSecondary,
                         ),
                       ),
                     ],
@@ -164,16 +162,16 @@ class PortfolioItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildPlaceholderImage(BuildContext context) {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: AppColors.grey100,
-      child: const Center(
+      color: context.colors.surfaceContainer,
+      child: Center(
         child: Icon(
           Icons.image_outlined,
           size: 48,
-          color: AppColors.textSecondary,
+          color: context.textSecondary,
         ),
       ),
     );

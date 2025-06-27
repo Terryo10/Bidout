@@ -14,6 +14,7 @@ import 'auth_bloc/auth_bloc.dart';
 import 'projects_bloc/project_bloc.dart';
 import 'notifications_bloc/notifications_bloc.dart';
 import 'contractor_bloc/contractor_bloc.dart';
+import 'theme_bloc/theme_bloc.dart';
 
 class AppBlocs extends StatelessWidget {
   final Widget app;
@@ -78,6 +79,14 @@ class AppBlocs extends StatelessWidget {
               contractorRepository:
                   RepositoryProvider.of<ContractorRepository>(context),
             ),
+          ),
+          BlocProvider(
+            lazy: false,
+            create: (context) {
+              final bloc = ThemeBloc(storage: storage);
+              bloc.add(LoadTheme());
+              return bloc;
+            },
           ),
           // Add other BLoCs here as needed
         ],

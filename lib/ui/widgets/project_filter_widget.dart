@@ -1,6 +1,6 @@
+import 'package:bidout/constants/app_colors.dart';
 import 'package:flutter/material.dart';
-
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/projects/project_model.dart';
 
 class ProjectFilterWidget extends StatelessWidget {
@@ -27,12 +27,21 @@ class ProjectFilterWidget extends StatelessWidget {
       value: selectedFilter,
       decoration: InputDecoration(
         labelText: 'Filter by status',
+        labelStyle: TextStyle(color: context.textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.borderLight),
+          borderSide: BorderSide(color: context.borderLight),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: context.borderLight),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: context.colors.primary),
         ),
         filled: true,
-        fillColor: AppColors.grey50,
+        fillColor: context.colors.surfaceContainer,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: filters.map((filter) {
@@ -40,7 +49,10 @@ class ProjectFilterWidget extends StatelessWidget {
           value: filter,
           child: Text(
             filter,
-            style: const TextStyle(fontSize: 14),
+            style: TextStyle(
+              fontSize: 14,
+              color: context.textPrimary,
+            ),
           ),
         );
       }).toList(),
@@ -120,7 +132,7 @@ class _ProjectImageGalleryState extends State<ProjectImageGallery> {
               );
             },
           ),
-          
+
           // Image indicators
           if (widget.images.length > 1)
             Positioned(
@@ -144,7 +156,7 @@ class _ProjectImageGalleryState extends State<ProjectImageGallery> {
                 }).toList(),
               ),
             ),
-          
+
           // Image counter
           Positioned(
             top: 16,
@@ -192,7 +204,8 @@ class _FullScreenImageGallery extends StatefulWidget {
   });
 
   @override
-  State<_FullScreenImageGallery> createState() => _FullScreenImageGalleryState();
+  State<_FullScreenImageGallery> createState() =>
+      _FullScreenImageGalleryState();
 }
 
 class _FullScreenImageGalleryState extends State<_FullScreenImageGallery> {

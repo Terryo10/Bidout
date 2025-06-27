@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../repositories/contractor_repo/contractor_repo.dart';
+import '../../routes/app_router.dart';
 import '../widgets/contractor_card.dart';
 
 @RoutePage()
@@ -440,13 +441,7 @@ class _ContractorDirectoryPageState extends State<ContractorDirectoryPage> {
   }
 
   void _navigateToContractorProfile(ContractorModel contractor) {
-    // Navigate to contractor profile page
-    // TODO: Implement navigation to contractor profile
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('View ${contractor.name}\'s profile'),
-      ),
-    );
+    context.pushRoute(ContractorPreviewRoute(contractorId: contractor.id));
   }
 }
 

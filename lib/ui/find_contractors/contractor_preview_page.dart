@@ -5,11 +5,17 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../bloc/contractor_bloc/contractor_bloc.dart';
 import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
+import '../../constants/app_urls.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../models/contractor/portfolio_model.dart';
 import '../widgets/portfolio_preview_card.dart';
 import '../widgets/rating_display.dart';
 import '../widgets/service_chip.dart';
+import '../widgets/contractor_info_section.dart';
+import '../widgets/contractor_portfolio_preview.dart';
+import '../widgets/contractor_services_section.dart';
+import '../widgets/contractor_stats_section.dart';
 
 @RoutePage()
 class ContractorPreviewPage extends StatefulWidget {
@@ -35,57 +41,35 @@ class _ContractorPreviewPageState extends State<ContractorPreviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocBuilder<ContractorBloc, ContractorState>(
-        builder: (context, state) {
-          if (state is ContractorSingleLoading) {
-            return const Center(
+    return BlocBuilder<ContractorBloc, ContractorState>(
+      builder: (context, state) {
+        if (state is ContractorLoading) {
+          return const Scaffold(
+            body: Center(
               child: CircularProgressIndicator(),
-            );
-          }
-
-          if (state is ContractorError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: AppColors.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    state.message,
-                    style: const TextStyle(
-                      color: AppColors.error,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<ContractorBloc>().add(
-                            ContractorSingleLoadRequested(
-                              contractorId: widget.contractorId,
-                            ),
-                          );
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is ContractorSingleLoaded) {
-            return _buildContractorPreview(state.contractor);
-          }
-
-          return const Center(
-            child: CircularProgressIndicator(),
+            ),
           );
-        },
-      ),
+        }
+
+        if (state is ContractorError) {
+          return Scaffold(
+            body: Center(
+              child: Text(state.message),
+            ),
+          );
+        }
+
+        if (state is ContractorSingleLoaded) {
+          final contractor = state.contractor;
+          return _buildContractorPreview(contractor);
+        }
+
+        return const Scaffold(
+          body: Center(
+            child: Text('Something went wrong'),
+          ),
+        );
+      },
     );
   }
 
@@ -96,8 +80,8 @@ class _ContractorPreviewPageState extends State<ContractorPreviewPage> {
         SliverAppBar(
           expandedHeight: 200,
           pinned: true,
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.white,
+          backgroundColor: context.colors.primary,
+          foregroundColor: context.colors.onPrimary,
           flexibleSpace: FlexibleSpaceBar(
             title: Text(
               contractor.displayName,
@@ -112,8 +96,8 @@ class _ContractorPreviewPageState extends State<ContractorPreviewPage> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.primary,
-                    AppColors.primaryDark,
+                    context.colors.primary,
+                    context.colors.primary.withOpacity(0.8),
                   ],
                 ),
               ),
@@ -127,17 +111,19 @@ class _ContractorPreviewPageState extends State<ContractorPreviewPage> {
                         CircleAvatar(
                           radius: 40,
                           backgroundImage: contractor.avatar != null
-                              ? NetworkImage(contractor.avatar!)
+                              ? NetworkImage(
+                                  AppUrls.getStorageUrl(contractor.avatar))
                               : null,
-                          backgroundColor: AppColors.white.withOpacity(0.2),
+                          backgroundColor:
+                              context.colors.onPrimary.withOpacity(0.2),
                           child: contractor.avatar == null
                               ? Text(
                                   contractor.name.isNotEmpty
                                       ? contractor.name[0].toUpperCase()
                                       : 'C',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 32,
-                                    color: AppColors.white,
+                                    color: context.colors.onPrimary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
@@ -166,8 +152,8 @@ class _ContractorPreviewPageState extends State<ContractorPreviewPage> {
                     if (contractor.businessName != null)
                       Text(
                         contractor.businessName!,
-                        style: const TextStyle(
-                          color: AppColors.white,
+                        style: TextStyle(
+                          color: context.colors.onPrimary,
                           fontSize: 16,
                         ),
                       ),

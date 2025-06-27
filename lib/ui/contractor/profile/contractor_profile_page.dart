@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../bloc/contractor_bloc/contractor_bloc.dart';
-import '../../../constants/app_colors.dart';
+import '../../../constants/app_theme_extension.dart';
 import '../../../models/contractor/contractor_model.dart';
 import '../../../models/contractor/portfolio_model.dart';
 import '../../../models/contractor/contractor_review_model.dart';
@@ -106,33 +106,31 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contractor Profile'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.onPrimary,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 64,
-              color: AppColors.error,
+              color: context.error,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Contractor not found',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+              style: context.textTheme.titleLarge?.copyWith(
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               errorMessage ??
                   'An error occurred while loading the contractor profile',
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: context.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -158,8 +156,8 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.white,
+            backgroundColor: context.colors.primary,
+            foregroundColor: context.colors.onPrimary,
             flexibleSpace: FlexibleSpaceBar(
               background: _buildHeaderSection(),
             ),
@@ -173,22 +171,22 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
               PopupMenuButton<String>(
                 onSelected: _handleMenuAction,
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'contact',
                     child: Row(
                       children: [
-                        Icon(Icons.email),
-                        SizedBox(width: 8),
+                        Icon(Icons.email, color: context.textSecondary),
+                        const SizedBox(width: 8),
                         Text('Contact'),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'report',
                     child: Row(
                       children: [
-                        Icon(Icons.report),
-                        SizedBox(width: 8),
+                        Icon(Icons.report, color: context.error),
+                        const SizedBox(width: 8),
                         Text('Report'),
                       ],
                     ),
@@ -206,9 +204,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                   Tab(text: 'Portfolio'),
                   Tab(text: 'Reviews'),
                 ],
-                labelColor: AppColors.primary,
-                unselectedLabelColor: AppColors.textSecondary,
-                indicatorColor: AppColors.primary,
+                labelColor: context.colors.primary,
+                unselectedLabelColor: context.textSecondary,
+                indicatorColor: context.colors.primary,
               ),
             ),
             pinned: true,
@@ -228,13 +226,13 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
 
   Widget _buildHeaderSection() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.primary,
-            AppColors.primaryDark,
+            context.colors.primary,
+            context.colors.primary.withOpacity(0.8),
           ],
         ),
       ),
@@ -253,33 +251,34 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundColor: AppColors.white.withOpacity(0.2),
+                        backgroundColor:
+                            context.colors.onPrimary.withOpacity(0.2),
                         backgroundImage: _contractor!.avatarUrl.isNotEmpty
                             ? NetworkImage(_contractor!.avatarUrl)
                             : null,
                         child: _contractor!.avatarUrl.isEmpty
                             ? Text(
                                 _contractor!.name[0].toUpperCase(),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 32,
-                                  color: AppColors.white,
+                                  color: context.colors.onPrimary,
                                 ),
                               )
                             : null,
                       ),
-                      if (_contractor!.hasGoldenBadge)
+                      if (_contractor!.emailVerifiedAt != null)
                         Positioned(
                           right: 0,
                           bottom: 0,
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(
-                              color: AppColors.white,
+                            decoration: BoxDecoration(
+                              color: context.colors.onPrimary,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.verified,
-                              color: AppColors.warning,
+                              color: context.warning,
                               size: 24,
                             ),
                           ),
@@ -296,10 +295,10 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                             Expanded(
                               child: Text(
                                 _contractor!.displayName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.white,
+                                  color: context.colors.onPrimary,
                                 ),
                               ),
                             ),
@@ -310,22 +309,22 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.warning,
+                                  color: context.warning,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
                                       Icons.star,
-                                      color: AppColors.white,
+                                      color: context.colors.onPrimary,
                                       size: 14,
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     Text(
                                       'PRO',
                                       style: TextStyle(
-                                        color: AppColors.white,
+                                        color: context.colors.onPrimary,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -342,7 +341,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                             _contractor!.businessName!,
                             style: TextStyle(
                               fontSize: 16,
-                              color: AppColors.white.withOpacity(0.9),
+                              color: context.colors.onPrimary.withOpacity(0.9),
                             ),
                           ),
 
@@ -356,7 +355,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                                 index < _contractor!.rating.floor()
                                     ? Icons.star
                                     : Icons.star_border,
-                                color: AppColors.warning,
+                                color: context.warning,
                                 size: 18,
                               );
                             }),
@@ -365,7 +364,8 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                               _formattedRating,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: AppColors.white.withOpacity(0.9),
+                                color:
+                                    context.colors.onPrimary.withOpacity(0.9),
                               ),
                             ),
                           ],
@@ -399,17 +399,17 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.white,
+            color: context.colors.onPrimary,
           ),
         ),
         Text(
           label,
           style: TextStyle(
             fontSize: 12,
-            color: AppColors.white.withOpacity(0.8),
+            color: context.colors.onPrimary.withOpacity(0.8),
           ),
         ),
       ],
@@ -418,7 +418,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
 
   Widget _buildAboutTab() {
     return Material(
-      color: Colors.white,
+      color: context.colors.surface,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -435,16 +435,13 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
             if (_contractor != null && _contractor!.services.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(16),
-                color: AppColors.white,
+                color: context.colors.surface,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Services',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: context.textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Wrap(
@@ -459,12 +456,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
 
             // Certifications Section
             if (_contractor?.certifications?.isNotEmpty ?? false) ...[
-              const Text(
+              Text(
                 'Certifications',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: context.textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -477,12 +471,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
 
             // Skills Section
             if (_contractor?.skills?.isNotEmpty ?? false) ...[
-              const Text(
+              Text(
                 'Skills',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: context.textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -504,7 +495,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
   Widget _buildPortfolioTab() {
     if (_portfolio == null || _portfolio!.data.isEmpty) {
       return Material(
-        color: Colors.white,
+        color: context.colors.surface,
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(24),
@@ -515,29 +506,27 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.grey50,
+                    color: context.colors.surfaceContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.photo_library_outlined,
                     size: 48,
-                    color: AppColors.textSecondary.withOpacity(0.5),
+                    color: context.textSecondary.withOpacity(0.5),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'No portfolio items yet',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                  style: context.textTheme.titleLarge?.copyWith(
+                    color: context.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'This contractor hasn\'t added any portfolio items',
                   style: TextStyle(
-                    color: AppColors.textSecondary.withOpacity(0.7),
+                    color: context.textSecondary.withOpacity(0.7),
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -550,7 +539,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     }
 
     return Material(
-      color: Colors.white,
+      color: context.colors.surface,
       child: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -564,9 +553,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
           final portfolioItem = _portfolio!.data[index];
           return PortfolioItemCard(
             portfolioItem: portfolioItem,
-            onTap: () {
-              _showPortfolioDetails(portfolioItem);
-            },
+            onTap: () => _showPortfolioDetails(portfolioItem),
           );
         },
       ),
@@ -576,7 +563,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
   Widget _buildReviewsTab() {
     if (_reviews.isEmpty) {
       return Material(
-        color: Colors.white,
+        color: context.colors.surface,
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(24),
@@ -587,29 +574,27 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.grey50,
+                    color: context.colors.surfaceContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.rate_review_outlined,
                     size: 48,
-                    color: AppColors.textSecondary.withOpacity(0.5),
+                    color: context.textSecondary.withOpacity(0.5),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'No reviews yet',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                  style: context.textTheme.titleLarge?.copyWith(
+                    color: context.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'This contractor hasn\'t received any reviews',
                   style: TextStyle(
-                    color: AppColors.textSecondary.withOpacity(0.7),
+                    color: context.textSecondary.withOpacity(0.7),
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
@@ -622,7 +607,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     }
 
     return Material(
-      color: Colors.white,
+      color: context.colors.surface,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _reviews.length,
@@ -643,10 +628,8 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+          style: context.textTheme.titleLarge?.copyWith(
+            color: context.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -654,15 +637,15 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.grey50,
+            color: context.colors.surfaceContainer,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: context.borderLight),
           ),
           child: Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
               height: 1.5,
             ),
           ),
@@ -675,21 +658,19 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Contact Information',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+          style: context.textTheme.titleLarge?.copyWith(
+            color: context.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: context.borderLight),
           ),
           child: Column(
             children: [
@@ -727,8 +708,8 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                 icon: const Icon(Icons.email),
                 label: const Text('Contact'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
+                  backgroundColor: context.colors.primary,
+                  foregroundColor: context.colors.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
@@ -740,8 +721,8 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                 icon: const Icon(Icons.work),
                 label: const Text('Hire'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.secondary,
-                  side: const BorderSide(color: AppColors.secondary),
+                  foregroundColor: context.colors.secondary,
+                  side: BorderSide(color: context.colors.secondary),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
@@ -764,7 +745,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
         children: [
           Icon(
             icon,
-            color: AppColors.primary,
+            color: context.colors.primary,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -774,16 +755,16 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: context.textSecondary,
                   ),
                 ),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textPrimary,
+                    color: context.textPrimary,
                   ),
                 ),
               ],
@@ -791,9 +772,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
           ),
           IconButton(
             onPressed: onTap,
-            icon: const Icon(
+            icon: Icon(
               Icons.launch,
-              color: AppColors.primary,
+              color: context.colors.primary,
               size: 20,
             ),
           ),
@@ -862,9 +843,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     return _contractor!.services.map((service) {
       return Chip(
         label: Text(service.service?.name ?? 'Unknown Service'),
-        backgroundColor: AppColors.primary.withOpacity(0.1),
-        labelStyle: const TextStyle(
-          color: AppColors.primary,
+        backgroundColor: context.colors.primary.withOpacity(0.1),
+        labelStyle: TextStyle(
+          color: context.colors.primary,
         ),
       );
     }).toList();
@@ -877,9 +858,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     return _contractor!.certifications!.map((cert) {
       return Chip(
         label: Text(cert),
-        backgroundColor: AppColors.success.withOpacity(0.1),
-        labelStyle: const TextStyle(
-          color: AppColors.success,
+        backgroundColor: context.success.withOpacity(0.1),
+        labelStyle: TextStyle(
+          color: context.success,
         ),
       );
     }).toList();
@@ -892,9 +873,9 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     return _contractor!.skills!.map((skill) {
       return Chip(
         label: Text(skill),
-        backgroundColor: AppColors.info.withOpacity(0.1),
-        labelStyle: const TextStyle(
-          color: AppColors.info,
+        backgroundColor: context.info.withOpacity(0.1),
+        labelStyle: TextStyle(
+          color: context.info,
         ),
       );
     }).toList();
@@ -907,25 +888,24 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverTabBarDelegate(this.tabBar);
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.white,
-      child: Material(
-        color: Colors.white,
-        child: tabBar,
-      ),
-    );
-  }
-
+  double get minExtent => tabBar.preferredSize.height;
   @override
   double get maxExtent => tabBar.preferredSize.height;
 
   @override
-  double get minExtent => tabBar.preferredSize.height;
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: context.colors.surface,
+      child: tabBar,
+    );
+  }
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
     return false;
   }
 }
@@ -941,49 +921,76 @@ class PortfolioDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.transparent,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        padding: const EdgeInsets.all(16),
+        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Close button
-            Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
-              ),
-            ),
-
-            // Portfolio details
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    portfolioItem.title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  portfolioItem.title,
+                  style: context.textTheme.titleLarge?.copyWith(
+                    color: context.textPrimary,
                   ),
-                  if (portfolioItem.description != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        portfolioItem.description!,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (portfolioItem.primaryImage != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  portfolioItem.primaryImage!.imageUrl,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const SizedBox(height: 16),
+            Text(
+              portfolioItem.description ?? '',
+              style: TextStyle(
+                color: context.textPrimary,
+                height: 1.5,
               ),
             ),
+            const SizedBox(height: 16),
+            if (portfolioItem.completionDate != null) ...[
+              Text(
+                'Completed on: ${portfolioItem.formattedDate}',
+                style: TextStyle(
+                  color: context.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            if (portfolioItem.projectValue != null) ...[
+              Text(
+                'Budget: ${portfolioItem.formattedValue}',
+                style: TextStyle(
+                  color: context.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            if (portfolioItem.projectType != null) ...[
+              Text(
+                'Project Type: ${portfolioItem.projectType}',
+                style: TextStyle(
+                  color: context.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ],
         ),
       ),

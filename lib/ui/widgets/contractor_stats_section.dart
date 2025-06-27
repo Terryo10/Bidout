@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/contractor_model.dart';
 
 class ContractorStatsSection extends StatelessWidget {
@@ -15,12 +15,12 @@ class ContractorStatsSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.surface.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -29,57 +29,38 @@ class ContractorStatsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Stats & Experience',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+          Text(
+            'Overview',
+            style: context.textTheme.titleLarge?.copyWith(
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: _buildStatItem(
-                  'Rating',
-                  contractor.ratingDisplay,
-                  Icons.star,
-                  AppColors.warning,
-                ),
+              _buildStatItem(
+                context,
+                'Rating',
+                contractor.ratingDisplay,
+                Icons.star,
+                context.warning,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatItem(
-                  'Experience',
-                  '${contractor.yearsExperience ?? 0} years',
-                  Icons.work,
-                  AppColors.info,
-                ),
+              _buildStatItem(
+                context,
+                'Experience',
+                '${contractor.yearsExperience ?? 0} years',
+                Icons.work,
+                context.info,
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  'Reviews',
-                  '${contractor.totalReviews}',
-                  Icons.rate_review,
-                  AppColors.success,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatItem(
-                  'Rate',
-                  contractor.hourlyRate != null
-                      ? '\$${contractor.hourlyRate!.toStringAsFixed(2)}/hr'
-                      : 'Not specified',
-                  Icons.monetization_on,
-                  AppColors.primary,
-                ),
+              _buildStatItem(
+                context,
+                'Rate',
+                contractor.hourlyRate != null
+                    ? '\$${contractor.hourlyRate!.toStringAsFixed(2)}/hr'
+                    : 'Not specified',
+                Icons.monetization_on,
+                context.success,
               ),
             ],
           ),
@@ -89,7 +70,12 @@ class ContractorStatsSection extends StatelessWidget {
   }
 
   Widget _buildStatItem(
-      String label, String value, IconData icon, Color color) {
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -99,9 +85,9 @@ class ContractorStatsSection extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
               ),
             ),
           ],
@@ -109,10 +95,10 @@ class ContractorStatsSection extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.textPrimary,
           ),
         ),
       ],

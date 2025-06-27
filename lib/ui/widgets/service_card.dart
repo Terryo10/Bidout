@@ -1,6 +1,6 @@
 // lib/ui/widgets/service_card.dart
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/services/service_model.dart';
 
 class ServiceCard extends StatelessWidget {
@@ -20,16 +20,9 @@ class ServiceCard extends StatelessWidget {
       child: Container(
         width: 140,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borderLight),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(color: context.borderLight),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +32,7 @@ class ServiceCard extends StatelessWidget {
               height: 80,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: context.colors.primary.withOpacity(0.1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
@@ -55,11 +48,11 @@ class ServiceCard extends StatelessWidget {
                         serviceModel.icon!,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return _buildDefaultIcon();
+                          return _buildDefaultIcon(context);
                         },
                       ),
                     )
-                  : _buildDefaultIcon(),
+                  : _buildDefaultIcon(context),
             ),
             // Service Details
             Expanded(
@@ -70,10 +63,8 @@ class ServiceCard extends StatelessWidget {
                   children: [
                     Text(
                       serviceModel.name,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                      style: context.textTheme.titleSmall?.copyWith(
+                        color: context.textPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -83,9 +74,8 @@ class ServiceCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           serviceModel.description!,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: context.textSecondary,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -102,11 +92,11 @@ class ServiceCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDefaultIcon() {
-    return const Center(
+  Widget _buildDefaultIcon(BuildContext context) {
+    return Center(
       child: Icon(
         Icons.handyman,
-        color: AppColors.primary,
+        color: context.colors.primary,
         size: 32,
       ),
     );

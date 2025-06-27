@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 
 class ContractorFilterWidget extends StatelessWidget {
   final String selectedFilter;
@@ -24,12 +24,21 @@ class ContractorFilterWidget extends StatelessWidget {
       value: selectedFilter,
       decoration: InputDecoration(
         labelText: 'Filter contractors',
+        labelStyle: TextStyle(color: context.textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.borderLight),
+          borderSide: BorderSide(color: context.borderLight),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: context.borderLight),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: context.colors.primary),
         ),
         filled: true,
-        fillColor: AppColors.grey50,
+        fillColor: context.colors.surfaceContainer,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: filters.map((filter) {
@@ -37,7 +46,10 @@ class ContractorFilterWidget extends StatelessWidget {
           value: filter,
           child: Text(
             filter,
-            style: const TextStyle(fontSize: 14),
+            style: TextStyle(
+              fontSize: 14,
+              color: context.textPrimary,
+            ),
           ),
         );
       }).toList(),

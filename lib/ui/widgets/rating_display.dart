@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 
 class RatingDisplay extends StatelessWidget {
   final double rating;
@@ -30,7 +30,7 @@ class RatingDisplay extends StatelessWidget {
                   : isFilled
                       ? Icons.star
                       : Icons.star_border,
-              color: AppColors.warning,
+              color: context.warning,
               size: iconSize,
             );
           }),
@@ -42,7 +42,7 @@ class RatingDisplay extends StatelessWidget {
               : rating.toStringAsFixed(1),
           style: TextStyle(
             fontSize: iconSize - 2,
-            color: AppColors.textSecondary,
+            color: context.textSecondary,
           ),
         ),
       ],

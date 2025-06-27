@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 
 class ServiceChip extends StatelessWidget {
   final String label;
@@ -21,13 +21,13 @@ class ServiceChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isPrimary
-              ? AppColors.primary.withOpacity(0.1)
-              : AppColors.textSecondary.withOpacity(0.1),
+              ? context.colors.primary.withOpacity(0.1)
+              : context.textSecondary.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isPrimary
-                ? AppColors.primary.withOpacity(0.3)
-                : AppColors.textSecondary.withOpacity(0.3),
+                ? context.colors.primary.withOpacity(0.3)
+                : context.textSecondary.withOpacity(0.3),
             width: 1,
           ),
         ),
@@ -35,7 +35,7 @@ class ServiceChip extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: isPrimary ? AppColors.primary : AppColors.textSecondary,
+            color: isPrimary ? context.colors.primary : context.textSecondary,
             fontWeight: isPrimary ? FontWeight.w600 : FontWeight.normal,
           ),
         ),

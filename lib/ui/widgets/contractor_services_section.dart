@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/contractor_model.dart';
 
 class ContractorServicesSection extends StatelessWidget {
@@ -19,12 +19,12 @@ class ContractorServicesSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.surface.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -33,12 +33,10 @@ class ContractorServicesSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Services Offered',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+            style: context.textTheme.titleLarge?.copyWith(
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -47,7 +45,7 @@ class ContractorServicesSection extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.grey50,
+                color: context.colors.surfaceContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -58,10 +56,8 @@ class ContractorServicesSection extends StatelessWidget {
                       Expanded(
                         child: Text(
                           service.service?.name ?? 'Unknown Service',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                          style: context.textTheme.titleMedium?.copyWith(
+                            color: context.textPrimary,
                           ),
                         ),
                       ),
@@ -72,14 +68,14 @@ class ContractorServicesSection extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: context.colors.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Primary',
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.primary,
+                              color: context.colors.primary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -90,6 +86,7 @@ class ContractorServicesSection extends StatelessWidget {
                   Row(
                     children: [
                       _buildServiceDetail(
+                        context,
                         'Experience',
                         '${service.experienceYears} years',
                         Icons.work,
@@ -97,6 +94,7 @@ class ContractorServicesSection extends StatelessWidget {
                       const SizedBox(width: 16),
                       if (service.hourlyRate != null)
                         _buildServiceDetail(
+                          context,
                           'Rate',
                           '\$${service.hourlyRate!.toStringAsFixed(2)}/hr',
                           Icons.monetization_on,
@@ -107,9 +105,9 @@ class ContractorServicesSection extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       service.specializationNotes!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.textSecondary,
                       ),
                     ),
                   ],
@@ -122,21 +120,26 @@ class ContractorServicesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceDetail(String label, String value, IconData icon) {
+  Widget _buildServiceDetail(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           icon,
           size: 16,
-          color: AppColors.textSecondary,
+          color: context.textSecondary,
         ),
         const SizedBox(width: 4),
         Text(
           '$label: $value',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.textSecondary,
+            color: context.textSecondary,
           ),
         ),
       ],

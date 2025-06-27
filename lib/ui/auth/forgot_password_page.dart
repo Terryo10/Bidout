@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_button.dart';
+import '../../routes/app_router.dart';
 
 @RoutePage()
 class ForgotPasswordPage extends StatefulWidget {
@@ -62,13 +64,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           }
         },
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.primary,
-                AppColors.primaryDark,
+                context.colors.primary,
+                context.colors.primary.withOpacity(0.8),
               ],
             ),
           ),
@@ -82,17 +84,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     children: [
                       IconButton(
                         onPressed: () => context.router.pop(),
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back,
-                          color: AppColors.white,
+                          color: context.colors.onPrimary,
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Reset Password',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.white,
+                            color: context.colors.onPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                           ),
@@ -102,7 +104,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ],
                   ),
                 ),
-                
+
                 // Content
                 Expanded(
                   child: Container(
@@ -146,7 +148,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            
+
                             // Email Field
                             CustomTextField(
                               controller: _emailController,
@@ -158,14 +160,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your email';
                                 }
-                                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                    .hasMatch(value)) {
                                   return 'Please enter a valid email';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 32),
-                            
+
                             // Submit Button
                             BlocBuilder<AuthBloc, AuthState>(
                               builder: (context, state) {
@@ -177,7 +180,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               },
                             ),
                             const SizedBox(height: 24),
-                            
+
                             // Back to Login
                             Center(
                               child: TextButton(
@@ -191,16 +194,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                 ),
                               ),
                             ),
-                            
+
                             const Spacer(),
-                            
+
                             // Help Text
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: AppColors.grey50,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColors.borderLight),
+                                border:
+                                    Border.all(color: AppColors.borderLight),
                               ),
                               child: const Row(
                                 children: [

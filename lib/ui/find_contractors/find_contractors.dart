@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/contractor_bloc/contractor_bloc.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../models/services/service_model.dart';
 import '../../models/pagination/pagination_model.dart';
@@ -108,8 +108,8 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Find Contractors'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.onPrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -120,24 +120,36 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
       body: Column(
         children: [
           // Search Bar
-          Padding(
+          Container(
+            color: context.colors.surface,
             padding: const EdgeInsets.all(16),
             child: TextField(
               controller: _searchController,
+              onChanged: (value) {
+                _applyFilters();
+              },
               decoration: InputDecoration(
                 hintText: 'Search contractors...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search, color: context.textSecondary),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: context.borderLight),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: context.borderLight),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: context.colors.primary),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
                 ),
+                fillColor: context.colors.surfaceContainer,
+                filled: true,
               ),
-              onChanged: (value) {
-                _applyFilters();
-              },
             ),
           ),
 
@@ -155,6 +167,15 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
                       selected: service.name == _selectedService,
                       onSelected: (selected) =>
                           _onServiceSelected(service, selected),
+                      selectedColor: context.colors.primary.withOpacity(0.2),
+                      checkmarkColor: context.colors.primary,
+                      backgroundColor: context.colors.surface,
+                      side: BorderSide(color: context.borderLight),
+                      labelStyle: TextStyle(
+                        color: service.name == _selectedService
+                            ? context.colors.primary
+                            : context.textPrimary,
+                      ),
                     ),
                   );
                 }).toList(),
@@ -167,16 +188,23 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.filter_list, size: 16),
+                  Icon(Icons.filter_list,
+                      size: 16, color: context.textSecondary),
                   const SizedBox(width: 8),
                   Text(
                     _getActiveFiltersText(),
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: TextStyle(
+                      color: context.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                   const Spacer(),
                   TextButton(
                     onPressed: _clearFilters,
-                    child: const Text('Clear All'),
+                    child: Text(
+                      'Clear All',
+                      style: TextStyle(color: context.colors.primary),
+                    ),
                   ),
                 ],
               ),
@@ -197,16 +225,16 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.error_outline,
                           size: 64,
-                          color: AppColors.error,
+                          color: context.error,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           state.message,
-                          style: const TextStyle(
-                            color: AppColors.error,
+                          style: TextStyle(
+                            color: context.error,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -216,6 +244,10 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
                                   const ContractorLoadRequested(),
                                 );
                           },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.colors.primary,
+                            foregroundColor: context.colors.onPrimary,
+                          ),
                           child: const Text('Retry'),
                         ),
                       ],
@@ -225,8 +257,31 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
 
                 if (state is ContractorLoaded) {
                   if (state.contractors.data.isEmpty) {
-                    return const Center(
-                      child: Text('No contractors found'),
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: context.textSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No contractors found',
+                            style: context.textTheme.titleLarge?.copyWith(
+                              color: context.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Try adjusting your filters',
+                            style: TextStyle(
+                              color: context.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }
 
@@ -285,18 +340,30 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter Contractors'),
+        title: Text(
+          'Filter Contractors',
+          style: context.textTheme.titleLarge?.copyWith(
+            color: context.textPrimary,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Minimum Rating Slider
-            const Text('Minimum Rating'),
+            Text(
+              'Minimum Rating',
+              style: context.textTheme.titleSmall?.copyWith(
+                color: context.textPrimary,
+              ),
+            ),
             Slider(
               value: _minRating,
               min: 0,
               max: 5,
               divisions: 10,
               label: _minRating.toString(),
+              activeColor: context.colors.primary,
+              inactiveColor: context.colors.primary.withOpacity(0.2),
               onChanged: (value) {
                 setState(() {
                   _minRating = value;
@@ -306,8 +373,12 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
 
             // Featured Only Switch
             SwitchListTile(
-              title: const Text('Featured Contractors Only'),
+              title: Text(
+                'Featured Contractors Only',
+                style: TextStyle(color: context.textPrimary),
+              ),
               value: _showFeaturedOnly,
+              activeColor: context.colors.primary,
               onChanged: (value) {
                 setState(() {
                   _showFeaturedOnly = value;
@@ -315,11 +386,26 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
               },
             ),
 
-            // Location Dropdown (you'll need to populate this with actual locations)
+            // Location Dropdown
             DropdownButtonFormField<String>(
               value: _selectedLocation,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Location',
+                labelStyle: TextStyle(color: context.textSecondary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: context.borderLight),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: context.borderLight),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: context.colors.primary),
+                ),
+                filled: true,
+                fillColor: context.colors.surfaceContainer,
               ),
               items: const [
                 DropdownMenuItem(value: null, child: Text('Any Location')),
@@ -339,15 +425,22 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.pop(context);
             },
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.textSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
               _applyFilters();
+              Navigator.pop(context);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.colors.primary,
+              foregroundColor: context.colors.onPrimary,
+            ),
             child: const Text('Apply'),
           ),
         ],
@@ -355,37 +448,35 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
     );
   }
 
-  bool get _hasActiveFilters {
-    return _minRating > 0 ||
-        _showFeaturedOnly ||
-        _selectedLocation != null ||
-        _selectedService != null;
-  }
+  bool get _hasActiveFilters =>
+      _selectedService != null ||
+      _minRating > 0 ||
+      _selectedLocation != null ||
+      _showFeaturedOnly;
 
   String _getActiveFiltersText() {
-    final filters = <String>[];
+    List<String> filters = [];
+    if (_selectedService != null) {
+      filters.add('Service: $_selectedService');
+    }
     if (_minRating > 0) {
-      filters.add('Rating ≥ ${_minRating.toStringAsFixed(1)}');
+      filters.add('Rating: ≥${_minRating.toStringAsFixed(1)}');
+    }
+    if (_selectedLocation != null) {
+      filters.add('Location: $_selectedLocation');
     }
     if (_showFeaturedOnly) {
       filters.add('Featured Only');
-    }
-    if (_selectedLocation != null) {
-      filters.add(_selectedLocation!);
-    }
-    if (_selectedService != null) {
-      filters.add(_selectedService!);
     }
     return filters.join(' • ');
   }
 
   void _clearFilters() {
     setState(() {
-      _minRating = 0;
-      _showFeaturedOnly = false;
-      _selectedLocation = null;
       _selectedService = null;
-      _searchController.clear();
+      _minRating = 0;
+      _selectedLocation = null;
+      _showFeaturedOnly = false;
     });
     _applyFilters();
   }
