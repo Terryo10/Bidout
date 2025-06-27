@@ -92,3 +92,5 @@ class AuthNetworkError extends AuthEvent {
   @override
   List<Object> get props => [message];
 }
+
+class AuthSwitchToContractorMode extends AuthEvent {}

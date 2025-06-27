@@ -150,29 +150,61 @@ class _DashboardContent extends StatelessWidget {
                   title: 'Find Contractors',
                   color: context.colors.secondary,
                   onTap: () {
-                    context.router.push(ContractorDirectoryRoute());
+                    context.router.push(const ContractorDirectoryRoute());
                   },
                 ),
               ],
             ),
+
             const SizedBox(height: 16),
+
+            // Switch to Offering Services Button
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                if (state is AuthAuthenticated) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        context
+                            .read<AuthBloc>()
+                            .add(AuthSwitchToContractorMode());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: context.colors.secondary,
+                        foregroundColor: context.colors.onSecondary,
+                      ),
+                      icon: const Icon(Icons.swap_horiz),
+                      label: const Text('Switch to Offering Services'),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
+            const SizedBox(height: 24),
+
             Row(
               children: [
                 _QuickActionCard(
-                  icon: Icons.pending_actions,
-                  title: 'Pending Bids',
-                  color: context.warning,
+                  icon: Icons.subscriptions_outlined,
+                  title: 'My Subscriptions',
+                  color: context.colors.tertiary ?? context.colors.primary,
                   onTap: () {
-                    context.router.push(ProjectListingRoute());
+                    // TODO: Implement navigation to subscriptions
+                    context.router.push(const NotificationsRoute());
                   },
                 ),
                 const SizedBox(width: 16),
                 _QuickActionCard(
-                  icon: Icons.analytics_outlined,
-                  title: 'Analytics',
-                  color: context.info,
+                  icon: Icons.mark_chat_unread_outlined,
+                  title: 'Message Requests',
+                  color: context.colors.secondary,
                   onTap: () {
-                    // TODO: Analytics route not implemented yet
+                    // TODO: Implement navigation to new requests
+                    context.router.push(const NotificationsRoute());
                   },
                 ),
               ],
@@ -223,83 +255,9 @@ class _DashboardContent extends StatelessWidget {
                 return const SizedBox.shrink();
               },
             ),
-
-            const SizedBox(height: 24),
-
-            // Project Stats
-            Text(
-              'Project Statistics',
-              style: context.textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            _buildStatsGrid(context),
-
-            const SizedBox(height: 24),
-
-            // Recent Activity
-            Text(
-              'Recent Activity',
-              style: context.textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            _buildRecentActivity(context),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStatsGrid(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: 1.5,
-      children: [
-        _StatCard(
-          title: 'Active Projects',
-          value: '5',
-          icon: Icons.work_outline,
-          color: context.colors.primary,
-        ),
-        _StatCard(
-          title: 'Total Bids',
-          value: '12',
-          icon: Icons.gavel,
-          color: context.warning,
-        ),
-        _StatCard(
-          title: 'Completed',
-          value: '8',
-          icon: Icons.check_circle_outline,
-          color: context.success,
-        ),
-        _StatCard(
-          title: 'In Review',
-          value: '3',
-          icon: Icons.rate_review_outlined,
-          color: context.info,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentActivity(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return _ActivityCard(
-          title: 'Project Bid Received',
-          description: 'New bid for Kitchen Renovation project',
-          time: '2 hours ago',
-          icon: Icons.gavel,
-          color: context.colors.primary,
-        );
-      },
     );
   }
 }
@@ -345,122 +303,6 @@ class _QuickActionCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.borderLight),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 32, color: color),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: context.textTheme.headlineSmall?.copyWith(
-              color: context.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActivityCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String time;
-  final IconData icon;
-  final Color color;
-
-  const _ActivityCard({
-    required this.title,
-    required this.description,
-    required this.time,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.borderLight),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: context.textTheme.titleMedium?.copyWith(
-                    color: context.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            time,
-            style: context.textTheme.bodySmall?.copyWith(
-              color: context.textSecondary,
-            ),
-          ),
-        ],
       ),
     );
   }
