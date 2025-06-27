@@ -23,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthUserRefreshRequested>(_onAuthUserRefreshRequested);
     on<AuthTokenRefreshRequested>(_onAuthTokenRefreshRequested);
     on<AuthSwitchToContractorMode>(_onAuthSwitchToContractorMode);
+    on<AuthSwitchToClientMode>(_onAuthSwitchToClientMode);
 
     // Auto-check authentication on app start
     add(AuthCheckRequested());
@@ -221,62 +222,58 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     if (state is AuthAuthenticated) {
       final currentUser = (state as AuthAuthenticated).user;
-      if (currentUser.hasContractorRole) {
-        try {
-          // TODO: Implement API call to switch role
-          // For now, we'll just update the local state
-          final updatedUser = UserModel(
-            id: currentUser.id,
-            name: currentUser.name,
-            email: currentUser.email,
-            phone: currentUser.phone,
-            avatar: currentUser.avatar,
-            bio: currentUser.bio,
-            website: currentUser.website,
-            services: currentUser.services,
-            skills: currentUser.skills,
-            businessName: currentUser.businessName,
-            licenseNumber: currentUser.licenseNumber,
-            experience: currentUser.experience,
-            serviceAreas: currentUser.serviceAreas,
-            hourlyRate: currentUser.hourlyRate,
-            companyName: currentUser.companyName,
-            position: currentUser.position,
-            industry: currentUser.industry,
-            userType: currentUser.userType,
-            availableRoles: currentUser.availableRoles,
-            activeRole: 'contractor',
-            isDualRole: currentUser.isDualRole,
-            contractorStatus: currentUser.contractorStatus,
-            freeBidsRemaining: currentUser.freeBidsRemaining,
-            totalFreeBidsGranted: currentUser.totalFreeBidsGranted,
-            freeBidsGrantedAt: currentUser.freeBidsGrantedAt,
-            purchasedBidsRemaining: currentUser.purchasedBidsRemaining,
-            totalBidsPurchased: currentUser.totalBidsPurchased,
-            rating: currentUser.rating,
-            totalReviews: currentUser.totalReviews,
-            isFeatured: currentUser.isFeatured,
-            portfolioDescription: currentUser.portfolioDescription,
-            serviceSpecialties: currentUser.serviceSpecialties,
-            certifications: currentUser.certifications,
-            yearsExperience: currentUser.yearsExperience,
-            workPhilosophy: currentUser.workPhilosophy,
-            workAreas: currentUser.workAreas,
-            availableForHire: currentUser.availableForHire,
-            emailVerifiedAt: currentUser.emailVerifiedAt,
-            createdAt: currentUser.createdAt,
-            updatedAt: currentUser.updatedAt,
-            roles: currentUser.roles,
-          );
-          emit(AuthAuthenticated(user: updatedUser));
-        } catch (e) {
-          emit(AuthError(
+      print(
+          'Attempting to switch to contractor mode. Current user: ${currentUser.toJson()}');
+
+      try {
+        // Try to switch to contractor role
+        // The repository will handle enabling the role if needed
+        final updatedUser = await authRepository.switchRole('contractor');
+        print(
+            'Successfully switched to contractor. Updated user: ${updatedUser.toJson()}');
+        emit(AuthAuthenticated(user: updatedUser));
+      } catch (e) {
+        print('Error in contractor mode transition: $e');
+        if (e is ApiErrorModel) {
+          emit(AuthError(message: e.firstError));
+        } else {
+          emit(const AuthError(
               message:
                   'Failed to switch to contractor mode. Please try again.'));
         }
-      } else {
-        emit(AuthError(message: 'You do not have contractor privileges.'));
       }
+    } else {
+      print('User is not authenticated');
+    }
+  }
+
+  Future<void> _onAuthSwitchToClientMode(
+    AuthSwitchToClientMode event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (state is AuthAuthenticated) {
+      final currentUser = (state as AuthAuthenticated).user;
+      print(
+          'Attempting to switch to client mode. Current user: ${currentUser.toJson()}');
+
+      try {
+        // Try to switch to client role
+        // The repository will handle enabling the role if needed
+        final updatedUser = await authRepository.switchRole('client');
+        print(
+            'Successfully switched to client. Updated user: ${updatedUser.toJson()}');
+        emit(AuthAuthenticated(user: updatedUser));
+      } catch (e) {
+        print('Error in client mode transition: $e');
+        if (e is ApiErrorModel) {
+          emit(AuthError(message: e.firstError));
+        } else {
+          emit(const AuthError(
+              message: 'Failed to switch to client mode. Please try again.'));
+        }
+      }
+    } else {
+      print('User is not authenticated');
     }
   }
 

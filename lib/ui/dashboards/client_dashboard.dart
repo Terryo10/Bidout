@@ -19,6 +19,15 @@ class EnhancedClientDashboardPage extends StatelessWidget {
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
           context.router.replace(LandingRoute());
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: context.error,
+            ),
+          );
+        } else if (state is AuthAuthenticated && state.user.isContractor) {
+          context.router.replace(ContractorDashboardRoute());
         }
       },
       child: Scaffold(
@@ -63,14 +72,23 @@ class EnhancedClientDashboardPage extends StatelessWidget {
             ),
           ],
         ),
-        body: const _DashboardContent(),
+        body: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is AuthAuthenticated) {
+              return _DashboardContent(user: state.user);
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
       ),
     );
   }
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent();
+  final dynamic user;
+
+  const _DashboardContent({required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -153,22 +171,42 @@ class _DashboardContent extends StatelessWidget {
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
                 if (state is AuthAuthenticated) {
-                  return SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context
-                            .read<AuthBloc>()
-                            .add(AuthSwitchToContractorMode());
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: context.colors.secondary,
-                        foregroundColor: context.colors.onSecondary,
+                  return Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            context
+                                .read<AuthBloc>()
+                                .add(AuthSwitchToContractorMode());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: context.colors.secondary,
+                            foregroundColor: context.colors.onSecondary,
+                          ),
+                          icon: const Icon(Icons.swap_horiz),
+                          label: Text(
+                            state.user.hasContractorRole
+                                ? 'Switch to Offering Services'
+                                : 'Start Offering Services',
+                          ),
+                        ),
                       ),
-                      icon: const Icon(Icons.swap_horiz),
-                      label: const Text('Switch to Offering Services'),
-                    ),
+                      if (!state.user.hasContractorRole)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            'Click to set up your contractor profile',
+                            style: TextStyle(
+                              color: context.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 }
                 return const SizedBox.shrink();

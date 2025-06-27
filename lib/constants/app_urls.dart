@@ -18,8 +18,9 @@ class AppUrls {
   static const String updateProfile = '$apiUrl/user/profile';
   static const String updateAvatar = '$apiUrl/user/avatar';
   static const String changePassword = '$apiUrl/user/password';
-  static const String switchRole = '$apiUrl/user/switch-role';
-  static const String enableRole = '$apiUrl/user/enable-role';
+  static const String getRoleInfo = '$apiUrl/user/role/info';
+  static const String switchRole = '$apiUrl/user/role/switch';
+  static const String enableRole = '$apiUrl/user/role/enable';
 
   // Project endpoints
   static const String projects = '$apiUrl/projects';

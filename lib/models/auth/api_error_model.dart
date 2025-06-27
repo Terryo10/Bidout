@@ -20,10 +20,22 @@ class ApiErrorModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+      'errors': errors,
+    };
+  }
+
   String get firstError {
     if (errors != null && errors!.isNotEmpty) {
       return errors!.values.first.first;
     }
     return message;
+  }
+
+  @override
+  String toString() {
+    return 'ApiErrorModel{message: $message, errors: $errors}';
   }
 }

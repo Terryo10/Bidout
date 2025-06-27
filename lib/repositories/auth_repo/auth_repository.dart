@@ -4,6 +4,7 @@ import '../../models/auth/auth_response_model.dart';
 import '../../models/auth/register_request_model.dart';
 import '../../models/auth/login_request_model.dart';
 import '../../models/user_model.dart';
+import '../../models/auth/api_error_model.dart';
 import 'auth_provider.dart';
 
 class AuthRepository {
@@ -66,12 +67,12 @@ class AuthRepository {
         try {
           final userData = json.decode(userJson);
           final user = UserModel.fromJson(userData);
-          
+
           // Check if we should refresh user data (optional: refresh every 24 hours)
           final lastRefresh = await storage.read(key: 'last_user_refresh');
           final now = DateTime.now().millisecondsSinceEpoch;
-          
-          if (lastRefresh == null || 
+
+          if (lastRefresh == null ||
               (now - int.parse(lastRefresh)) > (24 * 60 * 60 * 1000)) {
             // Try to refresh user data, but don't fail if it doesn't work
             try {
@@ -85,7 +86,7 @@ class AuthRepository {
               // If refresh fails, return cached user
             }
           }
-          
+
           return user;
         } catch (e) {
           // If parsing fails, clear corrupted data and fetch fresh
@@ -106,7 +107,7 @@ class AuthRepository {
     try {
       final token = await storage.read(key: tokenKey);
       final isLoggedIn = await storage.read(key: isLoggedInKey);
-      
+
       if (token == null || isLoggedIn != 'true') {
         return false;
       }
@@ -114,7 +115,8 @@ class AuthRepository {
       // Check token expiry if we have it stored
       final expiryString = await storage.read(key: tokenExpiryKey);
       if (expiryString != null) {
-        final expiry = DateTime.fromMillisecondsSinceEpoch(int.parse(expiryString));
+        final expiry =
+            DateTime.fromMillisecondsSinceEpoch(int.parse(expiryString));
         if (DateTime.now().isAfter(expiry)) {
           await _clearAuthData();
           return false;
@@ -142,11 +144,12 @@ class AuthRepository {
   Future<void> _saveAuthData(AuthResponseModel response) async {
     await storage.write(key: tokenKey, value: response.token);
     await storage.write(key: isLoggedInKey, value: 'true');
-    
+
     // Set token expiry (assume 24 hours if not provided)
     final expiry = DateTime.now().add(const Duration(hours: 24));
-    await storage.write(key: tokenExpiryKey, value: expiry.millisecondsSinceEpoch.toString());
-    
+    await storage.write(
+        key: tokenExpiryKey, value: expiry.millisecondsSinceEpoch.toString());
+
     await _saveUserData(response.user);
   }
 
@@ -154,7 +157,9 @@ class AuthRepository {
     try {
       final userJson = json.encode(user.toJson());
       await storage.write(key: userKey, value: userJson);
-      await storage.write(key: 'last_user_refresh', value: DateTime.now().millisecondsSinceEpoch.toString());
+      await storage.write(
+          key: 'last_user_refresh',
+          value: DateTime.now().millisecondsSinceEpoch.toString());
     } catch (e) {
       // Handle encoding errors gracefully
     }
@@ -186,11 +191,59 @@ class AuthRepository {
   Future<bool> shouldRefreshToken() async {
     final expiryString = await storage.read(key: tokenExpiryKey);
     if (expiryString == null) return false;
-    
+
     final expiry = DateTime.fromMillisecondsSinceEpoch(int.parse(expiryString));
     final now = DateTime.now();
-    
+
     // Refresh if token expires in less than 1 hour
     return expiry.difference(now).inHours < 1;
+  }
+
+  Future<Map<String, dynamic>> getRoleInfo() async {
+    return await authProvider.getRoleInfo();
+  }
+
+  Future<UserModel> switchRole(String role) async {
+    try {
+      // Get role info first to check if we need to enable the role
+      final roleInfo = await getRoleInfo();
+      final availableRoles =
+          List<String>.from(roleInfo['user']['available_roles'] ?? []);
+
+      // If user doesn't have the role, enable it first
+      if (!availableRoles.contains(role)) {
+        try {
+          await enableRole(role);
+        } catch (e) {
+          // If the error is "already has role", we can proceed
+          // Otherwise, rethrow the error
+          if (e is ApiErrorModel &&
+              e.message != 'You already have access to this role') {
+            rethrow;
+          }
+          // If they already have the role, we can proceed to switching
+          print('User already has $role role, proceeding with switch');
+        }
+      }
+
+      // Now switch to the role
+      final user = await authProvider.switchRole(role);
+      await _saveUserData(user);
+      return user;
+    } catch (e) {
+      print('Error in switchRole: $e');
+      rethrow;
+    }
+  }
+
+  Future<UserModel> enableRole(String role) async {
+    try {
+      final user = await authProvider.enableRole(role);
+      await _saveUserData(user);
+      return user;
+    } catch (e) {
+      print('Error in enableRole: $e');
+      rethrow;
+    }
   }
 }

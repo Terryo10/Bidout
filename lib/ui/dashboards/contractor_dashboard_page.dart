@@ -19,6 +19,15 @@ class ContractorDashboardPage extends StatelessWidget {
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
           context.router.replace(LandingRoute());
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: context.error,
+            ),
+          );
+        } else if (state is AuthAuthenticated && state.user.isClient) {
+          context.router.replace(EnhancedClientDashboardRoute());
         }
       },
       child: Scaffold(
@@ -146,6 +155,53 @@ class _ContractorDashboardContent extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 16),
+
+          // Switch to Client Mode Button
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is AuthAuthenticated) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          context
+                              .read<AuthBloc>()
+                              .add(AuthSwitchToClientMode());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: context.colors.primary,
+                          foregroundColor: context.colors.onPrimary,
+                        ),
+                        icon: const Icon(Icons.swap_horiz),
+                        label: Text(
+                          state.user.hasClientRole
+                              ? 'Switch to Client Mode'
+                              : 'Start Using Client Features',
+                        ),
+                      ),
+                    ),
+                    if (!state.user.hasClientRole)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Click to set up your client profile',
+                          style: TextStyle(
+                            color: context.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          const SizedBox(height: 24),
 
           // Quick Actions
           Text(

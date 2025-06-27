@@ -87,9 +87,9 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
       phone: json['phone'],
       avatar: json['avatar'],
       bio: json['bio'],
@@ -104,29 +104,29 @@ class UserModel {
           ? List<String>.from(json['service_areas'])
           : null,
       hourlyRate: json['hourly_rate'] != null
-          ? double.parse(json['hourly_rate'].toString())
+          ? double.tryParse(json['hourly_rate'].toString()) ?? 0.0
           : null,
       companyName: json['company_name'],
       position: json['position'],
       industry: json['industry'],
-      userType: json['user_type'],
+      userType: json['user_type'] ?? 'client',
       availableRoles: json['available_roles'] != null
           ? List<String>.from(json['available_roles'])
           : [],
-      activeRole: json['active_role'] ?? json['user_type'],
+      activeRole: json['active_role'] ?? json['user_type'] ?? 'client',
       isDualRole: json['is_dual_role'] ?? false,
       contractorStatus: json['contractor_status'],
       freeBidsRemaining: json['free_bids_remaining'] ?? 0,
       totalFreeBidsGranted: json['total_free_bids_granted'] ?? 0,
       freeBidsGrantedAt: json['free_bids_granted_at'] != null
-          ? DateTime.parse(json['free_bids_granted_at'])
+          ? DateTime.tryParse(json['free_bids_granted_at'].toString())
           : null,
       purchasedBidsRemaining: json['purchased_bids_remaining'] ?? 0,
       totalBidsPurchased: json['total_bids_purchased'] ?? 0,
       rating: json['rating'] != null
-          ? double.parse(json['rating'].toString())
+          ? double.tryParse(json['rating'].toString()) ?? 0.0
           : null,
-      totalReviews: json['total_reviews'],
+      totalReviews: json['total_reviews'] ?? 0,
       isFeatured: json['is_featured'] ?? false,
       portfolioDescription: json['portfolio_description'],
       serviceSpecialties: json['service_specialties'] != null
@@ -142,12 +142,17 @@ class UserModel {
           : null,
       availableForHire: json['available_for_hire'] ?? true,
       emailVerifiedAt: json['email_verified_at'] != null
-          ? DateTime.parse(json['email_verified_at'])
+          ? DateTime.tryParse(json['email_verified_at'].toString())
           : null,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt:
+          DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(json['updated_at'].toString()) ?? DateTime.now(),
       roles: json['roles'] != null
-          ? List<String>.from(json['roles'].map((role) => role['name']))
+          ? (json['roles'] is List
+              ? List<String>.from(json['roles']
+                  .map((role) => role is Map ? role['name'] : role.toString()))
+              : [])
           : [],
     );
   }

@@ -94,3 +94,5 @@ class AuthNetworkError extends AuthEvent {
 }
 
 class AuthSwitchToContractorMode extends AuthEvent {}
+
+class AuthSwitchToClientMode extends AuthEvent {}
