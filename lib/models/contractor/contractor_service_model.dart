@@ -28,15 +28,21 @@ class ContractorServiceModel {
 
   factory ContractorServiceModel.fromJson(Map<String, dynamic> json) {
     return ContractorServiceModel(
-      id: json['id'],
-      contractorId: json['contractor_id'],
-      serviceId: json['service_id'],
-      hourlyRate: double.parse(json['hourly_rate'].toString()),
-      experienceYears: json['experience_years'],
+      id: json['id'] ?? 0,
+      contractorId: json['contractor_id'] ?? 0,
+      serviceId: json['service_id'] ?? 0,
+      hourlyRate: json['hourly_rate'] != null
+          ? double.parse(json['hourly_rate'].toString())
+          : 0.0,
+      experienceYears: json['experience_years'] ?? 0,
       specializationNotes: json['specialization_notes'],
       isPrimaryService: json['is_primary_service'] ?? false,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : DateTime.now(),
       service: json['service'] != null
           ? ServiceModel.fromJson(json['service'])
           : null,

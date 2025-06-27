@@ -1,4 +1,5 @@
 // lib/models/contractor/portfolio_model.dart
+import '../../constants/app_urls.dart';
 import 'portfolio_image_model.dart';
 
 class PortfolioModel {
@@ -105,5 +106,12 @@ class PortfolioModel {
 
   List<PortfolioImageModel> get afterImages {
     return images.where((img) => !img.isBeforeImage).toList();
+  }
+
+  String? get primaryImageUrl {
+    final primary = primaryImage;
+    return primary != null
+        ? AppUrls.getPortfolioImageUrl(primary.imagePath)
+        : null;
   }
 }

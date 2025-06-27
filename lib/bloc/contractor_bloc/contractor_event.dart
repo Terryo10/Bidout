@@ -1,7 +1,7 @@
 // lib/bloc/contractor_bloc/contractor_event.dart
 part of 'contractor_bloc.dart';
 
-sealed class ContractorEvent extends Equatable {
+abstract class ContractorEvent extends Equatable {
   const ContractorEvent();
 
   @override
@@ -31,8 +31,15 @@ class ContractorLoadRequested extends ContractorEvent {
 
   @override
   List<Object?> get props => [
-    page, perPage, search, services, minRating, location, isFeatured, hasSubscription
-  ];
+        page,
+        perPage,
+        search,
+        services,
+        minRating,
+        location,
+        isFeatured,
+        hasSubscription,
+      ];
 }
 
 class ContractorLoadMoreRequested extends ContractorEvent {
@@ -58,7 +65,7 @@ class ContractorRefreshRequested extends ContractorEvent {
 }
 
 class ContractorSearchRequested extends ContractorEvent {
-  final String query;
+  final String? query;
   final List<String>? services;
   final double? minRating;
   final String? location;
@@ -66,7 +73,7 @@ class ContractorSearchRequested extends ContractorEvent {
   final bool? hasSubscription;
 
   const ContractorSearchRequested({
-    required this.query,
+    this.query,
     this.services,
     this.minRating,
     this.location,
@@ -75,23 +82,88 @@ class ContractorSearchRequested extends ContractorEvent {
   });
 
   @override
-  List<Object?> get props => [query, services, minRating, location, isFeatured, hasSubscription];
+  List<Object?> get props => [
+        query,
+        services,
+        minRating,
+        location,
+        isFeatured,
+        hasSubscription,
+      ];
 }
 
 class ContractorSingleLoadRequested extends ContractorEvent {
   final int contractorId;
 
-  const ContractorSingleLoadRequested({required this.contractorId});
+  const ContractorSingleLoadRequested({
+    required this.contractorId,
+  });
 
   @override
-  List<Object> get props => [contractorId];
+  List<Object?> get props => [contractorId];
 }
 
 class ContractorFilterChanged extends ContractorEvent {
   final ContractorFilters filters;
 
-  const ContractorFilterChanged({required this.filters});
+  const ContractorFilterChanged({
+    required this.filters,
+  });
 
   @override
-  List<Object> get props => [filters];
+  List<Object?> get props => [filters];
+}
+
+class ContractorFilters extends Equatable {
+  final String? search;
+  final List<String>? services;
+  final double? minRating;
+  final String? location;
+  final bool? isFeatured;
+  final bool? hasSubscription;
+
+  const ContractorFilters({
+    this.search,
+    this.services,
+    this.minRating,
+    this.location,
+    this.isFeatured,
+    this.hasSubscription,
+  });
+
+  @override
+  List<Object?> get props => [
+        search,
+        services,
+        minRating,
+        location,
+        isFeatured,
+        hasSubscription,
+      ];
+}
+
+class ContractorPortfolioLoadRequested extends ContractorEvent {
+  final int contractorId;
+  final int page;
+  final int perPage;
+
+  const ContractorPortfolioLoadRequested({
+    required this.contractorId,
+    this.page = 1,
+    this.perPage = 10,
+  });
+
+  @override
+  List<Object?> get props => [contractorId, page, perPage];
+}
+
+class ContractorReviewsLoadRequested extends ContractorEvent {
+  final int contractorId;
+
+  const ContractorReviewsLoadRequested({
+    required this.contractorId,
+  });
+
+  @override
+  List<Object?> get props => [contractorId];
 }

@@ -9,6 +9,7 @@ import '../ui/contractor/profile/contractor_profile_page.dart';
 import '../ui/dashboards/client_dashboard.dart';
 import '../ui/dashboards/contractor_dashboard_page.dart';
 import '../ui/find_contractors/find_contractors.dart';
+import '../ui/find_contractors/contractor_preview_page.dart';
 import '../ui/landing/landing_page.dart';
 import '../ui/notifications/notifications_page.dart';
 import '../ui/projects/create_project_page.dart';
@@ -68,10 +69,14 @@ class AppRouter extends _$AppRouter {
           path: '/find-contractors',
         ),
 
-        // Contractor profile route
+        // Contractor routes
         AutoRoute(
           page: ContractorProfileRoute.page,
           path: '/contractors/:id',
+        ),
+        AutoRoute(
+          page: ContractorPreviewRoute.page,
+          path: '/contractors/:id/preview',
         ),
 
         // Notifications route

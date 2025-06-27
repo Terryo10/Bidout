@@ -27,6 +27,19 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const ContractorDirectoryPage(),
       );
     },
+    ContractorPreviewRoute.name: (routeData) {
+      final pathParams = routeData.inheritedPathParams;
+      final args = routeData.argsAs<ContractorPreviewRouteArgs>(
+          orElse: () => ContractorPreviewRouteArgs(
+              contractorId: pathParams.getInt('id')));
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: ContractorPreviewPage(
+          key: args.key,
+          contractorId: args.contractorId,
+        ),
+      );
+    },
     ContractorProfileRoute.name: (routeData) {
       final args = routeData.argsAs<ContractorProfileRouteArgs>();
       return AutoRoutePage<dynamic>(
@@ -135,6 +148,45 @@ class ContractorDirectoryRoute extends PageRouteInfo<void> {
   static const String name = 'ContractorDirectoryRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ContractorPreviewPage]
+class ContractorPreviewRoute extends PageRouteInfo<ContractorPreviewRouteArgs> {
+  ContractorPreviewRoute({
+    Key? key,
+    required int contractorId,
+    List<PageRouteInfo>? children,
+  }) : super(
+          ContractorPreviewRoute.name,
+          args: ContractorPreviewRouteArgs(
+            key: key,
+            contractorId: contractorId,
+          ),
+          rawPathParams: {'id': contractorId},
+          initialChildren: children,
+        );
+
+  static const String name = 'ContractorPreviewRoute';
+
+  static const PageInfo<ContractorPreviewRouteArgs> page =
+      PageInfo<ContractorPreviewRouteArgs>(name);
+}
+
+class ContractorPreviewRouteArgs {
+  const ContractorPreviewRouteArgs({
+    this.key,
+    required this.contractorId,
+  });
+
+  final Key? key;
+
+  final int contractorId;
+
+  @override
+  String toString() {
+    return 'ContractorPreviewRouteArgs{key: $key, contractorId: $contractorId}';
+  }
 }
 
 /// generated route for

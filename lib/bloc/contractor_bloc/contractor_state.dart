@@ -1,19 +1,17 @@
 part of 'contractor_bloc.dart';
 
-sealed class ContractorState extends Equatable {
+abstract class ContractorState extends Equatable {
   const ContractorState();
-  
+
   @override
   List<Object?> get props => [];
 }
 
-final class ContractorInitial extends ContractorState {}
+class ContractorInitial extends ContractorState {}
 
-final class ContractorLoading extends ContractorState {}
+class ContractorLoading extends ContractorState {}
 
-final class ContractorSingleLoading extends ContractorState {}
-
-final class ContractorLoaded extends ContractorState {
+class ContractorLoaded extends ContractorState {
   final PaginationModel<ContractorModel> contractors;
   final bool hasReachedMax;
   final ContractorFilters currentFilters;
@@ -25,7 +23,7 @@ final class ContractorLoaded extends ContractorState {
   });
 
   @override
-  List<Object> get props => [contractors, hasReachedMax, currentFilters];
+  List<Object?> get props => [contractors, hasReachedMax, currentFilters];
 
   ContractorLoaded copyWith({
     PaginationModel<ContractorModel>? contractors,
@@ -40,70 +38,42 @@ final class ContractorLoaded extends ContractorState {
   }
 }
 
-final class ContractorSingleLoaded extends ContractorState {
-  final ContractorModel contractor;
-
-  const ContractorSingleLoaded({required this.contractor});
-
-  @override
-  List<Object> get props => [contractor];
-}
-
-final class ContractorError extends ContractorState {
+class ContractorError extends ContractorState {
   final String message;
 
-  const ContractorError({required this.message});
+  const ContractorError({
+    required this.message,
+  });
 
   @override
   List<Object> get props => [message];
 }
 
-class ContractorFilters extends Equatable {
-  final String? search;
-  final List<String>? services;
-  final double? minRating;
-  final String? location;
-  final bool? isFeatured;
-  final bool? hasSubscription;
+class ContractorSingleLoading extends ContractorState {}
 
-  const ContractorFilters({
-    this.search,
-    this.services,
-    this.minRating,
-    this.location,
-    this.isFeatured,
-    this.hasSubscription,
+class ContractorSingleLoaded extends ContractorState {
+  final ContractorModel contractor;
+  final PaginationModel<PortfolioModel>? portfolio;
+  final List<ContractorReviewModel>? reviews;
+
+  const ContractorSingleLoaded({
+    required this.contractor,
+    this.portfolio,
+    this.reviews,
   });
 
   @override
-  List<Object?> get props => [
-    search, services, minRating, location, isFeatured, hasSubscription
-  ];
+  List<Object?> get props => [contractor, portfolio, reviews];
 
-  ContractorFilters copyWith({
-    String? search,
-    List<String>? services,
-    double? minRating,
-    String? location,
-    bool? isFeatured,
-    bool? hasSubscription,
+  ContractorSingleLoaded copyWith({
+    ContractorModel? contractor,
+    PaginationModel<PortfolioModel>? portfolio,
+    List<ContractorReviewModel>? reviews,
   }) {
-    return ContractorFilters(
-      search: search ?? this.search,
-      services: services ?? this.services,
-      minRating: minRating ?? this.minRating,
-      location: location ?? this.location,
-      isFeatured: isFeatured ?? this.isFeatured,
-      hasSubscription: hasSubscription ?? this.hasSubscription,
+    return ContractorSingleLoaded(
+      contractor: contractor ?? this.contractor,
+      portfolio: portfolio ?? this.portfolio,
+      reviews: reviews ?? this.reviews,
     );
-  }
-
-  bool get hasActiveFilters {
-    return search?.isNotEmpty == true ||
-           services?.isNotEmpty == true ||
-           minRating != null ||
-           location?.isNotEmpty == true ||
-           isFeatured == true ||
-           hasSubscription == true;
   }
 }

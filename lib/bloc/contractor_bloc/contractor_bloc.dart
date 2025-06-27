@@ -4,6 +4,8 @@ import 'package:equatable/equatable.dart';
 
 import '../../models/auth/api_error_model.dart';
 import '../../models/contractor/contractor_model.dart';
+import '../../models/contractor/portfolio_model.dart';
+import '../../models/contractor/contractor_review_model.dart';
 import '../../models/pagination/pagination_model.dart';
 import '../../repositories/contractor_repo/contractor_repo.dart';
 
@@ -13,13 +15,16 @@ part 'contractor_state.dart';
 class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
   final ContractorRepository contractorRepository;
 
-  ContractorBloc({required this.contractorRepository}) : super(ContractorInitial()) {
+  ContractorBloc({required this.contractorRepository})
+      : super(ContractorInitial()) {
     on<ContractorLoadRequested>(_onContractorLoadRequested);
     on<ContractorLoadMoreRequested>(_onContractorLoadMoreRequested);
     on<ContractorRefreshRequested>(_onContractorRefreshRequested);
     on<ContractorSearchRequested>(_onContractorSearchRequested);
     on<ContractorSingleLoadRequested>(_onContractorSingleLoadRequested);
     on<ContractorFilterChanged>(_onContractorFilterChanged);
+    on<ContractorPortfolioLoadRequested>(_onContractorPortfolioLoadRequested);
+    on<ContractorReviewsLoadRequested>(_onContractorReviewsLoadRequested);
   }
 
   Future<void> _onContractorLoadRequested(
@@ -39,7 +44,7 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
         isFeatured: event.isFeatured,
         hasSubscription: event.hasSubscription,
       );
-      
+
       emit(ContractorLoaded(
         contractors: paginatedContractors,
         hasReachedMax: !paginatedContractors.hasNextPage,
@@ -81,8 +86,9 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
           hasSubscription: currentState.currentFilters.hasSubscription,
         );
 
-        final allContractors = List<ContractorModel>.from(currentState.contractors.data)
-          ..addAll(paginatedContractors.data);
+        final allContractors =
+            List<ContractorModel>.from(currentState.contractors.data)
+              ..addAll(paginatedContractors.data);
 
         final updatedPagination = PaginationModel<ContractorModel>(
           currentPage: paginatedContractors.currentPage,
@@ -122,7 +128,7 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
   ) async {
     final currentState = state;
     ContractorFilters filters = const ContractorFilters();
-    
+
     if (currentState is ContractorLoaded) {
       filters = currentState.currentFilters;
     }
@@ -138,7 +144,7 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
         isFeatured: filters.isFeatured,
         hasSubscription: filters.hasSubscription,
       );
-      
+
       emit(ContractorLoaded(
         contractors: paginatedContractors,
         hasReachedMax: !paginatedContractors.hasNextPage,
@@ -170,7 +176,7 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
         isFeatured: event.isFeatured,
         hasSubscription: event.hasSubscription,
       );
-      
+
       emit(ContractorLoaded(
         contractors: paginatedContractors,
         hasReachedMax: !paginatedContractors.hasNextPage,
@@ -200,9 +206,22 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
     emit(ContractorSingleLoading());
 
     try {
-      final contractor = await contractorRepository.getContractor(event.contractorId);
+      final contractor =
+          await contractorRepository.getContractor(event.contractorId);
       if (contractor != null) {
-        emit(ContractorSingleLoaded(contractor: contractor));
+        // Load portfolio and reviews in parallel
+        final portfolioFuture =
+            contractorRepository.getContractorPortfolio(event.contractorId);
+        final reviewsFuture =
+            contractorRepository.getContractorReviews(event.contractorId);
+
+        final results = await Future.wait([portfolioFuture, reviewsFuture]);
+
+        emit(ContractorSingleLoaded(
+          contractor: contractor,
+          portfolio: results[0] as PaginationModel<PortfolioModel>,
+          reviews: results[1] as List<ContractorReviewModel>,
+        ));
       } else {
         emit(const ContractorError(message: 'Contractor not found'));
       }
@@ -232,7 +251,7 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
         isFeatured: event.filters.isFeatured,
         hasSubscription: event.filters.hasSubscription,
       );
-      
+
       emit(ContractorLoaded(
         contractors: paginatedContractors,
         hasReachedMax: !paginatedContractors.hasNextPage,
@@ -244,6 +263,54 @@ class ContractorBloc extends Bloc<ContractorEvent, ContractorState> {
       } else {
         emit(const ContractorError(
             message: 'Failed to apply filters. Please try again.'));
+      }
+    }
+  }
+
+  Future<void> _onContractorPortfolioLoadRequested(
+    ContractorPortfolioLoadRequested event,
+    Emitter<ContractorState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is ContractorSingleLoaded) {
+      try {
+        final portfolio = await contractorRepository.getContractorPortfolio(
+          event.contractorId,
+          page: event.page,
+          perPage: event.perPage,
+        );
+
+        emit(currentState.copyWith(portfolio: portfolio));
+      } catch (e) {
+        if (e is ApiErrorModel) {
+          emit(ContractorError(message: e.firstError));
+        } else {
+          emit(const ContractorError(
+              message: 'Failed to load portfolio. Please try again.'));
+        }
+      }
+    }
+  }
+
+  Future<void> _onContractorReviewsLoadRequested(
+    ContractorReviewsLoadRequested event,
+    Emitter<ContractorState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is ContractorSingleLoaded) {
+      try {
+        final reviews = await contractorRepository.getContractorReviews(
+          event.contractorId,
+        );
+
+        emit(currentState.copyWith(reviews: reviews));
+      } catch (e) {
+        if (e is ApiErrorModel) {
+          emit(ContractorError(message: e.firstError));
+        } else {
+          emit(const ContractorError(
+              message: 'Failed to load reviews. Please try again.'));
+        }
       }
     }
   }

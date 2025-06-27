@@ -3,6 +3,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../bloc/contractor_bloc/contractor_bloc.dart';
 import '../../../constants/app_colors.dart';
 import '../../../models/contractor/contractor_model.dart';
 import '../../../models/contractor/portfolio_model.dart';
@@ -32,10 +33,6 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
   ContractorModel? _contractor;
   PaginationModel<PortfolioModel>? _portfolio;
   List<ContractorReviewModel> _reviews = [];
-
-  bool _isLoading = false;
-  bool _hasError = false;
-  String _errorMessage = '';
 
   String get _experienceText {
     if (_contractor == null) return 'N/A';
@@ -69,58 +66,43 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
     super.dispose();
   }
 
-  void _loadContractorData() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
-
-    try {
-      final contractorRepository = context.read<ContractorRepository>();
-
-      // Load contractor details
-      final contractor =
-          await contractorRepository.getContractor(widget.contractorId);
-
-      if (contractor == null) {
-        throw Exception('Contractor not found');
-      }
-
-      // Load portfolio and reviews in parallel
-      final portfolioFuture =
-          contractorRepository.getContractorPortfolio(widget.contractorId);
-      final reviewsFuture =
-          contractorRepository.getContractorReviews(widget.contractorId);
-
-      final results = await Future.wait([portfolioFuture, reviewsFuture]);
-
-      setState(() {
-        _contractor = contractor;
-        _portfolio = results[0] as PaginationModel<PortfolioModel>;
-        _reviews = results[1] as List<ContractorReviewModel>;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-        _errorMessage = e.toString();
-      });
-    }
+  void _loadContractorData() {
+    context.read<ContractorBloc>().add(
+          ContractorSingleLoadRequested(
+            contractorId: widget.contractorId,
+          ),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _hasError
-              ? _buildErrorView()
-              : _buildProfileView(),
+    return BlocConsumer<ContractorBloc, ContractorState>(
+      listener: (context, state) {
+        if (state is ContractorSingleLoaded) {
+          setState(() {
+            _contractor = state.contractor;
+            _portfolio = state.portfolio;
+            _reviews = state.reviews ?? [];
+          });
+        }
+      },
+      builder: (context, state) {
+        if (state is ContractorSingleLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state is ContractorError) {
+          return _buildErrorView(errorMessage: state.message);
+        }
+
+        return _buildProfileView();
+      },
     );
   }
 
-  Widget _buildErrorView() {
+  Widget _buildErrorView({String? errorMessage}) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contractor Profile'),
@@ -147,7 +129,8 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage,
+              errorMessage ??
+                  'An error occurred while loading the contractor profile',
               style: const TextStyle(
                 color: AppColors.textSecondary,
               ),
@@ -266,26 +249,42 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
               // Avatar and Basic Info
               Row(
                 children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.white.withOpacity(0.2),
-                      image: _contractor!.avatar != null
-                          ? DecorationImage(
-                              image: NetworkImage(_contractor!.avatar!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    ),
-                    child: _contractor!.avatar == null
-                        ? const Icon(
-                            Icons.person,
-                            color: AppColors.white,
-                            size: 40,
-                          )
-                        : null,
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: AppColors.white.withOpacity(0.2),
+                        backgroundImage: _contractor!.avatarUrl.isNotEmpty
+                            ? NetworkImage(_contractor!.avatarUrl)
+                            : null,
+                        child: _contractor!.avatarUrl.isEmpty
+                            ? Text(
+                                _contractor!.name[0].toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  color: AppColors.white,
+                                ),
+                              )
+                            : null,
+                      ),
+                      if (_contractor!.hasGoldenBadge)
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: AppColors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.verified,
+                              color: AppColors.warning,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -314,7 +313,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                                   color: AppColors.warning,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Row(
+                                child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
@@ -322,7 +321,7 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
                                       color: AppColors.white,
                                       size: 14,
                                     ),
-                                    const SizedBox(width: 4),
+                                    SizedBox(width: 4),
                                     Text(
                                       'PRO',
                                       style: TextStyle(
@@ -418,182 +417,223 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
   }
 
   Widget _buildAboutTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Bio Section
-          if (_contractor!.bio != null)
-            _buildSection(
-              'About',
-              _contractor!.bio!,
-            ),
+    return Material(
+      color: Colors.white,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Bio Section
+            if (_contractor!.bio != null)
+              _buildSection(
+                'About',
+                _contractor!.bio!,
+              ),
 
-          // Services Section
-          if (_contractor != null && _contractor!.services.isNotEmpty) ...[
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: AppColors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Services',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+            // Services Section
+            if (_contractor != null && _contractor!.services.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: AppColors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Services',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _buildServiceChips(),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _buildServiceChips(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
 
-          // Certifications Section
-          if (_contractor?.certifications?.isNotEmpty ?? false) ...[
-            const Text(
-              'Certifications',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            // Certifications Section
+            if (_contractor?.certifications?.isNotEmpty ?? false) ...[
+              const Text(
+                'Certifications',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _buildCertificationChips(),
-            ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _buildCertificationChips(),
+              ),
+              const SizedBox(height: 24),
+            ],
+
+            // Skills Section
+            if (_contractor?.skills?.isNotEmpty ?? false) ...[
+              const Text(
+                'Skills',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _buildSkillChips(),
+              ),
+            ],
+
+            // Contact Information
             const SizedBox(height: 24),
+            _buildContactSection(),
           ],
-
-          // Skills Section
-          if (_contractor?.skills?.isNotEmpty ?? false) ...[
-            const Text(
-              'Skills',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _buildSkillChips(),
-            ),
-          ],
-
-          // Contact Information
-          const SizedBox(height: 24),
-          _buildContactSection(),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildPortfolioTab() {
     if (_portfolio == null || _portfolio!.data.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.photo_library_outlined,
-              size: 64,
-              color: AppColors.textSecondary,
+      return Material(
+        color: Colors.white,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.photo_library_outlined,
+                    size: 48,
+                    color: AppColors.textSecondary.withOpacity(0.5),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'No portfolio items yet',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This contractor hasn\'t added any portfolio items',
+                  style: TextStyle(
+                    color: AppColors.textSecondary.withOpacity(0.7),
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            Text(
-              'No portfolio items yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'This contractor hasn\'t added any portfolio items',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+          ),
         ),
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.8,
+    return Material(
+      color: Colors.white,
+      child: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: _portfolio!.data.length,
+        itemBuilder: (context, index) {
+          final portfolioItem = _portfolio!.data[index];
+          return PortfolioItemCard(
+            portfolioItem: portfolioItem,
+            onTap: () {
+              _showPortfolioDetails(portfolioItem);
+            },
+          );
+        },
       ),
-      itemCount: _portfolio!.data.length,
-      itemBuilder: (context, index) {
-        final portfolioItem = _portfolio!.data[index];
-        return PortfolioItemCard(
-          portfolioItem: portfolioItem,
-          onTap: () {
-            _showPortfolioDetails(portfolioItem);
-          },
-        );
-      },
     );
   }
 
   Widget _buildReviewsTab() {
     if (_reviews.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.rate_review_outlined,
-              size: 64,
-              color: AppColors.textSecondary,
+      return Material(
+        color: Colors.white,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.rate_review_outlined,
+                    size: 48,
+                    color: AppColors.textSecondary.withOpacity(0.5),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'No reviews yet',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This contractor hasn\'t received any reviews',
+                  style: TextStyle(
+                    color: AppColors.textSecondary.withOpacity(0.7),
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            SizedBox(height: 16),
-            Text(
-              'No reviews yet',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'This contractor hasn\'t received any reviews',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _reviews.length,
-      itemBuilder: (context, index) {
-        final review = _reviews[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: ContractorReviewCard(review: review),
-        );
-      },
+    return Material(
+      color: Colors.white,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _reviews.length,
+        itemBuilder: (context, index) {
+          final review = _reviews[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: ContractorReviewCard(review: review),
+          );
+        },
+      ),
     );
   }
 
@@ -862,30 +902,30 @@ class _ContractorProfilePageState extends State<ContractorProfilePage>
 }
 
 class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
+  final TabBar tabBar;
 
-  _SliverTabBarDelegate(this._tabBar);
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
+  _SliverTabBarDelegate(this.tabBar);
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppColors.white,
-      child: _tabBar,
+      color: Colors.white,
+      child: Material(
+        color: Colors.white,
+        child: tabBar,
+      ),
     );
   }
 
   @override
-  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
     return false;
   }
 }

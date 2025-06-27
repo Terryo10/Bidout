@@ -1,4 +1,5 @@
 // lib/models/contractor/contractor_model.dart
+import '../../constants/app_urls.dart';
 import 'contractor_service_model.dart';
 import 'portfolio_model.dart';
 
@@ -28,6 +29,20 @@ class ContractorModel {
   final List<PortfolioModel> featuredPortfolios;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int? freeBidsRemaining;
+  final int? purchasedBidsRemaining;
+  final int? totalBidsPurchased;
+  final int? totalFreeBidsGranted;
+  final DateTime? freeBidsGrantedAt;
+  final int? freePostsRemaining;
+  final int? totalFreePostsGranted;
+  final DateTime? freePostsGrantedAt;
+  final String? userType;
+  final List<String>? availableRoles;
+  final String? activeRole;
+  final bool isDualRole;
+  final String? contractorStatus;
+  final DateTime? emailVerifiedAt;
 
   ContractorModel({
     required this.id,
@@ -55,11 +70,25 @@ class ContractorModel {
     required this.featuredPortfolios,
     required this.createdAt,
     required this.updatedAt,
+    this.freeBidsRemaining,
+    this.purchasedBidsRemaining,
+    this.totalBidsPurchased,
+    this.totalFreeBidsGranted,
+    this.freeBidsGrantedAt,
+    this.freePostsRemaining,
+    this.totalFreePostsGranted,
+    this.freePostsGrantedAt,
+    this.userType,
+    this.availableRoles,
+    this.activeRole,
+    this.isDualRole = false,
+    this.contractorStatus,
+    this.emailVerifiedAt,
   });
 
   factory ContractorModel.fromJson(Map<String, dynamic> json) {
     return ContractorModel(
-      id: json['id'],
+      id: json['id'] ?? 0,
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'],
@@ -95,8 +124,34 @@ class ContractorModel {
               .map((p) => PortfolioModel.fromJson(p))
               .toList()
           : [],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : DateTime.now(),
+      freeBidsRemaining: json['free_bids_remaining'],
+      purchasedBidsRemaining: json['purchased_bids_remaining'],
+      totalBidsPurchased: json['total_bids_purchased'],
+      totalFreeBidsGranted: json['total_free_bids_granted'],
+      freeBidsGrantedAt: json['free_bids_granted_at'] != null
+          ? DateTime.parse(json['free_bids_granted_at'])
+          : null,
+      freePostsRemaining: json['free_posts_remaining'],
+      totalFreePostsGranted: json['total_free_posts_granted'],
+      freePostsGrantedAt: json['free_posts_granted_at'] != null
+          ? DateTime.parse(json['free_posts_granted_at'])
+          : null,
+      userType: json['user_type'],
+      availableRoles: json['available_roles'] != null
+          ? List<String>.from(json['available_roles'])
+          : null,
+      activeRole: json['active_role'],
+      isDualRole: json['is_dual_role'] ?? false,
+      contractorStatus: json['contractor_status'],
+      emailVerifiedAt: json['email_verified_at'] != null
+          ? DateTime.parse(json['email_verified_at'])
+          : null,
     );
   }
 
@@ -126,6 +181,20 @@ class ContractorModel {
       'featured_portfolios': featuredPortfolios.map((p) => p.toJson()).toList(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'free_bids_remaining': freeBidsRemaining,
+      'purchased_bids_remaining': purchasedBidsRemaining,
+      'total_bids_purchased': totalBidsPurchased,
+      'total_free_bids_granted': totalFreeBidsGranted,
+      'free_bids_granted_at': freeBidsGrantedAt?.toIso8601String(),
+      'free_posts_remaining': freePostsRemaining,
+      'total_free_posts_granted': totalFreePostsGranted,
+      'free_posts_granted_at': freePostsGrantedAt?.toIso8601String(),
+      'user_type': userType,
+      'available_roles': availableRoles,
+      'active_role': activeRole,
+      'is_dual_role': isDualRole,
+      'contractor_status': contractorStatus,
+      'email_verified_at': emailVerifiedAt?.toIso8601String(),
     };
   }
 
@@ -146,4 +215,18 @@ class ContractorModel {
         .where((name) => name.isNotEmpty)
         .toList();
   }
+
+  bool get isApprovedContractor {
+    return userType == 'contractor' && contractorStatus == 'approved';
+  }
+
+  bool get canSubmitBids {
+    return (freeBidsRemaining ?? 0) > 0 || (purchasedBidsRemaining ?? 0) > 0;
+  }
+
+  int get totalRemainingBids {
+    return (freeBidsRemaining ?? 0) + (purchasedBidsRemaining ?? 0);
+  }
+
+  String get avatarUrl => AppUrls.getAvatarUrl(avatar);
 }

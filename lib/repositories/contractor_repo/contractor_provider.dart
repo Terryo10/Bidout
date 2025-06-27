@@ -76,14 +76,48 @@ class ContractorProvider {
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return PaginationModel<ContractorModel>.fromJson(
-          data,
-          (json) => ContractorModel.fromJson(json),
-        );
+        try {
+          final data = jsonDecode(response.body);
+
+          // Check if the response has the expected structure
+          if (data is! Map<String, dynamic>) {
+            throw ApiErrorModel(
+                message: 'Invalid response format: expected a JSON object');
+          }
+
+          if (!data.containsKey('contractors')) {
+            throw ApiErrorModel(
+                message: 'Invalid response format: missing contractors key');
+          }
+
+          final contractorsData = data['contractors'];
+          if (contractorsData is! Map<String, dynamic>) {
+            throw ApiErrorModel(
+                message:
+                    'Invalid response format: contractors is not a JSON object');
+          }
+
+          return PaginationModel<ContractorModel>.fromJson(
+            contractorsData,
+            (json) {
+              if (json is! Map<String, dynamic>) {
+                throw ApiErrorModel(message: 'Invalid contractor data format');
+              }
+              return ContractorModel.fromJson(json);
+            },
+          );
+        } catch (e) {
+          print('Error parsing response: ${response.body}');
+          if (e is ApiErrorModel) rethrow;
+          throw ApiErrorModel(message: 'Failed to parse response: $e');
+        }
       } else {
-        final error = jsonDecode(response.body);
-        throw ApiErrorModel.fromJson(error);
+        try {
+          final error = jsonDecode(response.body);
+          throw ApiErrorModel.fromJson(error);
+        } catch (e) {
+          throw ApiErrorModel(message: 'Server error: ${response.statusCode}');
+        }
       }
     } catch (e) {
       if (e is ApiErrorModel) rethrow;

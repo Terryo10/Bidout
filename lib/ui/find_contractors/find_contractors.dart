@@ -27,6 +27,9 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
   List<ServiceModel> _services = [];
   bool _isLoadingServices = true;
   String? _selectedService;
+  double _minRating = 0.0;
+  String? _selectedLocation;
+  bool _showFeaturedOnly = false;
 
   @override
   void initState() {
@@ -85,10 +88,17 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
       }
     });
 
+    _applyFilters();
+  }
+
+  void _applyFilters() {
     context.read<ContractorBloc>().add(
           ContractorSearchRequested(
             query: _searchController.text,
             services: _selectedService != null ? [_selectedService!] : null,
+            minRating: _minRating > 0 ? _minRating : null,
+            location: _selectedLocation,
+            isFeatured: _showFeaturedOnly,
           ),
         );
   }
@@ -100,6 +110,12 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
         title: const Text('Find Contractors'),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: _showFilterDialog,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -120,14 +136,7 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
                 ),
               ),
               onChanged: (value) {
-                context.read<ContractorBloc>().add(
-                      ContractorSearchRequested(
-                        query: value,
-                        services: _selectedService != null
-                            ? [_selectedService!]
-                            : null,
-                      ),
-                    );
+                _applyFilters();
               },
             ),
           ),
@@ -149,6 +158,27 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
                     ),
                   );
                 }).toList(),
+              ),
+            ),
+
+          // Active Filters Display
+          if (_hasActiveFilters)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.filter_list, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    _getActiveFiltersText(),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: _clearFilters,
+                    child: const Text('Clear All'),
+                  ),
+                ],
               ),
             ),
 
@@ -200,31 +230,39 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
                     );
                   }
 
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.contractors.data.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == state.contractors.data.length) {
-                        return state.hasReachedMax
-                            ? const SizedBox()
-                            : const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                      }
-
-                      final contractor = state.contractors.data[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: ContractorCard(
-                          contractor: contractor,
-                          onTap: () => _navigateToContractorDetails(contractor),
-                        ),
-                      );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<ContractorBloc>().add(
+                            const ContractorRefreshRequested(),
+                          );
                     },
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.contractors.data.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.contractors.data.length) {
+                          return state.hasReachedMax
+                              ? const SizedBox()
+                              : const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                        }
+
+                        final contractor = state.contractors.data[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: ContractorCard(
+                            contractor: contractor,
+                            onTap: () =>
+                                _navigateToContractorDetails(contractor),
+                          ),
+                        );
+                      },
+                    ),
                   );
                 }
 
@@ -240,6 +278,115 @@ class _FindContractorsPageState extends State<FindContractorsPage> {
   }
 
   void _navigateToContractorDetails(ContractorModel contractor) {
-    context.pushRoute(ContractorProfileRoute(contractorId: contractor.id));
+    context.pushRoute(ContractorPreviewRoute(contractorId: contractor.id));
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Filter Contractors'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Minimum Rating Slider
+            const Text('Minimum Rating'),
+            Slider(
+              value: _minRating,
+              min: 0,
+              max: 5,
+              divisions: 10,
+              label: _minRating.toString(),
+              onChanged: (value) {
+                setState(() {
+                  _minRating = value;
+                });
+              },
+            ),
+
+            // Featured Only Switch
+            SwitchListTile(
+              title: const Text('Featured Contractors Only'),
+              value: _showFeaturedOnly,
+              onChanged: (value) {
+                setState(() {
+                  _showFeaturedOnly = value;
+                });
+              },
+            ),
+
+            // Location Dropdown (you'll need to populate this with actual locations)
+            DropdownButtonFormField<String>(
+              value: _selectedLocation,
+              decoration: const InputDecoration(
+                labelText: 'Location',
+              ),
+              items: const [
+                DropdownMenuItem(value: null, child: Text('Any Location')),
+                DropdownMenuItem(value: 'New York', child: Text('New York')),
+                DropdownMenuItem(
+                    value: 'Los Angeles', child: Text('Los Angeles')),
+                // Add more locations as needed
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _selectedLocation = value;
+                });
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _applyFilters();
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool get _hasActiveFilters {
+    return _minRating > 0 ||
+        _showFeaturedOnly ||
+        _selectedLocation != null ||
+        _selectedService != null;
+  }
+
+  String _getActiveFiltersText() {
+    final filters = <String>[];
+    if (_minRating > 0) {
+      filters.add('Rating ≥ ${_minRating.toStringAsFixed(1)}');
+    }
+    if (_showFeaturedOnly) {
+      filters.add('Featured Only');
+    }
+    if (_selectedLocation != null) {
+      filters.add(_selectedLocation!);
+    }
+    if (_selectedService != null) {
+      filters.add(_selectedService!);
+    }
+    return filters.join(' • ');
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _minRating = 0;
+      _showFeaturedOnly = false;
+      _selectedLocation = null;
+      _selectedService = null;
+      _searchController.clear();
+    });
+    _applyFilters();
   }
 }

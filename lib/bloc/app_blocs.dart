@@ -8,9 +8,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../repositories/auth_repo/auth_provider.dart';
 import '../repositories/auth_repo/auth_repository.dart';
 import '../repositories/projects_repo/projects_provider.dart';
+import '../repositories/contractor_repo/contractor_provider.dart';
+import '../repositories/contractor_repo/contractor_repo.dart';
 import 'auth_bloc/auth_bloc.dart';
 import 'projects_bloc/project_bloc.dart';
 import 'notifications_bloc/notifications_bloc.dart';
+import 'contractor_bloc/contractor_bloc.dart';
 
 class AppBlocs extends StatelessWidget {
   final Widget app;
@@ -24,42 +27,62 @@ class AppBlocs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Create repositories that will be shared
-    final projectRepository = ProjectRepository(
-      storage: storage,
-      projectProvider: ProjectProvider(storage: storage),
-    );
-
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider(
-          create: (context) => AuthBloc(
-            authRepository: AuthRepository(
-              storage: storage,
-              authProvider: AuthProvider(storage: storage),
+        RepositoryProvider<ProjectRepository>(
+          create: (context) => ProjectRepository(
+            storage: storage,
+            projectProvider: ProjectProvider(storage: storage),
+          ),
+        ),
+        RepositoryProvider<ContractorRepository>(
+          create: (context) => ContractorRepository(
+            storage: storage,
+            contractorProvider: ContractorProvider(storage: storage),
+          ),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => AuthBloc(
+              authRepository: AuthRepository(
+                storage: storage,
+                authProvider: AuthProvider(storage: storage),
+              ),
             ),
           ),
-        ),
-        BlocProvider(
-          create: (context) => ProjectBloc(
-            projectRepository: projectRepository,
+          BlocProvider(
+            create: (context) => ProjectBloc(
+              projectRepository:
+                  RepositoryProvider.of<ProjectRepository>(context),
+            ),
           ),
-        ),
-        BlocProvider(
-          create: (context) => NotificationsBloc(),
-        ),
-        BlocProvider(
-          lazy: false, // This will make the bloc initialize immediately
-          create: (context) {
-            final bloc = ServicesBloc(projectRepository: projectRepository);
-            // Load services immediately
-            bloc.add(ServicesLoadRequested());
-            return bloc;
-          },
-        ),
-        // Add other BLoCs here as needed
-      ],
-      child: app,
+          BlocProvider(
+            create: (context) => NotificationsBloc(),
+          ),
+          BlocProvider(
+            lazy: false, // This will make the bloc initialize immediately
+            create: (context) {
+              final bloc = ServicesBloc(
+                projectRepository:
+                    RepositoryProvider.of<ProjectRepository>(context),
+              );
+              // Load services immediately
+              bloc.add(ServicesLoadRequested());
+              return bloc;
+            },
+          ),
+          BlocProvider(
+            create: (context) => ContractorBloc(
+              contractorRepository:
+                  RepositoryProvider.of<ContractorRepository>(context),
+            ),
+          ),
+          // Add other BLoCs here as needed
+        ],
+        child: app,
+      ),
     );
   }
 }

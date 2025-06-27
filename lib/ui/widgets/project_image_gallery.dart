@@ -27,10 +27,24 @@ class ProjectImageGallery extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: NetworkImage(
-                    '${AppUrls.projectImageUrl}${images[index].path}'),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                AppUrls.getStorageUrl(images[index].path),
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey.shade200,
+                    child: const Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                        size: 32,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           );

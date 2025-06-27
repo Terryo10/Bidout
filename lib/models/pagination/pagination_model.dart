@@ -37,24 +37,42 @@ class PaginationModel<T> {
     T Function(Map<String, dynamic>) fromJsonT,
   ) {
     return PaginationModel<T>(
-      currentPage: json['current_page'],
-      data: (json['data'] as List)
+      currentPage: json['current_page'] ?? 1,
+      data: ((json['data'] ?? []) as List)
           .map((item) => fromJsonT(item as Map<String, dynamic>))
           .toList(),
       firstPageUrl: json['first_page_url'],
       from: json['from'],
-      lastPage: json['last_page'],
+      lastPage: json['last_page'] ?? 1,
       lastPageUrl: json['last_page_url'],
-      links: (json['links'] as List)
-          .map((link) => PaginationLink.fromJson(link))
+      links: ((json['links'] ?? []) as List)
+          .map((link) => PaginationLink.fromJson(link as Map<String, dynamic>))
           .toList(),
       nextPageUrl: json['next_page_url'],
-      path: json['path'],
-      perPage: json['per_page'],
+      path: json['path'] ?? '',
+      perPage: json['per_page'] ?? 10,
       prevPageUrl: json['prev_page_url'],
       to: json['to'],
-      total: json['total'],
+      total: json['total'] ?? 0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'current_page': currentPage,
+      'data': data,
+      'first_page_url': firstPageUrl,
+      'from': from,
+      'last_page': lastPage,
+      'last_page_url': lastPageUrl,
+      'links': links.map((link) => link.toJson()).toList(),
+      'next_page_url': nextPageUrl,
+      'path': path,
+      'per_page': perPage,
+      'prev_page_url': prevPageUrl,
+      'to': to,
+      'total': total,
+    };
   }
 
   bool get hasNextPage => nextPageUrl != null;
@@ -79,8 +97,8 @@ class PaginationLink {
   factory PaginationLink.fromJson(Map<String, dynamic> json) {
     return PaginationLink(
       url: json['url'],
-      label: json['label'],
-      active: json['active'],
+      label: json['label'] ?? '',
+      active: json['active'] ?? false,
     );
   }
 
