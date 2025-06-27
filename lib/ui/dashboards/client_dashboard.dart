@@ -212,6 +212,42 @@ class _DashboardContent extends StatelessWidget {
 
             const SizedBox(height: 24),
 
+            // My Projects Box
+            SizedBox(
+              width: double.infinity,
+              child: InkWell(
+                onTap: () {
+                  context.router.push(const ProjectListingRoute());
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: context.borderLight),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.folder_outlined,
+                          size: 32, color: context.colors.primary),
+                      const SizedBox(width: 16),
+                      Text(
+                        'My Projects',
+                        style: context.textTheme.titleMedium?.copyWith(
+                          color: context.textPrimary,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(Icons.chevron_right, color: context.textSecondary),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
             // Services Section
             Text(
               'Available Services',
