@@ -2,7 +2,7 @@ part of 'project_bloc.dart';
 
 sealed class ProjectState extends Equatable {
   const ProjectState();
-  
+
   @override
   List<Object?> get props => [];
 }
@@ -16,22 +16,26 @@ final class ProjectSingleLoading extends ProjectState {}
 final class ProjectLoaded extends ProjectState {
   final PaginationModel<ProjectModel> projects;
   final bool hasReachedMax;
+  final ProjectModel? selectedProject;
 
   const ProjectLoaded({
     required this.projects,
     required this.hasReachedMax,
+    this.selectedProject,
   });
 
   @override
-  List<Object> get props => [projects, hasReachedMax];
+  List<Object?> get props => [projects, hasReachedMax, selectedProject];
 
   ProjectLoaded copyWith({
     PaginationModel<ProjectModel>? projects,
     bool? hasReachedMax,
+    ProjectModel? selectedProject,
   }) {
     return ProjectLoaded(
       projects: projects ?? this.projects,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      selectedProject: selectedProject ?? this.selectedProject,
     );
   }
 }

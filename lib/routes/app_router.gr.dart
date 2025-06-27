@@ -21,6 +21,19 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const ContractorDashboardPage(),
       );
     },
+    ContractorDetailRoute.name: (routeData) {
+      final pathParams = routeData.inheritedPathParams;
+      final args = routeData.argsAs<ContractorDetailRouteArgs>(
+          orElse: () =>
+              ContractorDetailRouteArgs(contractorId: pathParams.getInt('id')));
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: ContractorDetailPage(
+          key: args.key,
+          contractorId: args.contractorId,
+        ),
+      );
+    },
     ContractorDirectoryRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -110,6 +123,7 @@ abstract class _$AppRouter extends RootStackRouter {
         child: ProjectViewPage(
           key: args.key,
           projectId: args.projectId,
+          project: args.project,
         ),
       );
     },
@@ -134,6 +148,45 @@ class ContractorDashboardRoute extends PageRouteInfo<void> {
   static const String name = 'ContractorDashboardRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ContractorDetailPage]
+class ContractorDetailRoute extends PageRouteInfo<ContractorDetailRouteArgs> {
+  ContractorDetailRoute({
+    Key? key,
+    required int contractorId,
+    List<PageRouteInfo>? children,
+  }) : super(
+          ContractorDetailRoute.name,
+          args: ContractorDetailRouteArgs(
+            key: key,
+            contractorId: contractorId,
+          ),
+          rawPathParams: {'id': contractorId},
+          initialChildren: children,
+        );
+
+  static const String name = 'ContractorDetailRoute';
+
+  static const PageInfo<ContractorDetailRouteArgs> page =
+      PageInfo<ContractorDetailRouteArgs>(name);
+}
+
+class ContractorDetailRouteArgs {
+  const ContractorDetailRouteArgs({
+    this.key,
+    required this.contractorId,
+  });
+
+  final Key? key;
+
+  final int contractorId;
+
+  @override
+  String toString() {
+    return 'ContractorDetailRouteArgs{key: $key, contractorId: $contractorId}';
+  }
 }
 
 /// generated route for
@@ -369,12 +422,14 @@ class ProjectViewRoute extends PageRouteInfo<ProjectViewRouteArgs> {
   ProjectViewRoute({
     Key? key,
     required int projectId,
+    ProjectModel? project,
     List<PageRouteInfo>? children,
   }) : super(
           ProjectViewRoute.name,
           args: ProjectViewRouteArgs(
             key: key,
             projectId: projectId,
+            project: project,
           ),
           initialChildren: children,
         );
@@ -389,15 +444,18 @@ class ProjectViewRouteArgs {
   const ProjectViewRouteArgs({
     this.key,
     required this.projectId,
+    this.project,
   });
 
   final Key? key;
 
   final int projectId;
 
+  final ProjectModel? project;
+
   @override
   String toString() {
-    return 'ProjectViewRouteArgs{key: $key, projectId: $projectId}';
+    return 'ProjectViewRouteArgs{key: $key, projectId: $projectId, project: $project}';
   }
 }
 

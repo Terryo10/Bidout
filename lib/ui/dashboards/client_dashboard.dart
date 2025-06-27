@@ -2,20 +2,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../bloc/auth_bloc/auth_bloc.dart';
-import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../bloc/services_bloc/services_bloc.dart';
 import '../../constants/app_theme_extension.dart';
-import '../../models/contractor/contractor_model.dart';
-import '../../models/services/service_model.dart' as service;
-import '../../repositories/contractor_repo/contractor_repo.dart';
-import '../../repositories/projects_repo/projects_repository.dart';
 import '../../routes/app_router.dart';
-import '../widgets/action_card.dart';
-import '../widgets/project_preview_card.dart';
 import '../widgets/service_card.dart';
-import '../widgets/contractor_card.dart';
 import '../widgets/theme_toggle.dart';
 
 @RoutePage(name: 'EnhancedClientDashboardRoute')

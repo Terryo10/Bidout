@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
+import '../models/projects/project_model.dart';
 import '../ui/auth/forgot_password_page.dart';
 import '../ui/auth/login_page.dart';
 import '../ui/auth/register_page.dart';
@@ -8,6 +9,7 @@ import '../ui/contractor/contractor_directory_page.dart';
 import '../ui/contractor/profile/contractor_profile_page.dart';
 import '../ui/dashboards/client_dashboard.dart';
 import '../ui/dashboards/contractor_dashboard_page.dart';
+import '../ui/find_contractors/contractor_detail_page.dart';
 import '../ui/find_contractors/find_contractors.dart';
 import '../ui/find_contractors/contractor_preview_page.dart';
 import '../ui/landing/landing_page.dart';

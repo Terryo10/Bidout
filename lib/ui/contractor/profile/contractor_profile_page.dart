@@ -9,7 +9,6 @@ import '../../../models/contractor/contractor_model.dart';
 import '../../../models/contractor/portfolio_model.dart';
 import '../../../models/contractor/contractor_review_model.dart';
 import '../../../models/pagination/pagination_model.dart';
-import '../../../repositories/contractor_repo/contractor_repo.dart';
 import '../../widgets/contractor_review_card.dart';
 import '../../widgets/portfolio_item_card.dart';
 

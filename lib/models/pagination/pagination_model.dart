@@ -4,11 +4,11 @@ import '../projects/project_model.dart';
 class PaginationModel<T> {
   final int currentPage;
   final List<T> data;
-  final String? firstPageUrl;
+  final String firstPageUrl;
   final int? from;
   final int lastPage;
-  final String? lastPageUrl;
-  final List<PaginationLink> links;
+  final String lastPageUrl;
+  final List<dynamic> links;
   final String? nextPageUrl;
   final String path;
   final int perPage;
@@ -19,18 +19,36 @@ class PaginationModel<T> {
   PaginationModel({
     required this.currentPage,
     required this.data,
-    this.firstPageUrl,
-    this.from,
+    required this.firstPageUrl,
+    required this.from,
     required this.lastPage,
-    this.lastPageUrl,
+    required this.lastPageUrl,
     required this.links,
-    this.nextPageUrl,
+    required this.nextPageUrl,
     required this.path,
     required this.perPage,
-    this.prevPageUrl,
-    this.to,
+    required this.prevPageUrl,
+    required this.to,
     required this.total,
   });
+
+  factory PaginationModel.empty() {
+    return PaginationModel(
+      currentPage: 1,
+      data: [],
+      firstPageUrl: '',
+      from: null,
+      lastPage: 1,
+      lastPageUrl: '',
+      links: [],
+      nextPageUrl: null,
+      path: '',
+      perPage: 10,
+      prevPageUrl: null,
+      to: null,
+      total: 0,
+    );
+  }
 
   factory PaginationModel.fromJson(
     Map<String, dynamic> json,
@@ -41,13 +59,11 @@ class PaginationModel<T> {
       data: ((json['data'] ?? []) as List)
           .map((item) => fromJsonT(item as Map<String, dynamic>))
           .toList(),
-      firstPageUrl: json['first_page_url'],
+      firstPageUrl: json['first_page_url'] ?? '',
       from: json['from'],
       lastPage: json['last_page'] ?? 1,
-      lastPageUrl: json['last_page_url'],
-      links: ((json['links'] ?? []) as List)
-          .map((link) => PaginationLink.fromJson(link as Map<String, dynamic>))
-          .toList(),
+      lastPageUrl: json['last_page_url'] ?? '',
+      links: json['links'] ?? [],
       nextPageUrl: json['next_page_url'],
       path: json['path'] ?? '',
       perPage: json['per_page'] ?? 10,
@@ -65,7 +81,7 @@ class PaginationModel<T> {
       'from': from,
       'last_page': lastPage,
       'last_page_url': lastPageUrl,
-      'links': links.map((link) => link.toJson()).toList(),
+      'links': links,
       'next_page_url': nextPageUrl,
       'path': path,
       'per_page': perPage,

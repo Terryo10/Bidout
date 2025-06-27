@@ -11,10 +11,7 @@ import '../../models/contractor/portfolio_model.dart';
 import '../widgets/portfolio_preview_card.dart';
 import '../widgets/rating_display.dart';
 import '../widgets/service_chip.dart';
-import '../widgets/contractor_info_section.dart';
-import '../widgets/contractor_portfolio_preview.dart';
-import '../widgets/contractor_services_section.dart';
-import '../widgets/contractor_stats_section.dart';
+
 
 @RoutePage()
 class ContractorPreviewPage extends StatefulWidget {

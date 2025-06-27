@@ -1,13 +1,9 @@
-// lib/ui/projects/project_listing_page.dart (Updated with Pagination)
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_theme_extension.dart';
-import '../../models/pagination/pagination_model.dart';
-import '../../models/projects/project_model.dart';
 import '../../routes/app_router.dart';
 import '../widgets/project_card.dart';
 import '../widgets/project_filter_widget.dart';
@@ -244,7 +240,7 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
             ),
           ),
 
-          const Divider(height: 1, color: AppColors.borderLight),
+          const Divider(height: 1),
 
           // Projects List
           Expanded(
@@ -254,7 +250,7 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.message),
-                      backgroundColor: AppColors.error,
+                      backgroundColor: context.error,
                     ),
                   );
                 }
@@ -299,8 +295,10 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                           child: ProjectCard(
                             project: project,
                             onTap: () {
-                              context.router.push(
-                                  ProjectViewRoute(projectId: project.id));
+                              context.router.push(ProjectViewRoute(
+                                projectId: project.id,
+                                project: project,
+                              ));
                             },
                           ),
                         );
@@ -339,10 +337,10 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
         labelText: 'Sort by',
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.borderLight),
+          borderSide: BorderSide(color: context.borderLight),
         ),
         filled: true,
-        fillColor: AppColors.grey50,
+        fillColor: context.colors.surfaceContainer,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: sortOptions.map((sort) {
@@ -350,7 +348,10 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
           value: sort,
           child: Text(
             sort,
-            style: const TextStyle(fontSize: 14),
+            style: TextStyle(
+              fontSize: 14,
+              color: context.textPrimary,
+            ),
           ),
         );
       }).toList(),
@@ -369,25 +370,25 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.search_off,
               size: 64,
-              color: AppColors.textSecondary,
+              color: context.textSecondary,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'No projects found',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Try adjusting your search or filters',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -400,6 +401,10 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
                 });
                 _loadProjects();
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.onPrimary,
+              ),
               child: const Text('Clear Filters'),
             ),
           ],
@@ -411,25 +416,25 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.folder_open,
               size: 64,
-              color: AppColors.textSecondary,
+              color: context.textSecondary,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'No projects yet',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Create your first project to get started',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -439,6 +444,10 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
               },
               icon: const Icon(Icons.add),
               label: const Text('Create Project'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.onPrimary,
+              ),
             ),
           ],
         ),
@@ -451,31 +460,35 @@ class _ProjectListingPageState extends State<ProjectListingPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline,
             size: 64,
-            color: AppColors.error,
+            color: context.error,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Error loading projects',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: context.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _loadProjects,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.colors.primary,
+              foregroundColor: context.colors.onPrimary,
+            ),
             child: const Text('Retry'),
           ),
         ],

@@ -4,20 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_theme_extension.dart';
 import '../../models/projects/project_model.dart';
-import '../../routes/app_router.dart';
 import '../widgets/project_image_gallery.dart';
 import '../widgets/project_status_chip.dart';
 
 @RoutePage()
 class ProjectViewPage extends StatefulWidget {
   final int projectId;
+  final ProjectModel? project;
 
   const ProjectViewPage({
     super.key,
     required this.projectId,
+    this.project,
   });
 
   @override
@@ -28,7 +28,9 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
   @override
   void initState() {
     super.initState();
-    _loadProject();
+    if (widget.project == null) {
+      _loadProject();
+    }
   }
 
   void _loadProject() {
@@ -39,6 +41,11 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    // If we have the project directly, use it
+    if (widget.project != null) {
+      return _buildProjectView(widget.project!);
+    }
+
     return Scaffold(
       body: BlocConsumer<ProjectBloc, ProjectState>(
         listener: (context, state) {
@@ -46,14 +53,14 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: AppColors.error,
+                backgroundColor: context.error,
               ),
             );
           } else if (state is ProjectDeleted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Project deleted successfully'),
-                backgroundColor: AppColors.success,
+              SnackBar(
+                content: const Text('Project deleted successfully'),
+                backgroundColor: context.success,
               ),
             );
             context.router.pop();
@@ -64,8 +71,8 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Project Details'),
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.onPrimary,
               ),
               body: const Center(
                 child: CircularProgressIndicator(),
@@ -85,8 +92,8 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Project Details'),
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.white,
+              backgroundColor: context.colors.primary,
+              foregroundColor: context.colors.onPrimary,
             ),
             body: const Center(
               child: CircularProgressIndicator(),
@@ -101,8 +108,8 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(project.title),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        backgroundColor: context.colors.primary,
+        foregroundColor: context.colors.onPrimary,
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -119,33 +126,33 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit, color: AppColors.textSecondary),
-                    SizedBox(width: 8),
-                    Text('Edit Project'),
+                    Icon(Icons.edit, color: context.textSecondary),
+                    const SizedBox(width: 8),
+                    const Text('Edit Project'),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'share',
                 child: Row(
                   children: [
-                    Icon(Icons.share, color: AppColors.textSecondary),
-                    SizedBox(width: 8),
-                    Text('Share Project'),
+                    Icon(Icons.share, color: context.textSecondary),
+                    const SizedBox(width: 8),
+                    const Text('Share Project'),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete, color: AppColors.error),
-                    SizedBox(width: 8),
-                    Text('Delete Project'),
+                    Icon(Icons.delete, color: context.error),
+                    const SizedBox(width: 8),
+                    const Text('Delete Project'),
                   ],
                 ),
               ),
@@ -176,10 +183,10 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                           children: [
                             Text(
                               project.title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                color: context.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -190,13 +197,14 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.1),
+                                  color:
+                                      context.colors.primary.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
                                   project.service!.name,
-                                  style: const TextStyle(
-                                    color: AppColors.primary,
+                                  style: TextStyle(
+                                    color: context.colors.primary,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -219,7 +227,7 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                           'Budget',
                           '\$${project.budget.toStringAsFixed(0)}',
                           Icons.monetization_on,
-                          AppColors.success,
+                          context.success,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -228,7 +236,7 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                           'Frequency',
                           project.frequency,
                           Icons.schedule,
-                          AppColors.warning,
+                          context.warning,
                         ),
                       ),
                     ],
@@ -244,7 +252,7 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                             'Start Date',
                             '${project.startDate!.day}/${project.startDate!.month}/${project.startDate!.year}',
                             Icons.play_arrow,
-                            AppColors.info,
+                            context.info,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -253,7 +261,7 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                             'End Date',
                             '${project.endDate!.day}/${project.endDate!.month}/${project.endDate!.year}',
                             Icons.stop,
-                            AppColors.error,
+                            context.error,
                           ),
                         ),
                       ],
@@ -298,11 +306,6 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
 
                   // Project Timeline
                   _buildTimelineCard(project),
-                  const SizedBox(height: 24),
-
-                  // Client Information
-                  //if (project.client != null) _buildClientSection(project),
-
                   const SizedBox(height: 24),
 
                   // Action Buttons
@@ -426,10 +429,10 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -437,15 +440,15 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.grey50,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: context.borderLight),
           ),
           child: Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
               height: 1.5,
             ),
           ),
@@ -468,12 +471,12 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Location',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -481,15 +484,15 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: context.borderLight),
           ),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.location_on,
-                color: AppColors.error,
+                color: context.error,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -498,9 +501,9 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                   locationString.isNotEmpty
                       ? locationString
                       : 'Location not specified',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.textPrimary,
+                    color: context.textPrimary,
                   ),
                 ),
               ),
@@ -515,12 +518,12 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.shadow.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -529,12 +532,12 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Most Important Factor',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -573,12 +576,12 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: context.borderLight),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
+            color: context.colors.shadow.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -587,24 +590,24 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Project Timeline',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              const Icon(Icons.calendar_today,
-                  color: AppColors.primary, size: 20),
+              Icon(Icons.calendar_today,
+                  color: context.colors.primary, size: 20),
               const SizedBox(width: 12),
               Text(
                 'Created: ${_formatDate(project.createdAt)}',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: context.textSecondary,
                   fontSize: 14,
                 ),
               ),
@@ -613,86 +616,13 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.update, color: AppColors.warning, size: 20),
+              Icon(Icons.update, color: context.warning, size: 20),
               const SizedBox(width: 12),
               Text(
                 'Last updated: ${_formatDate(project.updatedAt)}',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: context.textSecondary,
                   fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildClientSection(ProjectModel project) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Client Information',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                child: Text(
-                  // project.client!.name[0].toUpperCase(),
-                  'Client Name',
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      // project.client!.name,
-                      'Client Name',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      // project.client!.email,
-                      'client@example.com',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ],
@@ -713,8 +643,8 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
               icon: const Icon(Icons.visibility),
               label: const Text('View Bids'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
+                backgroundColor: context.colors.primary,
+                foregroundColor: context.colors.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -728,8 +658,8 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                 icon: const Icon(Icons.edit),
                 label: const Text('Edit'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  foregroundColor: context.colors.primary,
+                  side: BorderSide(color: context.colors.primary),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
               ),
@@ -741,8 +671,8 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                 icon: const Icon(Icons.share),
                 label: const Text('Share'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.secondary,
-                  side: const BorderSide(color: AppColors.secondary),
+                  foregroundColor: context.colors.secondary,
+                  side: BorderSide(color: context.colors.secondary),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
               ),
@@ -756,13 +686,13 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
   Color _getKeyFactorColor(String keyFactor) {
     switch (keyFactor.toLowerCase()) {
       case 'quality':
-        return AppColors.success;
+        return context.success;
       case 'timeline':
-        return AppColors.warning;
+        return context.warning;
       case 'cost':
-        return AppColors.info;
+        return context.info;
       default:
-        return AppColors.textSecondary;
+        return context.textSecondary;
     }
   }
 
@@ -810,7 +740,7 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
                     ProjectDeleteRequested(projectId: project.id),
                   );
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(foregroundColor: context.error),
             child: const Text('Delete'),
           ),
         ],
@@ -822,13 +752,6 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
           content: Text('Share project functionality not implemented yet')),
-    );
-  }
-
-  void _submitBid(ProjectModel project) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('Submit bid functionality not implemented yet')),
     );
   }
 

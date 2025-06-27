@@ -7,7 +7,6 @@ import '../../bloc/contractor_bloc/contractor_bloc.dart';
 import '../../constants/app_theme_extension.dart';
 import '../../models/contractor/contractor_model.dart';
 import '../../models/services/service_model.dart';
-import '../../models/pagination/pagination_model.dart';
 import '../../repositories/projects_repo/projects_repository.dart';
 import '../../routes/app_router.dart';
 import '../widgets/contractor_card.dart';
