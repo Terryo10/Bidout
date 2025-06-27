@@ -8,9 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
+import '../../bloc/services_bloc/services_bloc.dart';
 import '../../constants/app_colors.dart';
-import '../../models/service_model.dart' as service;
-import '../../repositories/projects_repo/projects_repository.dart';
+import '../../models/services/service_model.dart' as service;
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_button.dart';
 
@@ -45,8 +45,6 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   service.ServiceModel? _selectedService;
   bool _isDrafted = false;
   List<String> _imagePaths = [];
-  List<service.ServiceModel> _services = [];
-  bool _isLoadingServices = true;
 
   final List<String> _frequencies = [
     'One-time',
@@ -65,12 +63,6 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _loadServices();
-  }
-
-  @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
@@ -81,37 +73,6 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
     _stateController.dispose();
     _zipCodeController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadServices() async {
-    try {
-      final projectRepository = context.read<ProjectRepository>();
-      final services = await projectRepository.getServices();
-      setState(() {
-        _services = services;
-        _isLoadingServices = false;
-
-        // Pre-select service if provided
-        if (widget.preSelectedServiceId != null) {
-          _selectedService = services.firstWhere(
-            (service) => service.id == widget.preSelectedServiceId,
-            orElse: () => services.first,
-          );
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _isLoadingServices = false;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load services: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _pickImages() async {
@@ -265,51 +226,119 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
                 const SizedBox(height: 16),
 
                 // Service Selection
-                if (_isLoadingServices)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Service Category',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Service Category',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textPrimary,
                       ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<service.ServiceModel>(
-                        value: _selectedService,
-                        decoration: InputDecoration(
-                          hintText: 'Select a service',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                                const BorderSide(color: AppColors.borderLight),
-                          ),
-                        ),
-                        items: _services.map((serviceItem) {
-                          return DropdownMenuItem<service.ServiceModel>(
-                            value: serviceItem,
-                            child: Text(serviceItem.name),
+                    ),
+                    const SizedBox(height: 8),
+                    BlocBuilder<ServicesBloc, ServicesState>(
+                      builder: (context, state) {
+                        if (state is ServicesLoading) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+
+                        if (state is ServicesError) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                state.message,
+                                style: const TextStyle(color: AppColors.error),
+                              ),
+                              const SizedBox(height: 8),
+                              TextButton.icon(
+                                onPressed: () {
+                                  context
+                                      .read<ServicesBloc>()
+                                      .add(ServicesLoadRequested());
+                                },
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Retry'),
+                              ),
+                            ],
                           );
-                        }).toList(),
-                        onChanged: (service.ServiceModel? value) {
-                          setState(() {
-                            _selectedService = value;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select a service';
+                        }
+
+                        if (state is ServicesLoaded) {
+                          // Pre-select service if provided and not already selected
+                          if (_selectedService == null &&
+                              widget.preSelectedServiceId != null) {
+                            _selectedService = state.services.firstWhere(
+                              (service) =>
+                                  service.id == widget.preSelectedServiceId,
+                              orElse: () => state.services.first,
+                            );
                           }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DropdownButtonFormField<service.ServiceModel>(
+                                value: _selectedService,
+                                decoration: InputDecoration(
+                                  hintText: 'Select a service',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.borderLight),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(Icons.refresh),
+                                    onPressed: () {
+                                      context
+                                          .read<ServicesBloc>()
+                                          .add(ServicesLoadRequested());
+                                    },
+                                  ),
+                                ),
+                                items: state.services.map((serviceItem) {
+                                  return DropdownMenuItem<service.ServiceModel>(
+                                    value: serviceItem,
+                                    child: Text(serviceItem.name),
+                                  );
+                                }).toList(),
+                                onChanged: (service.ServiceModel? value) {
+                                  setState(() {
+                                    _selectedService = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Please select a service';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              if (state.services.isEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      context
+                                          .read<ServicesBloc>()
+                                          .add(ServicesLoadRequested());
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    label: const Text('Refresh Services'),
+                                  ),
+                                ),
+                            ],
+                          );
+                        }
+
+                        return Container(); // Initial state
+                      },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
 
                 CustomTextField(

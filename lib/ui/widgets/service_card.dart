@@ -1,7 +1,7 @@
 // lib/ui/widgets/service_card.dart
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../../models/service_model.dart';
+import '../../models/services/service_model.dart';
 
 class ServiceCard extends StatelessWidget {
   final ServiceModel serviceModel;
@@ -105,9 +105,9 @@ class ServiceCard extends StatelessWidget {
   Widget _buildDefaultIcon() {
     return const Center(
       child: Icon(
-        Icons.build,
-        size: 32,
+        Icons.handyman,
         color: AppColors.primary,
+        size: 32,
       ),
     );
   }

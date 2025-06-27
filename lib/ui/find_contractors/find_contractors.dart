@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/contractor_bloc/contractor_bloc.dart';
 import '../../constants/app_colors.dart';
 import '../../models/contractor/contractor_model.dart';
-import '../../models/service_model.dart';
+import '../../models/services/service_model.dart';
 import '../../models/pagination/pagination_model.dart';
 import '../../repositories/projects_repo/projects_repository.dart';
 import '../../routes/app_router.dart';

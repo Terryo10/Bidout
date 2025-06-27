@@ -1,5 +1,5 @@
 // lib/models/project_model.dart
-import '../service_model.dart';
+import '../services/service_model.dart';
 
 class ProjectModel {
   final int id;

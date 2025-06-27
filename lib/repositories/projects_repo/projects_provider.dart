@@ -11,7 +11,8 @@ import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart' as project;
 import '../../models/projects/projects_response_model.dart';
 import '../../models/projects/project_request_model.dart' as request;
-import '../../models/service_model.dart';
+import '../../models/services/service_model.dart' as service;
+import '../../models/services/services_response_model.dart';
 
 class ProjectProvider {
   final FlutterSecureStorage storage;
@@ -283,18 +284,18 @@ class ProjectProvider {
     }
   }
 
-  Future<List<ServiceModel>> getServices() async {
+  Future<List<service.ServiceModel>> getServices() async {
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
-        Uri.parse('${AppUrls.baseUrl}/services'),
+        Uri.parse('${AppUrls.baseUrl}/api/services'),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> servicesJson = data['services'] ?? [];
-        return servicesJson.map((json) => ServiceModel.fromJson(json)).toList();
+        final servicesResponse = ServicesResponseModel.fromJson(data);
+        return servicesResponse.services;
       } else {
         final error = jsonDecode(response.body);
         throw ApiErrorModel.fromJson(error);

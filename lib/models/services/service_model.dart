@@ -4,8 +4,8 @@ class ServiceModel {
   final String? description;
   final String? icon;
   final bool isActive;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   ServiceModel({
     required this.id,
@@ -13,8 +13,8 @@ class ServiceModel {
     this.description,
     this.icon,
     required this.isActive,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -24,8 +24,12 @@ class ServiceModel {
       description: json['description'],
       icon: json['icon'],
       isActive: json['is_active'] ?? true,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : null,
     );
   }
 
@@ -36,8 +40,8 @@ class ServiceModel {
       'description': description,
       'icon': icon,
       'is_active': isActive,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
     };
   }
 }

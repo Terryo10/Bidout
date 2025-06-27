@@ -1,4 +1,5 @@
 // lib/bloc/app_blocs.dart
+import 'package:bidout/bloc/services_bloc/services_bloc.dart';
 import 'package:bidout/repositories/projects_repo/projects_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,6 +24,12 @@ class AppBlocs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Create repositories that will be shared
+    final projectRepository = ProjectRepository(
+      storage: storage,
+      projectProvider: ProjectProvider(storage: storage),
+    );
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -35,14 +42,20 @@ class AppBlocs extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => ProjectBloc(
-            projectRepository: ProjectRepository(
-              storage: storage,
-              projectProvider: ProjectProvider(storage: storage),
-            ),
+            projectRepository: projectRepository,
           ),
         ),
         BlocProvider(
           create: (context) => NotificationsBloc(),
+        ),
+        BlocProvider(
+          lazy: false, // This will make the bloc initialize immediately
+          create: (context) {
+            final bloc = ServicesBloc(projectRepository: projectRepository);
+            // Load services immediately
+            bloc.add(ServicesLoadRequested());
+            return bloc;
+          },
         ),
         // Add other BLoCs here as needed
       ],

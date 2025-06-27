@@ -6,3 +6,5 @@ sealed class ServicesEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class ServicesLoadRequested extends ServicesEvent {}
