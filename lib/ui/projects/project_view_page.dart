@@ -2,6 +2,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_theme_extension.dart';
@@ -749,9 +750,10 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
   }
 
   void _shareProject(ProjectModel project) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('Share project functionality not implemented yet')),
+    final url = 'http://127.0.0.1:8000/projects/${project.id}';
+    Share.share(
+      url,
+      subject: 'Check out this project: ${project.title}',
     );
   }
 

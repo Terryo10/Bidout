@@ -10,6 +10,7 @@ import '../widgets/action_card.dart';
 import '../widgets/theme_toggle.dart';
 import '../widgets/subscription_button.dart';
 import '../subscription/subscription_page.dart';
+import '../projects/contractors/browse_projects_page.dart';
 
 @RoutePage()
 class ContractorDashboardPage extends StatelessWidget {
@@ -232,7 +233,11 @@ class _ContractorDashboardContent extends StatelessWidget {
                 subtitle: 'Find new opportunities',
                 color: context.colors.secondary,
                 onTap: () {
-                  // TODO: Navigate to browse projects
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const BrowseProjectsPage(),
+                    ),
+                  );
                 },
               ),
               ActionCard(
