@@ -130,3 +130,22 @@ class SubscriptionPaymentProcessing extends SubscriptionState {
   @override
   List<Object?> get props => [clientSecret, paymentIntentId, metadata];
 }
+
+class PaymentSuccessful extends SubscriptionState {
+  final String type; // 'subscription' or 'bids'
+  final String packageName;
+  final double amount;
+  final int? bidCount;
+  final Map<String, dynamic>? details;
+
+  const PaymentSuccessful({
+    required this.type,
+    required this.packageName,
+    required this.amount,
+    this.bidCount,
+    this.details,
+  });
+
+  @override
+  List<Object?> get props => [type, packageName, amount, bidCount, details];
+}

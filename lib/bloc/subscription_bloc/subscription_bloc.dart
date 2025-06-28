@@ -244,9 +244,21 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   ) async {
     try {
       await subscriptionRepository.confirmPayment(event.paymentIntentId);
-      // Refresh data to get updated subscription/bid status
-      if (!isClosed) {
-        add(SubscriptionLoadRequested());
+
+      // Emit success state with payment details
+      if (event.metadata != null) {
+        emit(PaymentSuccessful(
+          type: event.metadata!['type'] ?? 'subscription',
+          packageName: event.metadata!['packageName'] ?? 'Package',
+          amount: event.metadata!['amount']?.toDouble() ?? 0.0,
+          bidCount: event.metadata!['bidCount'],
+          details: event.metadata,
+        ));
+      } else {
+        // Fallback: refresh data to get updated subscription/bid status
+        if (!isClosed) {
+          add(SubscriptionLoadRequested());
+        }
       }
     } catch (e) {
       emit(SubscriptionError(message: _getErrorMessage(e)));
@@ -288,6 +300,14 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         if (!isClosed) {
           add(SubscriptionPaymentSucceeded(
             paymentIntentId: paymentIntentId,
+            metadata: {
+              'type': event.type,
+              'packageName': event.packageName,
+              'amount': event.amount,
+              'bidCount': event.type == 'bids'
+                  ? 0
+                  : null, // This should be passed from the event if available
+            },
           ));
         }
       } else {

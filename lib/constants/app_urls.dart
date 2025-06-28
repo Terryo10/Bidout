@@ -13,6 +13,9 @@ class AppUrls {
   static const String logout = '$apiUrl/logout';
   static const String me = '$apiUrl/me';
 
+  // Google Auth endpoints
+  static const String googleAuth = '$apiUrl/auth/google';
+
   // User endpoints
   static const String profile = '$apiUrl/user/profile';
   static const String updateProfile = '$apiUrl/user/profile';

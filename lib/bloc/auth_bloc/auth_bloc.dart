@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/auth/api_error_model.dart';
 import '../../models/auth/register_request_model.dart';
 import '../../models/auth/login_request_model.dart';
+import '../../models/auth/google_auth_request_model.dart';
 import '../../models/user_model.dart';
 import '../../repositories/auth_repo/auth_repository.dart';
 
@@ -17,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthRegisterRequested>(_onAuthRegisterRequested);
+    on<AuthGoogleSignInRequested>(_onAuthGoogleSignInRequested);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
     on<AuthForgotPasswordRequested>(_onAuthForgotPasswordRequested);
     on<AuthResetPasswordRequested>(_onAuthResetPasswordRequested);
@@ -121,6 +123,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+  Future<void> _onAuthGoogleSignInRequested(
+    AuthGoogleSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+
+    try {
+      final user = await authRepository.googleSignIn(
+        GoogleAuthRequestModel(
+          idToken: event.idToken,
+          userType: event.userType,
+        ),
+      );
+      emit(AuthAuthenticated(user: user));
+    } catch (e) {
+      if (e is ApiErrorModel) {
+        emit(AuthError(message: e.firstError));
+      } else {
+        emit(const AuthError(
+            message: 'Google Sign-In failed. Please try again.'));
+      }
+    }
+  }
+
   Future<void> _onAuthLogoutRequested(
     AuthLogoutRequested event,
     Emitter<AuthState> emit,
@@ -221,19 +247,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (state is AuthAuthenticated) {
-      final currentUser = (state as AuthAuthenticated).user;
-      print(
-          'Attempting to switch to contractor mode. Current user: ${currentUser.toJson()}');
-
       try {
         // Try to switch to contractor role
         // The repository will handle enabling the role if needed
         final updatedUser = await authRepository.switchRole('contractor');
-        print(
-            'Successfully switched to contractor. Updated user: ${updatedUser.toJson()}');
+
         emit(AuthAuthenticated(user: updatedUser));
       } catch (e) {
-        print('Error in contractor mode transition: $e');
+      
         if (e is ApiErrorModel) {
           emit(AuthError(message: e.firstError));
         } else {

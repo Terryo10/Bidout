@@ -50,6 +50,19 @@ class AuthRegisterRequested extends AuthEvent {
       ];
 }
 
+class AuthGoogleSignInRequested extends AuthEvent {
+  final String idToken;
+  final String userType;
+
+  const AuthGoogleSignInRequested({
+    required this.idToken,
+    required this.userType,
+  });
+
+  @override
+  List<Object> get props => [idToken, userType];
+}
+
 class AuthLogoutRequested extends AuthEvent {}
 
 class AuthForgotPasswordRequested extends AuthEvent {

@@ -6,6 +6,7 @@ import '../../models/subscription/subscription_package.dart';
 import '../../models/subscription/user_subscription.dart';
 import '../../models/subscription/bid_package.dart';
 import '../../constants/app_theme_extension.dart';
+import 'payment_success_screen.dart';
 
 class ContractorSubscriptionScreen extends StatefulWidget {
   const ContractorSubscriptionScreen({Key? key}) : super(key: key);
@@ -119,6 +120,23 @@ class _ContractorSubscriptionScreenState
                 Navigator.of(context).pop();
               }
             });
+          } else if (state is PaymentSuccessful) {
+            // Close any open dialogs
+            if (Navigator.canPop(context)) {
+              Navigator.of(context).pop();
+            }
+            // Navigate to payment success screen
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => PaymentSuccessScreen(
+                  type: state.type,
+                  packageName: state.packageName,
+                  amount: state.amount,
+                  bidCount: state.bidCount,
+                  details: state.details,
+                ),
+              ),
+            );
           } else if (state is SubscriptionSubscribed) {
             // Close any open dialogs
             if (Navigator.canPop(context)) {

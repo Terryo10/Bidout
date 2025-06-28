@@ -8,6 +8,7 @@ import '../../models/auth/auth_response_model.dart';
 import '../../models/auth/api_error_model.dart';
 import '../../models/auth/register_request_model.dart';
 import '../../models/auth/login_request_model.dart';
+import '../../models/auth/google_auth_request_model.dart';
 import '../../models/user_model.dart';
 
 class AuthProvider {
@@ -76,6 +77,27 @@ class AuthProvider {
     } catch (e) {
       if (e is ApiErrorModel) rethrow;
       throw ApiErrorModel(message: 'Login failed. Please try again.');
+    }
+  }
+
+  Future<AuthResponseModel> googleSignIn(GoogleAuthRequestModel request) async {
+    try {
+      final response = await http.post(
+        Uri.parse(AppUrls.googleAuth),
+        headers: _getHeaders(),
+        body: jsonEncode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return AuthResponseModel.fromJson(data);
+      } else {
+        final error = jsonDecode(response.body);
+        throw ApiErrorModel.fromJson(error);
+      }
+    } catch (e) {
+      if (e is ApiErrorModel) rethrow;
+      throw ApiErrorModel(message: 'Google Sign-In failed. Please try again.');
     }
   }
 
@@ -192,16 +214,13 @@ class AuthProvider {
         body: jsonEncode({'role': role}),
       );
 
-      print('Switch role response: ${response.body}');
       final data = jsonDecode(response.body);
-      print('Decoded response data: $data');
 
       if (response.statusCode == 200) {
         if (data['user'] != null) {
           // Extract user data from nested response
           final Map<String, dynamic> userData =
               Map<String, dynamic>.from(data['user']);
-          print('User data before parsing: $userData');
 
           // Add any missing fields from the root level
           userData['active_role'] =
@@ -226,7 +245,6 @@ class AuthProvider {
           userData['available_for_hire'] =
               userData['available_for_hire'] ?? true;
 
-          print('User data after defaults: $userData');
           return UserModel.fromJson(userData);
         } else {
           throw ApiErrorModel(message: 'Invalid response format from server');
@@ -236,7 +254,6 @@ class AuthProvider {
         throw ApiErrorModel.fromJson(error);
       }
     } catch (e) {
-      print('Error in switchRole: $e');
       if (e is ApiErrorModel) rethrow;
       throw ApiErrorModel(message: 'Failed to switch role: ${e.toString()}');
     }
@@ -255,16 +272,13 @@ class AuthProvider {
         body: jsonEncode({'role': role}),
       );
 
-
       final data = jsonDecode(response.body);
-
 
       if (response.statusCode == 200) {
         if (data['user'] != null) {
           // Extract user data from nested response
           final Map<String, dynamic> userData =
               Map<String, dynamic>.from(data['user']);
-    
 
           // Add any missing fields from the root level
           userData['active_role'] =
@@ -289,7 +303,6 @@ class AuthProvider {
           userData['available_for_hire'] =
               userData['available_for_hire'] ?? true;
 
-
           return UserModel.fromJson(userData);
         } else {
           throw ApiErrorModel(message: 'Invalid response format from server');
@@ -299,7 +312,6 @@ class AuthProvider {
         throw ApiErrorModel.fromJson(error);
       }
     } catch (e) {
-
       if (e is ApiErrorModel) rethrow;
       throw ApiErrorModel(message: 'Failed to enable role: ${e.toString()}');
     }

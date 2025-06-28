@@ -3,8 +3,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../models/auth/auth_response_model.dart';
 import '../../models/auth/register_request_model.dart';
 import '../../models/auth/login_request_model.dart';
+import '../../models/auth/google_auth_request_model.dart';
 import '../../models/user_model.dart';
 import '../../models/auth/api_error_model.dart';
+import '../../services/google_auth_service.dart';
 import 'auth_provider.dart';
 
 class AuthRepository {
@@ -27,6 +29,12 @@ class AuthRepository {
 
   Future<UserModel> login(LoginRequestModel request) async {
     final response = await authProvider.login(request);
+    await _saveAuthData(response);
+    return response.user;
+  }
+
+  Future<UserModel> googleSignIn(GoogleAuthRequestModel request) async {
+    final response = await authProvider.googleSignIn(request);
     await _saveAuthData(response);
     return response.user;
   }
@@ -55,6 +63,12 @@ class AuthRepository {
     } catch (e) {
       // Continue with local logout even if server logout fails
     } finally {
+      // Sign out from Google as well
+      try {
+        await GoogleAuthService.signOut();
+      } catch (e) {
+        // Continue even if Google sign out fails
+      }
       await _clearAuthData();
     }
   }

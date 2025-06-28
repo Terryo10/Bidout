@@ -8,6 +8,7 @@ import '../../constants/app_theme_extension.dart';
 import '../../routes/app_router.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_button.dart';
+import '../widgets/google_sign_in_button.dart';
 
 @RoutePage()
 class LoginPage extends StatefulWidget {
@@ -246,13 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                               const SizedBox(height: 24),
 
                               // Social Login Buttons
-                              _SocialLoginButton(
-                                icon: Icons.g_mobiledata,
-                                text: 'Continue with Google',
-                                onPressed: () {
-                                  // TODO: Implement Google login
-                                },
-                              ),
+                              const GoogleSignInButton(),
                               const SizedBox(height: 16),
                               _SocialLoginButton(
                                 icon: Icons.facebook,

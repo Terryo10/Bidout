@@ -8,6 +8,7 @@ import '../../constants/app_theme_extension.dart';
 import '../../routes/app_router.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_button.dart';
+import '../widgets/google_sign_in_button.dart';
 
 @RoutePage()
 class RegisterPage extends StatefulWidget {
@@ -376,6 +377,35 @@ class _RegisterPageState extends State<RegisterPage> {
                                     text: 'Create Account',
                                   );
                                 },
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Divider
+                              Row(
+                                children: [
+                                  Expanded(
+                                      child:
+                                          Divider(color: context.borderLight)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    child: Text(
+                                      'or',
+                                      style: TextStyle(
+                                          color: context.textSecondary),
+                                    ),
+                                  ),
+                                  Expanded(
+                                      child:
+                                          Divider(color: context.borderLight)),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Google Sign-In Button
+                              GoogleSignInButton(
+                                showUserTypeDialog: false,
+                                defaultUserType: _selectedUserType,
                               ),
                               const SizedBox(height: 24),
 
