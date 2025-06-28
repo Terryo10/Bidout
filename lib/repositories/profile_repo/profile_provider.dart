@@ -1,6 +1,7 @@
 // lib/repositories/profile_repo/profile_provider.dart
 import 'dart:convert';
 
+import 'package:bidout/constants/app_urls.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -10,7 +11,7 @@ import '../../models/user_model.dart';
 
 class ProfileProvider {
   final FlutterSecureStorage storage;
-  final String baseUrl = 'https://bidout.co.za/api';
+  final String baseUrl = AppUrls.apiUrl;
 
   ProfileProvider({required this.storage});
 

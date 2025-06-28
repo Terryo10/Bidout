@@ -91,15 +91,30 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
 
   void _updateProfile() {
     if (_formKey.currentState?.validate() ?? false) {
-      final profileData = {
-        'name': _nameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'bio': _bioController.text.trim(),
-        'website': _websiteController.text.trim(),
-        'company_name': _companyNameController.text.trim(),
-        'position': _positionController.text.trim(),
-        'industry': _industryController.text.trim(),
-      };
+      final profileData = <String, dynamic>{};
+
+      // Only include fields with actual values
+      if (_nameController.text.trim().isNotEmpty) {
+        profileData['name'] = _nameController.text.trim();
+      }
+      if (_phoneController.text.trim().isNotEmpty) {
+        profileData['phone'] = _phoneController.text.trim();
+      }
+      if (_bioController.text.trim().isNotEmpty) {
+        profileData['bio'] = _bioController.text.trim();
+      }
+      if (_websiteController.text.trim().isNotEmpty) {
+        profileData['website'] = _websiteController.text.trim();
+      }
+      if (_companyNameController.text.trim().isNotEmpty) {
+        profileData['company_name'] = _companyNameController.text.trim();
+      }
+      if (_positionController.text.trim().isNotEmpty) {
+        profileData['position'] = _positionController.text.trim();
+      }
+      if (_industryController.text.trim().isNotEmpty) {
+        profileData['industry'] = _industryController.text.trim();
+      }
 
       context.read<ProfileBloc>().add(
             ClientProfileUpdateRequested(clientData: profileData),
@@ -259,6 +274,18 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
                     label: 'Website',
                     hint: 'Enter your website URL',
                     keyboardType: TextInputType.url,
+                    validator: (value) {
+                      if (value != null && value.isNotEmpty) {
+                        // Only validate if not empty
+                        final urlPattern =
+                            r'^(https?|ftp)://[^\s/$.?#].[^\s]*$';
+                        final regExp = RegExp(urlPattern);
+                        if (!regExp.hasMatch(value)) {
+                          return 'Please enter a valid URL';
+                        }
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 30),
 
