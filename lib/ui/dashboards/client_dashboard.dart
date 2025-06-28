@@ -38,6 +38,12 @@ class EnhancedClientDashboardPage extends StatelessWidget {
           actions: [
             const ThemeToggle(),
             IconButton(
+              icon: const Icon(Icons.message),
+              onPressed: () {
+                context.router.push(const ClientServiceRequestsRoute());
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.notifications),
               onPressed: () {
                 context.router.push(NotificationsRoute());
@@ -233,12 +239,11 @@ class _DashboardContent extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 _QuickActionCard(
-                  icon: Icons.mark_chat_unread_outlined,
-                  title: 'Message Requests',
+                  icon: Icons.message,
+                  title: 'Messages',
                   color: context.colors.secondary,
                   onTap: () {
-                    // TODO: Implement navigation to new requests
-                    context.router.push(const NotificationsRoute());
+                    context.router.push(const ClientServiceRequestsRoute());
                   },
                 ),
               ],

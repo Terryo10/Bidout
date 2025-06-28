@@ -50,6 +50,11 @@ class AppUrls {
   static const String services = '$apiUrl/services';
   static const String serviceDetails = '$apiUrl/services/';
 
+  // Service Request endpoints
+  static const String serviceRequests = '$apiUrl/service-requests';
+  static const String serviceRequestDetails = '$apiUrl/service-requests/';
+  static const String updateServiceRequestStatus = '$apiUrl/service-requests/';
+
   // Billing endpoints
   static const String subscription = '$baseUrl/api/billing/subscription';
   static const String paymentMethods = '$baseUrl/api/billing/payment-methods';

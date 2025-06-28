@@ -11,6 +11,8 @@ import 'projects_repo/projects_provider.dart';
 import 'projects_repo/projects_repository.dart';
 import 'subscription_repo/subscription_provider.dart';
 import 'subscription_repo/subscription_repository.dart';
+import 'service_requests_repo/service_requests_provider.dart';
+import 'service_requests_repo/service_requests_repository.dart';
 
 class AppRepositories extends StatelessWidget {
   final FlutterSecureStorage storage;
@@ -48,6 +50,12 @@ class AppRepositories extends StatelessWidget {
           create: (context) => SubscriptionRepository(
             storage: storage,
             subscriptionProvider: SubscriptionProvider(storage: storage),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => ServiceRequestsRepository(
+            storage: storage,
+            serviceRequestsProvider: ServiceRequestsProvider(storage: storage),
           ),
         ),
         // Add other repositories here as needed

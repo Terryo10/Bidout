@@ -17,6 +17,9 @@ import '../ui/notifications/notifications_page.dart';
 import '../ui/projects/create_project_page.dart';
 import '../ui/projects/project_listing_page.dart';
 import '../ui/projects/project_view_page.dart';
+import '../ui/service_requests/client_service_requests_page.dart';
+import '../ui/service_requests/contractor_service_requests_page.dart';
+import '../ui/subscription/payment_success_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -85,6 +88,16 @@ class AppRouter extends _$AppRouter {
         AutoRoute(
           page: NotificationsRoute.page,
           path: '/notifications',
+        ),
+
+        // Service Requests routes
+        AutoRoute(
+          page: ClientServiceRequestsRoute.page,
+          path: '/client/service-requests',
+        ),
+        AutoRoute(
+          page: ContractorServiceRequestsRoute.page,
+          path: '/contractor/service-requests',
         ),
       ];
 }

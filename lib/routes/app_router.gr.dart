@@ -15,6 +15,12 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    ClientServiceRequestsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ClientServiceRequestsPage(),
+      );
+    },
     ContractorDashboardRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -61,6 +67,12 @@ abstract class _$AppRouter extends RootStackRouter {
           key: args.key,
           contractorId: args.contractorId,
         ),
+      );
+    },
+    ContractorServiceRequestsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ContractorServiceRequestsPage(),
       );
     },
     CreateProjectRoute.name: (routeData) {
@@ -110,6 +122,20 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const NotificationsPage(),
       );
     },
+    PaymentSuccessRoute.name: (routeData) {
+      final args = routeData.argsAs<PaymentSuccessRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: PaymentSuccessScreen(
+          key: args.key,
+          type: args.type,
+          packageName: args.packageName,
+          amount: args.amount,
+          bidCount: args.bidCount,
+          details: args.details,
+        ),
+      );
+    },
     ProjectListingRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -134,6 +160,20 @@ abstract class _$AppRouter extends RootStackRouter {
       );
     },
   };
+}
+
+/// generated route for
+/// [ClientServiceRequestsPage]
+class ClientServiceRequestsRoute extends PageRouteInfo<void> {
+  const ClientServiceRequestsRoute({List<PageRouteInfo>? children})
+      : super(
+          ClientServiceRequestsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ClientServiceRequestsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -281,6 +321,20 @@ class ContractorProfileRouteArgs {
 }
 
 /// generated route for
+/// [ContractorServiceRequestsPage]
+class ContractorServiceRequestsRoute extends PageRouteInfo<void> {
+  const ContractorServiceRequestsRoute({List<PageRouteInfo>? children})
+      : super(
+          ContractorServiceRequestsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ContractorServiceRequestsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
 /// [CreateProjectPage]
 class CreateProjectRoute extends PageRouteInfo<CreateProjectRouteArgs> {
   CreateProjectRoute({
@@ -400,6 +454,64 @@ class NotificationsRoute extends PageRouteInfo<void> {
   static const String name = 'NotificationsRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [PaymentSuccessScreen]
+class PaymentSuccessRoute extends PageRouteInfo<PaymentSuccessRouteArgs> {
+  PaymentSuccessRoute({
+    Key? key,
+    required String type,
+    required String packageName,
+    required double amount,
+    int? bidCount,
+    Map<String, dynamic>? details,
+    List<PageRouteInfo>? children,
+  }) : super(
+          PaymentSuccessRoute.name,
+          args: PaymentSuccessRouteArgs(
+            key: key,
+            type: type,
+            packageName: packageName,
+            amount: amount,
+            bidCount: bidCount,
+            details: details,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'PaymentSuccessRoute';
+
+  static const PageInfo<PaymentSuccessRouteArgs> page =
+      PageInfo<PaymentSuccessRouteArgs>(name);
+}
+
+class PaymentSuccessRouteArgs {
+  const PaymentSuccessRouteArgs({
+    this.key,
+    required this.type,
+    required this.packageName,
+    required this.amount,
+    this.bidCount,
+    this.details,
+  });
+
+  final Key? key;
+
+  final String type;
+
+  final String packageName;
+
+  final double amount;
+
+  final int? bidCount;
+
+  final Map<String, dynamic>? details;
+
+  @override
+  String toString() {
+    return 'PaymentSuccessRouteArgs{key: $key, type: $type, packageName: $packageName, amount: $amount, bidCount: $bidCount, details: $details}';
+  }
 }
 
 /// generated route for

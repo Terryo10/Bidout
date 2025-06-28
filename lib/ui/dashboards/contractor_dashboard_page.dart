@@ -38,6 +38,12 @@ class ContractorDashboardPage extends StatelessWidget {
           actions: [
             const ThemeToggle(),
             IconButton(
+              icon: const Icon(Icons.message),
+              onPressed: () {
+                context.router.push(const ContractorServiceRequestsRoute());
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.notifications),
               onPressed: () {
                 context.router.push(const NotificationsRoute());
@@ -239,29 +245,66 @@ class _ContractorDashboardContent extends StatelessWidget {
                 },
               ),
               ActionCard(
+                icon: Icons.message,
+                title: 'Messages',
+                subtitle: 'View client requests',
+                color: context.info,
+                onTap: () {
+                  context.router.push(const ContractorServiceRequestsRoute());
+                },
+              ),
+              ActionCard(
                 icon: Icons.account_circle,
                 title: 'Profile',
                 subtitle: 'Update your profile',
-                color: context.info,
+                color: context.warning,
                 onTap: () {
                   // TODO: Navigate to profile
                 },
               ),
-              ActionCard(
-                icon: Icons.payment,
-                title: 'Subscription & Bids',
-                subtitle: 'Manage subscription',
-                color: context.warning,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SubscriptionPage(),
-                    ),
-                  );
-                },
-              ),
             ],
           ),
+
+          const SizedBox(height: 24),
+
+          // Subscription & Bids Box
+          SizedBox(
+            width: double.infinity,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SubscriptionPage(),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: context.colors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: context.borderLight),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.payment,
+                        size: 32, color: context.colors.primary),
+                    const SizedBox(width: 16),
+                    Text(
+                      'Subscription & Bids',
+                      style: context.textTheme.titleMedium?.copyWith(
+                        color: context.textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(Icons.chevron_right, color: context.textSecondary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           const SubscriptionCard(),
 
           const SizedBox(height: 24),
