@@ -54,6 +54,8 @@ class ContractorDashboardPage extends StatelessWidget {
               onSelected: (value) {
                 if (value == 'logout') {
                   context.read<AuthBloc>().add(AuthLogoutRequested());
+                } else if (value == 'profile') {
+                  context.router.push(EditContractorProfileRoute());
                 }
               },
               itemBuilder: (context) => [
@@ -264,7 +266,7 @@ class _ContractorDashboardContent extends StatelessWidget {
                 subtitle: 'Update your profile',
                 color: context.warning,
                 onTap: () {
-                  // TODO: Navigate to profile
+                  context.router.push(EditContractorProfileRoute());
                 },
               ),
             ],

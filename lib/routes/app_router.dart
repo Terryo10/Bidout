@@ -20,6 +20,8 @@ import '../ui/projects/project_view_page.dart';
 import '../ui/service_requests/client_service_requests_page.dart';
 import '../ui/service_requests/contractor_service_requests_page.dart';
 import '../ui/subscription/payment_success_screen.dart';
+import '../ui/profile/client_profile/client_profile_page.dart';
+import '../ui/profile/contractor_profile/contractor_profile_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -98,6 +100,16 @@ class AppRouter extends _$AppRouter {
         AutoRoute(
           page: ContractorServiceRequestsRoute.page,
           path: '/contractor/service-requests',
+        ),
+
+        // Profile routes
+        AutoRoute(
+          page: ClientProfileRoute.page,
+          path: '/client/profile',
+        ),
+        AutoRoute(
+          page: EditContractorProfileRoute.page,
+          path: '/contractor/profile',
         ),
       ];
 }

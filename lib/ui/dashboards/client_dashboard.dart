@@ -53,6 +53,8 @@ class EnhancedClientDashboardPage extends StatelessWidget {
               onSelected: (value) {
                 if (value == 'logout') {
                   context.read<AuthBloc>().add(AuthLogoutRequested());
+                } else if (value == 'profile') {
+                  context.router.push(const ClientProfileRoute());
                 }
               },
               itemBuilder: (context) => [
@@ -226,9 +228,33 @@ class _DashboardContent extends StatelessWidget {
             Row(
               children: [
                 _QuickActionCard(
+                  icon: Icons.person_outline,
+                  title: 'My Profile',
+                  color: context.colors.tertiary,
+                  onTap: () {
+                    context.router.push(const ClientProfileRoute());
+                  },
+                ),
+                const SizedBox(width: 16),
+                _QuickActionCard(
+                  icon: Icons.message,
+                  title: 'Messages',
+                  color: context.colors.secondary,
+                  onTap: () {
+                    context.router.push(const ClientServiceRequestsRoute());
+                  },
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                _QuickActionCard(
                   icon: Icons.subscriptions_outlined,
                   title: 'My Subscriptions',
-                  color: context.colors.tertiary,
+                  color: context.warning,
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -239,11 +265,11 @@ class _DashboardContent extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 _QuickActionCard(
-                  icon: Icons.message,
-                  title: 'Messages',
-                  color: context.colors.secondary,
+                  icon: Icons.folder_outlined,
+                  title: 'My Projects',
+                  color: context.info,
                   onTap: () {
-                    context.router.push(const ClientServiceRequestsRoute());
+                    context.router.push(const ProjectListingRoute());
                   },
                 ),
               ],

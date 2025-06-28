@@ -15,6 +15,12 @@ abstract class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    ClientProfileRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ClientProfilePage(),
+      );
+    },
     ClientServiceRequestsRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -84,6 +90,12 @@ abstract class _$AppRouter extends RootStackRouter {
           key: args.key,
           preSelectedServiceId: args.preSelectedServiceId,
         ),
+      );
+    },
+    EditContractorProfileRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const EditContractorProfilePage(),
       );
     },
     EnhancedClientDashboardRoute.name: (routeData) {
@@ -160,6 +172,20 @@ abstract class _$AppRouter extends RootStackRouter {
       );
     },
   };
+}
+
+/// generated route for
+/// [ClientProfilePage]
+class ClientProfileRoute extends PageRouteInfo<void> {
+  const ClientProfileRoute({List<PageRouteInfo>? children})
+      : super(
+          ClientProfileRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ClientProfileRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
@@ -370,6 +396,20 @@ class CreateProjectRouteArgs {
   String toString() {
     return 'CreateProjectRouteArgs{key: $key, preSelectedServiceId: $preSelectedServiceId}';
   }
+}
+
+/// generated route for
+/// [EditContractorProfilePage]
+class EditContractorProfileRoute extends PageRouteInfo<void> {
+  const EditContractorProfileRoute({List<PageRouteInfo>? children})
+      : super(
+          EditContractorProfileRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'EditContractorProfileRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
