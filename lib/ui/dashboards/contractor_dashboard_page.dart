@@ -8,6 +8,8 @@ import '../../constants/app_theme_extension.dart';
 import '../../routes/app_router.dart';
 import '../widgets/action_card.dart';
 import '../widgets/theme_toggle.dart';
+import '../widgets/subscription_button.dart';
+import '../subscription/subscription_page.dart';
 
 @RoutePage()
 class ContractorDashboardPage extends StatelessWidget {
@@ -18,7 +20,7 @@ class ContractorDashboardPage extends StatelessWidget {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
-          context.router.replace(LandingRoute());
+          context.router.replace(const LandingRoute());
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -27,7 +29,7 @@ class ContractorDashboardPage extends StatelessWidget {
             ),
           );
         } else if (state is AuthAuthenticated && state.user.isClient) {
-          context.router.replace(EnhancedClientDashboardRoute());
+          context.router.replace(const EnhancedClientDashboardRoute());
         }
       },
       child: Scaffold(
@@ -38,7 +40,7 @@ class ContractorDashboardPage extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.notifications),
               onPressed: () {
-                context.router.push(NotificationsRoute());
+                context.router.push(const NotificationsRoute());
               },
             ),
             PopupMenuButton<String>(
@@ -203,6 +205,8 @@ class _ContractorDashboardContent extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
+          // Subscription Card
+
           // Quick Actions
           Text(
             'Quick Actions',
@@ -245,15 +249,21 @@ class _ContractorDashboardContent extends StatelessWidget {
               ),
               ActionCard(
                 icon: Icons.payment,
-                title: 'Billing',
+                title: 'Subscription & Bids',
                 subtitle: 'Manage subscription',
                 color: context.warning,
                 onTap: () {
-                  // TODO: Navigate to billing
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SubscriptionPage(),
+                    ),
+                  );
                 },
               ),
             ],
           ),
+          const SubscriptionCard(),
+
           const SizedBox(height: 24),
 
           // Recent Activity

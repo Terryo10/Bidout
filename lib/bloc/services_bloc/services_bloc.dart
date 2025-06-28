@@ -25,9 +25,9 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       final services = await projectRepository.getServices();
       emit(ServicesLoaded(services: services));
     } catch (e) {
-      print(e.toString());
+   
       if (e is ApiErrorModel) {
-        print(e.firstError);
+
         emit(ServicesError(message: e.firstError));
       } else {
         emit(const ServicesError(

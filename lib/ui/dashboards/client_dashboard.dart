@@ -8,6 +8,8 @@ import '../../constants/app_theme_extension.dart';
 import '../../routes/app_router.dart';
 import '../widgets/service_card.dart';
 import '../widgets/theme_toggle.dart';
+import '../widgets/subscription_button.dart';
+import '../subscription/subscription_page.dart';
 
 @RoutePage(name: 'EnhancedClientDashboardRoute')
 class EnhancedClientDashboardPage extends StatelessWidget {
@@ -222,8 +224,11 @@ class _DashboardContent extends StatelessWidget {
                   title: 'My Subscriptions',
                   color: context.colors.tertiary,
                   onTap: () {
-                    // TODO: Implement navigation to subscriptions
-                    context.router.push(const NotificationsRoute());
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const SubscriptionPage(),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(width: 16),
@@ -238,6 +243,11 @@ class _DashboardContent extends StatelessWidget {
                 ),
               ],
             ),
+
+            const SizedBox(height: 24),
+
+            // Subscription Card
+            const SubscriptionCard(),
 
             const SizedBox(height: 24),
 

@@ -8,9 +8,13 @@ import 'bloc/theme_bloc/theme_bloc.dart';
 import 'constants/app_theme.dart';
 import 'repositories/app_repositories.dart';
 import 'routes/app_router.dart';
+import 'services/stripe_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Stripe
+  await StripeService.init();
 
   // Configure secure storage options
   FlutterSecureStorage storage = const FlutterSecureStorage(

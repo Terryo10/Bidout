@@ -52,6 +52,21 @@ class AppUrls {
   static const String paymentMethods = '$baseUrl/api/billing/payment-methods';
   static const String invoices = '$baseUrl/api/billing/invoices';
 
+  // Subscription endpoints
+  static const String subscriptionPackages = '$apiUrl/subscription-packages';
+  static const String userSubscription = '$apiUrl/subscription';
+  static const String subscribe = '$apiUrl/subscribe';
+  static const String cancelSubscription = '$apiUrl/subscription/{id}/cancel';
+  static const String resumeSubscription = '$apiUrl/subscription/{id}/resume';
+  static const String updateSubscription = '$apiUrl/subscription/{id}';
+
+  // Bid package endpoints
+  static const String bidPackages = '$apiUrl/bid-packages';
+  static const String bidStatus = '$apiUrl/bid-status';
+  static const String buyBids = '$apiUrl/buy-bids';
+  static const String bidPurchases = '$apiUrl/bid-purchases';
+  static const String confirmPayment = '$apiUrl/confirm-payment';
+
   static String contractorProfile(int contractorId) =>
       '$contractors/$contractorId';
   static String getStorageUrl(String? path) {

@@ -252,19 +252,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (state is AuthAuthenticated) {
-      final currentUser = (state as AuthAuthenticated).user;
-      print(
-          'Attempting to switch to client mode. Current user: ${currentUser.toJson()}');
-
       try {
-        // Try to switch to client role
-        // The repository will handle enabling the role if needed
         final updatedUser = await authRepository.switchRole('client');
-        print(
-            'Successfully switched to client. Updated user: ${updatedUser.toJson()}');
+
         emit(AuthAuthenticated(user: updatedUser));
       } catch (e) {
-        print('Error in client mode transition: $e');
         if (e is ApiErrorModel) {
           emit(AuthError(message: e.firstError));
         } else {

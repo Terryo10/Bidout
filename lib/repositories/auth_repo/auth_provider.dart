@@ -255,16 +255,16 @@ class AuthProvider {
         body: jsonEncode({'role': role}),
       );
 
-      print('Enable role response: ${response.body}');
+
       final data = jsonDecode(response.body);
-      print('Decoded enable role data: $data');
+
 
       if (response.statusCode == 200) {
         if (data['user'] != null) {
           // Extract user data from nested response
           final Map<String, dynamic> userData =
               Map<String, dynamic>.from(data['user']);
-          print('User data before parsing: $userData');
+    
 
           // Add any missing fields from the root level
           userData['active_role'] =
@@ -289,7 +289,7 @@ class AuthProvider {
           userData['available_for_hire'] =
               userData['available_for_hire'] ?? true;
 
-          print('User data after defaults: $userData');
+
           return UserModel.fromJson(userData);
         } else {
           throw ApiErrorModel(message: 'Invalid response format from server');
@@ -299,7 +299,7 @@ class AuthProvider {
         throw ApiErrorModel.fromJson(error);
       }
     } catch (e) {
-      print('Error in enableRole: $e');
+
       if (e is ApiErrorModel) rethrow;
       throw ApiErrorModel(message: 'Failed to enable role: ${e.toString()}');
     }

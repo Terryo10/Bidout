@@ -10,10 +10,13 @@ import '../repositories/auth_repo/auth_repository.dart';
 import '../repositories/projects_repo/projects_provider.dart';
 import '../repositories/contractor_repo/contractor_provider.dart';
 import '../repositories/contractor_repo/contractor_repo.dart';
+import '../repositories/subscription_repo/subscription_provider.dart';
+import '../repositories/subscription_repo/subscription_repository.dart';
 import 'auth_bloc/auth_bloc.dart';
 import 'projects_bloc/project_bloc.dart';
 import 'notifications_bloc/notifications_bloc.dart';
 import 'contractor_bloc/contractor_bloc.dart';
+import 'subscription_bloc/subscription_bloc.dart';
 import 'theme_bloc/theme_bloc.dart';
 
 class AppBlocs extends StatelessWidget {
@@ -40,6 +43,12 @@ class AppBlocs extends StatelessWidget {
           create: (context) => ContractorRepository(
             storage: storage,
             contractorProvider: ContractorProvider(storage: storage),
+          ),
+        ),
+        RepositoryProvider<SubscriptionRepository>(
+          create: (context) => SubscriptionRepository(
+            storage: storage,
+            subscriptionProvider: SubscriptionProvider(storage: storage),
           ),
         ),
       ],
@@ -78,6 +87,12 @@ class AppBlocs extends StatelessWidget {
             create: (context) => ContractorBloc(
               contractorRepository:
                   RepositoryProvider.of<ContractorRepository>(context),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => SubscriptionBloc(
+              subscriptionRepository:
+                  RepositoryProvider.of<SubscriptionRepository>(context),
             ),
           ),
           BlocProvider(

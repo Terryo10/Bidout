@@ -9,6 +9,8 @@ import 'contractor_repo/contractor_provider.dart';
 import 'contractor_repo/contractor_repo.dart';
 import 'projects_repo/projects_provider.dart';
 import 'projects_repo/projects_repository.dart';
+import 'subscription_repo/subscription_provider.dart';
+import 'subscription_repo/subscription_repository.dart';
 
 class AppRepositories extends StatelessWidget {
   final FlutterSecureStorage storage;
@@ -40,6 +42,12 @@ class AppRepositories extends StatelessWidget {
           create: (context) => ContractorRepository(
             storage: storage,
             contractorProvider: ContractorProvider(storage: storage),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => SubscriptionRepository(
+            storage: storage,
+            subscriptionProvider: SubscriptionProvider(storage: storage),
           ),
         ),
         // Add other repositories here as needed
