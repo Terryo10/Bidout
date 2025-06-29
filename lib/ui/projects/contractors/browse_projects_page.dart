@@ -173,14 +173,29 @@ class _BrowseProjectsPageState extends State<BrowseProjectsPage> {
                           padding: const EdgeInsets.only(bottom: 16),
                           child: ContractorProjectCard(
                             project: project,
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProjectDetailPage(
-                                  projectId: project.id,
+                            onTap: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProjectDetailPage(
+                                    projectId: project.id,
+                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+
+                              // When returning from project detail, ensure we have a proper loaded state
+                              // The bloc should handle this automatically now, but this ensures UI consistency
+                              if (mounted) {
+                                final currentState = context
+                                    .read<ContractorProjectsBloc>()
+                                    .state;
+                                if (currentState is ContractorProjectsLoaded &&
+                                    currentState.projects.data.isEmpty) {
+                                  // If projects list is empty, reload it
+                                  _onRefresh();
+                                }
+                              }
+                            },
                           ),
                         );
                       },

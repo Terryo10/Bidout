@@ -13,6 +13,9 @@ class ContractorProjectsBloc
     extends Bloc<ContractorProjectsEvent, ContractorProjectsState> {
   final ContractorProjectsRepository contractorProjectsRepository;
 
+  // Store the last loaded projects state to restore it later
+  ContractorProjectsLoaded? _lastLoadedState;
+
   ContractorProjectsBloc({required this.contractorProjectsRepository})
       : super(ContractorProjectsInitial()) {
     on<ContractorProjectsLoadRequested>(_onContractorProjectsLoadRequested);
@@ -41,10 +44,14 @@ class ContractorProjectsBloc
         sortBy: event.sortBy,
         sortOrder: event.sortOrder,
       );
-      emit(ContractorProjectsLoaded(
+      final newState = ContractorProjectsLoaded(
         projects: paginatedProjects,
         hasReachedMax: !paginatedProjects.hasNextPage,
-      ));
+      );
+
+      // Store this state for potential restoration later
+      _lastLoadedState = newState;
+      emit(newState);
     } catch (e) {
       if (e is ApiErrorModel) {
         emit(ContractorProjectsError(message: e.firstError));
@@ -94,10 +101,14 @@ class ContractorProjectsBloc
           total: paginatedProjects.total,
         );
 
-        emit(ContractorProjectsLoaded(
+        final newState = ContractorProjectsLoaded(
           projects: updatedPagination,
           hasReachedMax: !paginatedProjects.hasNextPage,
-        ));
+        );
+
+        // Update stored state
+        _lastLoadedState = newState;
+        emit(newState);
       } catch (e) {
         if (e is ApiErrorModel) {
           emit(ContractorProjectsError(message: e.firstError));
@@ -123,10 +134,14 @@ class ContractorProjectsBloc
         sortBy: event.sortBy,
         sortOrder: event.sortOrder,
       );
-      emit(ContractorProjectsLoaded(
+      final newState = ContractorProjectsLoaded(
         projects: paginatedProjects,
         hasReachedMax: !paginatedProjects.hasNextPage,
-      ));
+      );
+
+      // Update stored state
+      _lastLoadedState = newState;
+      emit(newState);
     } catch (e) {
       if (e is ApiErrorModel) {
         emit(ContractorProjectsError(message: e.firstError));
@@ -152,10 +167,14 @@ class ContractorProjectsBloc
         sortBy: event.sortBy,
         sortOrder: event.sortOrder,
       );
-      emit(ContractorProjectsLoaded(
+      final newState = ContractorProjectsLoaded(
         projects: paginatedProjects,
         hasReachedMax: !paginatedProjects.hasNextPage,
-      ));
+      );
+
+      // Update stored state
+      _lastLoadedState = newState;
+      emit(newState);
     } catch (e) {
       if (e is ApiErrorModel) {
         emit(ContractorProjectsError(message: e.firstError));
@@ -170,30 +189,34 @@ class ContractorProjectsBloc
     ContractorProjectsSingleLoadRequested event,
     Emitter<ContractorProjectsState> emit,
   ) async {
-    emit(ContractorProjectsSingleLoading());
+    // Don't emit loading state for single project to avoid losing the projects list UI
+    // Instead, we'll work with the current state
 
     try {
       final projectResponse =
           await contractorProjectsRepository.getProject(event.projectId);
       if (projectResponse != null) {
-        // If we have a loaded state, update it with the selected project
-        if (state is ContractorProjectsLoaded) {
-          final currentState = state as ContractorProjectsLoaded;
-          final newState = currentState.copyWith(
+        // Use the stored last loaded state or current state to preserve projects list
+        final baseState = _lastLoadedState ??
+            (state is ContractorProjectsLoaded
+                ? state as ContractorProjectsLoaded
+                : null);
+
+        if (baseState != null) {
+          // Preserve the existing projects list and add the selected project
+          final newState = baseState.copyWith(
             selectedProject: projectResponse.project,
             userHasBid: projectResponse.userHasBid,
           );
-
           emit(newState);
         } else {
-          // If we don't have a loaded state, create a new one with just the selected project
+          // If we have no previous state, create a new one (this should rarely happen)
           final newState = ContractorProjectsLoaded(
             projects: PaginationModel.empty(),
             hasReachedMax: true,
             selectedProject: projectResponse.project,
             userHasBid: projectResponse.userHasBid,
           );
-
           emit(newState);
         }
       } else {
