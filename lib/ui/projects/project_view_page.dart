@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/projects_bloc/project_bloc.dart';
 import '../../constants/app_theme_extension.dart';
 import '../../models/projects/project_model.dart';
+import '../../routes/app_router.dart';
 import '../widgets/project_image_gallery.dart';
 import '../widgets/project_status_chip.dart';
 
@@ -634,53 +636,132 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
   }
 
   Widget _buildActionButtons(ProjectModel project) {
-    return Column(
-      children: [
-        if (project.isInBidPhase())
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _viewBids(project),
-              icon: const Icon(Icons.visibility),
-              label: const Text('View Bids'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.colors.primary,
-                foregroundColor: context.colors.onPrimary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
-          ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _editProject(project),
-                icon: const Icon(Icons.edit),
-                label: const Text('Edit'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: context.colors.primary,
-                  side: BorderSide(color: context.colors.primary),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        final currentUser =
+            authState is AuthAuthenticated ? authState.user : null;
+        final isContractor = currentUser?.hasContractorRole ?? false;
+        final isClient = currentUser?.hasClientRole ?? false;
+
+        return BlocBuilder<ProjectBloc, ProjectState>(
+          builder: (context, projectState) {
+            // Check if user has already bid on this project
+            bool userHasBid = false;
+            if (projectState is ProjectSingleLoaded &&
+                projectState.userHasBid != null) {
+              userHasBid = projectState.userHasBid!;
+            }
+
+            return Column(
+              children: [
+                // Submit Bid button for contractors (only if they haven't bid yet)
+                if (isContractor && project.isInBidPhase() && !userHasBid)
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _submitBid(project),
+                          icon: const Icon(Icons.send),
+                          label: const Text('Submit Bid'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.success,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+
+                // Show "Bid Submitted" message if contractor has already bid
+                if (isContractor && project.isInBidPhase() && userHasBid)
+                  Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          color: context.info.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: context.info),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle, color: context.info),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Bid Submitted',
+                              style: TextStyle(
+                                color: context.info,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+
+                // View Bids button for clients
+                if (isClient && project.isInBidPhase())
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _viewBids(project),
+                          icon: const Icon(Icons.visibility),
+                          label: const Text('View Bids'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.colors.primary,
+                            foregroundColor: context.colors.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+
+                // Edit and Share buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _editProject(project),
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Edit'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: context.colors.primary,
+                          side: BorderSide(color: context.colors.primary),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _shareProject(project),
+                        icon: const Icon(Icons.share),
+                        label: const Text('Share'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: context.colors.secondary,
+                          side: BorderSide(color: context.colors.secondary),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _shareProject(project),
-                icon: const Icon(Icons.share),
-                label: const Text('Share'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: context.colors.secondary,
-                  side: BorderSide(color: context.colors.secondary),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -757,10 +838,11 @@ class _ProjectViewPageState extends State<ProjectViewPage> {
     );
   }
 
+  void _submitBid(ProjectModel project) {
+    context.router.push(CreateBidRoute(project: project));
+  }
+
   void _viewBids(ProjectModel project) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('View bids functionality not implemented yet')),
-    );
+    context.router.push(ProjectBidsRoute(project: project));
   }
 }

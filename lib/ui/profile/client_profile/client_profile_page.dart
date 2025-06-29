@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:bidout/constants/app_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -197,7 +198,8 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
                           backgroundColor:
                               context.colors.primary.withOpacity(0.1),
                           backgroundImage: _currentUser?.avatar != null
-                              ? NetworkImage(_currentUser!.avatar!)
+                              ? NetworkImage(
+                                  AppUrls.getAvatarUrl(_currentUser!.avatar!))
                               : null,
                           child: _currentUser?.avatar == null
                               ? Icon(

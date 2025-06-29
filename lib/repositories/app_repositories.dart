@@ -14,6 +14,10 @@ import 'subscription_repo/subscription_repository.dart';
 import 'service_requests_repo/service_requests_provider.dart';
 import 'service_requests_repo/service_requests_repository.dart';
 
+// Bids
+export 'bids_repo/bids_repository.dart';
+export 'bids_repo/bids_provider.dart';
+
 class AppRepositories extends StatelessWidget {
   final FlutterSecureStorage storage;
   final AppBlocs appBlocs;

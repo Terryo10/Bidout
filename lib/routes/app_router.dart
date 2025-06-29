@@ -7,6 +7,8 @@ import '../ui/auth/login_page.dart';
 import '../ui/auth/register_page.dart';
 import '../ui/contractor/contractor_directory_page.dart';
 import '../ui/contractor/profile/contractor_profile_page.dart';
+import '../ui/contractor/bids/contractor_bids_page.dart';
+import '../ui/contractor/bids/create_bid_page.dart';
 import '../ui/dashboards/client_dashboard.dart';
 import '../ui/dashboards/contractor_dashboard_page.dart';
 import '../ui/find_contractors/contractor_detail_page.dart';
@@ -17,6 +19,7 @@ import '../ui/notifications/notifications_page.dart';
 import '../ui/projects/create_project_page.dart';
 import '../ui/projects/project_listing_page.dart';
 import '../ui/projects/project_view_page.dart';
+import '../ui/projects/project_bids_page.dart';
 import '../ui/service_requests/client_service_requests_page.dart';
 import '../ui/service_requests/contractor_service_requests_page.dart';
 import '../ui/subscription/payment_success_screen.dart';
@@ -69,6 +72,16 @@ class AppRouter extends _$AppRouter {
           page: ProjectListingRoute.page,
           path: '/projects',
         ),
+        AutoRoute(
+          page: ProjectBidsRoute.page,
+          path: '/projects/:id/bids',
+        ),
+
+        // Bid routes
+        AutoRoute(
+          page: CreateBidRoute.page,
+          path: '/projects/:id/bid/create',
+        ),
 
         // Find contractors route
         AutoRoute(
@@ -84,6 +97,10 @@ class AppRouter extends _$AppRouter {
         AutoRoute(
           page: ContractorPreviewRoute.page,
           path: '/contractors/:id/preview',
+        ),
+        AutoRoute(
+          page: ContractorBidsRoute.page,
+          path: '/contractor/bids',
         ),
 
         // Notifications route

@@ -18,6 +18,8 @@ import '../repositories/contractor_projects_repo/contractor_projects_repository.
 import '../repositories/contractor_projects_repo/contractor_projects_provider.dart';
 import '../repositories/profile_repo/profile_repository.dart';
 import '../repositories/profile_repo/profile_provider.dart';
+import '../repositories/bids_repo/bids_repository.dart';
+import '../repositories/bids_repo/bids_provider.dart';
 import 'auth_bloc/auth_bloc.dart';
 import 'contractor_projects_bloc/contractor_projects_bloc.dart';
 import 'projects_bloc/project_bloc.dart';
@@ -27,6 +29,7 @@ import 'subscription_bloc/subscription_bloc.dart';
 import 'service_requests_bloc/service_requests_bloc.dart';
 import 'profile_bloc/profile_bloc.dart';
 import 'theme_bloc/theme_bloc.dart';
+import 'bids_bloc/bids_bloc.dart';
 
 class AppBlocs extends StatelessWidget {
   final Widget app;
@@ -77,6 +80,12 @@ class AppBlocs extends StatelessWidget {
           create: (context) => ProfileRepository(
             storage: storage,
             profileProvider: ProfileProvider(storage: storage),
+          ),
+        ),
+        RepositoryProvider<BidsRepository>(
+          create: (context) => BidsRepository(
+            storage: storage,
+            bidsProvider: BidsProvider(storage: storage),
           ),
         ),
       ],
@@ -148,6 +157,11 @@ class AppBlocs extends StatelessWidget {
               bloc.add(LoadTheme());
               return bloc;
             },
+          ),
+          BlocProvider(
+            create: (context) => BidsBloc(
+              bidsRepository: RepositoryProvider.of<BidsRepository>(context),
+            ),
           ),
           // Add other BLoCs here as needed
         ],

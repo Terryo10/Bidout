@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
+import '../../constants/app_theme_extension.dart';
 import '../../models/projects/project_model.dart';
 
 class ContractorProjectCard extends StatelessWidget {
@@ -44,30 +44,22 @@ class ContractorProjectCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        if (project.service != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              project.service!.name,
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                        if (project.service?.name != null)
+                          Text(
+                            project.service!.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 12),
-                  _buildStatusBadge(project.status),
+                  _buildStatusBadge(context, project.status),
                 ],
               ),
               const SizedBox(height: 12),
@@ -76,7 +68,7 @@ class ContractorProjectCard extends StatelessWidget {
               Text(
                 project.description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.textSecondary,
                     ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -93,7 +85,7 @@ class ContractorProjectCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.success.withOpacity(0.1),
+                      color: context.success.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -101,14 +93,14 @@ class ContractorProjectCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.attach_money,
-                          color: AppColors.success,
+                          color: context.success,
                           size: 16,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '\$${project.budget.toStringAsFixed(0)}',
                           style: TextStyle(
-                            color: AppColors.success,
+                            color: context.success,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                           ),
@@ -125,7 +117,7 @@ class ContractorProjectCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.info.withOpacity(0.1),
+                      color: context.info.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -133,14 +125,14 @@ class ContractorProjectCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.schedule,
-                          color: AppColors.info,
+                          color: context.info,
                           size: 16,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           project.frequency,
                           style: TextStyle(
-                            color: AppColors.info,
+                            color: context.info,
                             fontWeight: FontWeight.w500,
                             fontSize: 12,
                           ),
@@ -154,7 +146,7 @@ class ContractorProjectCard extends StatelessWidget {
                   Text(
                     _formatDate(project.createdAt),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textTertiary,
+                          color: context.textTertiary,
                         ),
                   ),
                 ],
@@ -167,14 +159,14 @@ class ContractorProjectCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.location_on,
-                      color: AppColors.textTertiary,
+                      color: context.textSecondary,
                       size: 16,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       _buildLocationText(project),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: context.textSecondary,
                           ),
                     ),
                   ],
@@ -187,14 +179,14 @@ class ContractorProjectCard extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.star,
-                    color: AppColors.warning,
+                    color: context.warning,
                     size: 16,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     'Key Factor: ${_formatKeyFactor(project.keyFactor)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.textSecondary,
                           fontWeight: FontWeight.w500,
                         ),
                   ),
@@ -207,29 +199,29 @@ class ContractorProjectCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(BuildContext context, String status) {
     Color color;
     String label;
     IconData icon;
 
     switch (status.toLowerCase()) {
       case 'request_for_bids_received':
-        color = AppColors.success;
+        color = context.success;
         label = 'Open for Bids';
         icon = Icons.campaign;
         break;
       case 'sourcing_of_vendors':
-        color = AppColors.info;
+        color = context.info;
         label = 'Sourcing';
         icon = Icons.search;
         break;
       case 'bids_ready_for_approval':
-        color = AppColors.warning;
+        color = context.warning;
         label = 'Under Review';
         icon = Icons.rate_review;
         break;
       default:
-        color = AppColors.textTertiary;
+        color = context.textTertiary;
         label = 'Unknown';
         icon = Icons.info;
     }

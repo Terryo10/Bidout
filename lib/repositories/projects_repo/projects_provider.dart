@@ -9,6 +9,7 @@ import '../../constants/app_urls.dart';
 import '../../models/auth/api_error_model.dart';
 import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart' as project;
+import '../../models/projects/project_detail_response_model.dart';
 import '../../models/projects/projects_response_model.dart';
 import '../../models/projects/project_request_model.dart' as request;
 import '../../models/services/service_model.dart' as service;
@@ -92,7 +93,7 @@ class ProjectProvider {
     }
   }
 
-  Future<project.ProjectModel?> getProject(int projectId) async {
+  Future<ProjectDetailResponseModel?> getProject(int projectId) async {
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
@@ -102,7 +103,7 @@ class ProjectProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return project.ProjectModel.fromJson(data['project'] ?? data);
+        return ProjectDetailResponseModel.fromJson(data);
       } else if (response.statusCode == 404) {
         return null;
       } else {

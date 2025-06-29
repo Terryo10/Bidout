@@ -38,13 +38,19 @@ class AppUrls {
   static const String contractorPortfolio = '$apiUrl/contractors/portfolio';
   static const String contractorReviews = '$apiUrl/contractors/reviews';
   static const String contractorServices = '$apiUrl/contractors/services';
+  static const String contractorProjects = '$apiUrl/contractor/projects';
 
   // Bid endpoints
-  static const String bids = '$apiUrl/bids';
-  static const String bidDetails = '$apiUrl/bids/';
-  static const String createBid = '$apiUrl/bids';
-  static const String updateBid = '$apiUrl/bids/';
-  static const String deleteBid = '$apiUrl/bids/';
+  static const String projectBids =
+      '$apiUrl/projects/'; // projects/{project}/bids
+  static const String contractorBids =
+      '$apiUrl/contractor/bids'; // Need to add to backend
+  static const String createBid =
+      '$apiUrl/projects/'; // projects/{project}/bids
+  static const String updateBid =
+      '$apiUrl/projects/'; // projects/{project}/bids/{bid}
+  static const String deleteBid =
+      '$apiUrl/projects/'; // projects/{project}/bids/{bid}
 
   // Service endpoints
   static const String services = '$apiUrl/services';

@@ -6,6 +6,7 @@ import '../../constants/app_urls.dart';
 import '../../models/auth/api_error_model.dart';
 import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart';
+import '../../models/projects/project_detail_response_model.dart';
 import '../../models/projects/projects_response_model.dart';
 
 class ContractorProjectsProvider {
@@ -79,7 +80,7 @@ class ContractorProjectsProvider {
     }
   }
 
-  Future<ProjectModel?> getProject(int projectId) async {
+  Future<ProjectDetailResponseModel?> getProject(int projectId) async {
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
@@ -89,7 +90,7 @@ class ContractorProjectsProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return ProjectModel.fromJson(data['project'] ?? data);
+        return ProjectDetailResponseModel.fromJson(data);
       } else if (response.statusCode == 404) {
         return null;
       } else {

@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart';
+import '../../models/projects/project_detail_response_model.dart';
 import 'contractor_projects_provider.dart';
 
 class ContractorProjectsRepository {
@@ -31,7 +32,7 @@ class ContractorProjectsRepository {
     );
   }
 
-  Future<ProjectModel?> getProject(int projectId) async {
+  Future<ProjectDetailResponseModel?> getProject(int projectId) async {
     return await contractorProjectsProvider.getProject(projectId);
   }
 }

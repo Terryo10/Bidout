@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import '../../models/auth/api_error_model.dart';
 import '../../models/pagination/pagination_model.dart';
 import '../../models/projects/project_model.dart';
+import '../../models/projects/project_detail_response_model.dart';
 import '../../models/projects/project_request_model.dart' as request;
 import '../../repositories/projects_repo/projects_repository.dart';
 
@@ -164,37 +165,16 @@ class ProjectBloc extends Bloc<ProjectEvent, ProjectState> {
     ProjectSingleLoadRequested event,
     Emitter<ProjectState> emit,
   ) async {
-    // If we already have the project loaded in the current state, use it
-    if (state is ProjectLoaded) {
-      final currentState = state as ProjectLoaded;
-      try {
-        final existingProject = currentState.projects.data.firstWhere(
-          (p) => p.id == event.projectId,
-        );
-        emit(currentState.copyWith(selectedProject: existingProject));
-        return;
-      } catch (_) {
-        // Project not found in current state, continue to load it
-      }
-    }
-
     emit(ProjectSingleLoading());
 
     try {
-      final project = await projectRepository.getProject(event.projectId);
-      if (project != null) {
-        // If we have a loaded state, update it with the selected project
-        if (state is ProjectLoaded) {
-          final currentState = state as ProjectLoaded;
-          emit(currentState.copyWith(selectedProject: project));
-        } else {
-          // If we don't have a loaded state, create a new one with just the selected project
-          emit(ProjectLoaded(
-            projects: PaginationModel.empty(),
-            hasReachedMax: true,
-            selectedProject: project,
-          ));
-        }
+      final projectResponse =
+          await projectRepository.getProject(event.projectId);
+      if (projectResponse != null) {
+        emit(ProjectSingleLoaded(
+          project: projectResponse.project,
+          userHasBid: projectResponse.userHasBid,
+        ));
       } else {
         emit(const ProjectError(message: 'Project not found'));
       }

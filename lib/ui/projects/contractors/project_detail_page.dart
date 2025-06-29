@@ -1,8 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../bloc/contractor_projects_bloc/contractor_projects_bloc.dart';
-import '../../../constants/app_colors.dart';
+import '../../../constants/app_theme_extension.dart';
+import '../../../constants/app_urls.dart';
 import '../../../models/projects/project_model.dart';
+import '../../../routes/app_router.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/project_image_carousel.dart';
@@ -32,7 +35,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const CustomAppBar(
         title: 'Project Details',
         showBackButton: true,
@@ -112,7 +115,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               Text(
                 project.service!.name,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
                     ),
               ),
@@ -121,28 +124,28 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               children: [
                 Icon(
                   Icons.attach_money,
-                  color: AppColors.success,
+                  color: context.success,
                   size: 24,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   '\$${project.budget.toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppColors.success,
+                        color: context.success,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
                 const Spacer(),
                 Icon(
                   Icons.schedule,
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                   size: 20,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   project.frequency,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.textSecondary,
                       ),
                 ),
               ],
@@ -155,7 +158,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
   Widget _buildImageCarousel(ProjectModel project) {
     return ProjectImageCarousel(
-      images: project.images.map((img) => img.path).toList(),
+      images:
+          project.images.map((img) => AppUrls.getStorageUrl(img.path)).toList(),
       height: 200,
     );
   }
@@ -243,7 +247,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               children: [
                 Icon(
                   Icons.location_on,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
@@ -301,7 +305,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
             ),
@@ -321,26 +325,89 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   Widget _buildBidButton(ProjectModel project) {
     final canBid = project.isInBidPhase();
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: canBid ? () => _showBidDialog(project) : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+    return BlocBuilder<ContractorProjectsBloc, ContractorProjectsState>(
+      builder: (context, state) {
+        // Check if user has already bid on this project
+        bool userHasBid = false;
+        if (state is ContractorProjectsLoaded && state.userHasBid != null) {
+          userHasBid = state.userHasBid!;
+        }
+
+        if (!canBid) {
+          return SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: context.textSecondary.withOpacity(0.3),
+                foregroundColor: context.textSecondary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Bidding Closed',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+        }
+
+        // If user has already bid, show "Bid Submitted" status
+        if (userHasBid) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              color: context.success.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: context.success),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: context.success),
+                const SizedBox(width: 8),
+                Text(
+                  'Bid Submitted',
+                  style: TextStyle(
+                    color: context.success,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Show submit bid button
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => _showBidDialog(project),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Submit Bid',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-        ),
-        child: Text(
-          canBid ? 'Submit Bid' : 'Bidding Closed',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -352,20 +419,20 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           Icon(
             Icons.error_outline,
             size: 64,
-            color: AppColors.grey400,
+            color: context.textTertiary,
           ),
           const SizedBox(height: 16),
           Text(
             'Error Loading Project',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textTertiary,
+                  color: context.textTertiary,
                 ),
             textAlign: TextAlign.center,
           ),
@@ -399,12 +466,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
 
   void _showBidDialog(ProjectModel project) {
-    // TODO: Implement bid submission dialog
-    // This will be handled by a separate bid submission feature
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bid submission feature coming soon!'),
-      ),
-    );
+    // Navigate to the create bid page
+    context.router.push(CreateBidRoute(project: project));
   }
 }

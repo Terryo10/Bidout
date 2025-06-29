@@ -27,6 +27,12 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const ClientServiceRequestsPage(),
       );
     },
+    ContractorBidsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const ContractorBidsPage(),
+      );
+    },
     ContractorDashboardRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -79,6 +85,16 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const ContractorServiceRequestsPage(),
+      );
+    },
+    CreateBidRoute.name: (routeData) {
+      final args = routeData.argsAs<CreateBidRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: CreateBidPage(
+          key: args.key,
+          project: args.project,
+        ),
       );
     },
     CreateProjectRoute.name: (routeData) {
@@ -148,6 +164,16 @@ abstract class _$AppRouter extends RootStackRouter {
         ),
       );
     },
+    ProjectBidsRoute.name: (routeData) {
+      final args = routeData.argsAs<ProjectBidsRouteArgs>();
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: ProjectBidsPage(
+          key: args.key,
+          project: args.project,
+        ),
+      );
+    },
     ProjectListingRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -198,6 +224,20 @@ class ClientServiceRequestsRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'ClientServiceRequestsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [ContractorBidsPage]
+class ContractorBidsRoute extends PageRouteInfo<void> {
+  const ContractorBidsRoute({List<PageRouteInfo>? children})
+      : super(
+          ContractorBidsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ContractorBidsRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -358,6 +398,44 @@ class ContractorServiceRequestsRoute extends PageRouteInfo<void> {
   static const String name = 'ContractorServiceRequestsRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [CreateBidPage]
+class CreateBidRoute extends PageRouteInfo<CreateBidRouteArgs> {
+  CreateBidRoute({
+    Key? key,
+    required ProjectModel project,
+    List<PageRouteInfo>? children,
+  }) : super(
+          CreateBidRoute.name,
+          args: CreateBidRouteArgs(
+            key: key,
+            project: project,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'CreateBidRoute';
+
+  static const PageInfo<CreateBidRouteArgs> page =
+      PageInfo<CreateBidRouteArgs>(name);
+}
+
+class CreateBidRouteArgs {
+  const CreateBidRouteArgs({
+    this.key,
+    required this.project,
+  });
+
+  final Key? key;
+
+  final ProjectModel project;
+
+  @override
+  String toString() {
+    return 'CreateBidRouteArgs{key: $key, project: $project}';
+  }
 }
 
 /// generated route for
@@ -551,6 +629,44 @@ class PaymentSuccessRouteArgs {
   @override
   String toString() {
     return 'PaymentSuccessRouteArgs{key: $key, type: $type, packageName: $packageName, amount: $amount, bidCount: $bidCount, details: $details}';
+  }
+}
+
+/// generated route for
+/// [ProjectBidsPage]
+class ProjectBidsRoute extends PageRouteInfo<ProjectBidsRouteArgs> {
+  ProjectBidsRoute({
+    Key? key,
+    required ProjectModel project,
+    List<PageRouteInfo>? children,
+  }) : super(
+          ProjectBidsRoute.name,
+          args: ProjectBidsRouteArgs(
+            key: key,
+            project: project,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'ProjectBidsRoute';
+
+  static const PageInfo<ProjectBidsRouteArgs> page =
+      PageInfo<ProjectBidsRouteArgs>(name);
+}
+
+class ProjectBidsRouteArgs {
+  const ProjectBidsRouteArgs({
+    this.key,
+    required this.project,
+  });
+
+  final Key? key;
+
+  final ProjectModel project;
+
+  @override
+  String toString() {
+    return 'ProjectBidsRouteArgs{key: $key, project: $project}';
   }
 }
 

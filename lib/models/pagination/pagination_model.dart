@@ -97,6 +97,40 @@ class PaginationModel<T> {
   bool get isLastPage => currentPage == lastPage;
   bool get isEmpty => data.isEmpty;
   bool get isNotEmpty => data.isNotEmpty;
+
+  PaginationModel<T> copyWith({
+    int? currentPage,
+    List<T>? data,
+    String? firstPageUrl,
+    int? from,
+    int? lastPage,
+    String? lastPageUrl,
+    List<dynamic>? links,
+    String? nextPageUrl,
+    String? path,
+    int? perPage,
+    String? prevPageUrl,
+    int? to,
+    int? total,
+    bool? hasNextPage,
+  }) {
+    return PaginationModel<T>(
+      currentPage: currentPage ?? this.currentPage,
+      data: data ?? this.data,
+      firstPageUrl: firstPageUrl ?? this.firstPageUrl,
+      from: from ?? this.from,
+      lastPage: lastPage ?? this.lastPage,
+      lastPageUrl: lastPageUrl ?? this.lastPageUrl,
+      links: links ?? this.links,
+      nextPageUrl:
+          hasNextPage == false ? null : (nextPageUrl ?? this.nextPageUrl),
+      path: path ?? this.path,
+      perPage: perPage ?? this.perPage,
+      prevPageUrl: prevPageUrl ?? this.prevPageUrl,
+      to: to ?? this.to,
+      total: total ?? this.total,
+    );
+  }
 }
 
 class PaginationLink {

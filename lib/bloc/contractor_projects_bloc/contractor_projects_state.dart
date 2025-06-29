@@ -17,25 +17,30 @@ final class ContractorProjectsLoaded extends ContractorProjectsState {
   final PaginationModel<ProjectModel> projects;
   final bool hasReachedMax;
   final ProjectModel? selectedProject;
+  final bool? userHasBid;
 
   const ContractorProjectsLoaded({
     required this.projects,
     required this.hasReachedMax,
     this.selectedProject,
+    this.userHasBid,
   });
 
   @override
-  List<Object?> get props => [projects, hasReachedMax, selectedProject];
+  List<Object?> get props =>
+      [projects, hasReachedMax, selectedProject, userHasBid];
 
   ContractorProjectsLoaded copyWith({
     PaginationModel<ProjectModel>? projects,
     bool? hasReachedMax,
     ProjectModel? selectedProject,
+    bool? userHasBid,
   }) {
     return ContractorProjectsLoaded(
       projects: projects ?? this.projects,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       selectedProject: selectedProject ?? this.selectedProject,
+      userHasBid: userHasBid ?? this.userHasBid,
     );
   }
 }

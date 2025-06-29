@@ -170,37 +170,31 @@ class ContractorProjectsBloc
     ContractorProjectsSingleLoadRequested event,
     Emitter<ContractorProjectsState> emit,
   ) async {
-    // If we already have the project loaded in the current state, use it
-    if (state is ContractorProjectsLoaded) {
-      final currentState = state as ContractorProjectsLoaded;
-      try {
-        final existingProject = currentState.projects.data.firstWhere(
-          (p) => p.id == event.projectId,
-        );
-        emit(currentState.copyWith(selectedProject: existingProject));
-        return;
-      } catch (_) {
-        // Project not found in current state, continue to load it
-      }
-    }
-
     emit(ContractorProjectsSingleLoading());
 
     try {
-      final project =
+      final projectResponse =
           await contractorProjectsRepository.getProject(event.projectId);
-      if (project != null) {
+      if (projectResponse != null) {
         // If we have a loaded state, update it with the selected project
         if (state is ContractorProjectsLoaded) {
           final currentState = state as ContractorProjectsLoaded;
-          emit(currentState.copyWith(selectedProject: project));
+          final newState = currentState.copyWith(
+            selectedProject: projectResponse.project,
+            userHasBid: projectResponse.userHasBid,
+          );
+
+          emit(newState);
         } else {
           // If we don't have a loaded state, create a new one with just the selected project
-          emit(ContractorProjectsLoaded(
+          final newState = ContractorProjectsLoaded(
             projects: PaginationModel.empty(),
             hasReachedMax: true,
-            selectedProject: project,
-          ));
+            selectedProject: projectResponse.project,
+            userHasBid: projectResponse.userHasBid,
+          );
+
+          emit(newState);
         }
       } else {
         emit(const ContractorProjectsError(message: 'Project not found'));

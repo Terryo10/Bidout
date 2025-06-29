@@ -17,36 +17,45 @@ final class ProjectLoaded extends ProjectState {
   final PaginationModel<ProjectModel> projects;
   final bool hasReachedMax;
   final ProjectModel? selectedProject;
+  final bool? userHasBid;
 
   const ProjectLoaded({
     required this.projects,
     required this.hasReachedMax,
     this.selectedProject,
+    this.userHasBid,
   });
 
   @override
-  List<Object?> get props => [projects, hasReachedMax, selectedProject];
+  List<Object?> get props =>
+      [projects, hasReachedMax, selectedProject, userHasBid];
 
   ProjectLoaded copyWith({
     PaginationModel<ProjectModel>? projects,
     bool? hasReachedMax,
     ProjectModel? selectedProject,
+    bool? userHasBid,
   }) {
     return ProjectLoaded(
       projects: projects ?? this.projects,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       selectedProject: selectedProject ?? this.selectedProject,
+      userHasBid: userHasBid ?? this.userHasBid,
     );
   }
 }
 
 final class ProjectSingleLoaded extends ProjectState {
   final ProjectModel project;
+  final bool? userHasBid;
 
-  const ProjectSingleLoaded({required this.project});
+  const ProjectSingleLoaded({
+    required this.project,
+    this.userHasBid,
+  });
 
   @override
-  List<Object> get props => [project];
+  List<Object?> get props => [project, userHasBid];
 }
 
 final class ProjectCreated extends ProjectState {

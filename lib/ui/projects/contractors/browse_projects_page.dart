@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../bloc/contractor_projects_bloc/contractor_projects_bloc.dart';
-import '../../../constants/app_colors.dart';
+import '../../../constants/app_theme_extension.dart';
 import '../../../models/projects/project_model.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_text_field.dart';
@@ -119,7 +119,7 @@ class _BrowseProjectsPageState extends State<BrowseProjectsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const CustomAppBar(
         title: 'Available Projects',
         showBackButton: true,
@@ -201,10 +201,10 @@ class _BrowseProjectsPageState extends State<BrowseProjectsPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -285,7 +285,7 @@ class _BrowseProjectsPageState extends State<BrowseProjectsPage> {
         labelText: label,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: AppColors.grey300),
+          borderSide: BorderSide(color: context.borderLight),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
@@ -314,14 +314,14 @@ class _BrowseProjectsPageState extends State<BrowseProjectsPage> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.grey300),
+          border: Border.all(color: context.borderLight),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           _selectedSortOrder == 'desc'
               ? Icons.keyboard_arrow_down
               : Icons.keyboard_arrow_up,
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );
@@ -335,20 +335,20 @@ class _BrowseProjectsPageState extends State<BrowseProjectsPage> {
           Icon(
             Icons.error_outline,
             size: 64,
-            color: AppColors.grey400,
+            color: context.textTertiary,
           ),
           const SizedBox(height: 16),
           Text(
             'Something went wrong',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textTertiary,
+                  color: context.textTertiary,
                 ),
             textAlign: TextAlign.center,
           ),

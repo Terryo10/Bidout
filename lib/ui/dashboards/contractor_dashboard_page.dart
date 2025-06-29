@@ -248,7 +248,7 @@ class _ContractorDashboardContent extends StatelessWidget {
                 subtitle: 'View submitted bids',
                 color: context.colors.primary,
                 onTap: () {
-                  // TODO: Navigate to my bids
+                  context.router.push(const ContractorBidsRoute());
                 },
               ),
               ActionCard(
